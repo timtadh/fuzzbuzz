@@ -7,7 +7,11 @@ What?
 -----
 
 An `attribute grammar` fuzzer. It generates new tests cases from an s-attributed
-grammar. 
+grammar.
+
+### Is it good?
+
+I think you are asking the wrong questions.
 
 Attribute Grammars
 ------------------
