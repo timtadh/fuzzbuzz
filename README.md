@@ -70,7 +70,7 @@ attribute grammar will be specified for FuzzBuzz.
 There is an excellent free book available called [Syntax and Semantics of
 Programming Languages](http://www.divms.uiowa.edu/~slonnegr/plf/Book/).
 Chapter 3
-[At tribute Grammars](http://www.divms.uiowa.edu/~slonnegr/plf/Book/Chapter3.pdf) 
+[Attribute Grammars](http://www.divms.uiowa.edu/~slonnegr/plf/Book/Chapter3.pdf) 
 is a great introduction to the subject.
 
 Why Fuzz With Attribute Grammars
