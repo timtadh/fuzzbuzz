@@ -12,6 +12,12 @@ Proposed Grammar For Defining Fuzzer
     Body -> Symbols
           | Symbols ACStmts
 
+    Symbols -> Symbols Symbol
+             | Symbol
+
+    Symbol -> NonTerminal
+            | TERMINAL
+
     ACStmts -> ACStmts ACStmt
             | ACStmt
 
@@ -131,4 +137,5 @@ Tokens
     STRING = "([^"\\]|\\.)*"
     SUBSET = 'subset'
     SUPERSET = 'superset'
+    TERMINAL = [A-Z]+
     WITH = 'with'
