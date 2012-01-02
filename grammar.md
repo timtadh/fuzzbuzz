@@ -16,7 +16,7 @@ ACStmts -> ACStmts ACStmt
          | ACStmt
 
 ACStmt -> WITH ACTION COLON ActionStmts
-       -> WITH CONDITION COLON OrExpr
+        | WITH CONDITION COLON OrExpr
 
 OrExpr -> OrExpr OR AndExpr
         | AndExpr
