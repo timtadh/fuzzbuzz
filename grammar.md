@@ -1,10 +1,7 @@
 Proposed Grammar For Defining Fuzzer
 ====================================
 
-    Production -> NonTerminal ARROW Bodys SEMI
-
-    NonTerminal -> NAME
-                 | NAME LCURLY NUMBER RCURLY
+    Production -> Symbol ARROW Bodys SEMI
 
     Bodys -> Bodys PIPE Body
           | Body
@@ -15,8 +12,8 @@ Proposed Grammar For Defining Fuzzer
     Symbols -> Symbols Symbol
              | Symbol
 
-    Symbol -> NonTerminal
-            | TERMINAL
+    Symbol -> NAME
+            | NAME LCURLY NUMBER RCURLY
 
     ACStmts -> ACStmts ACStmt
             | ACStmt
@@ -101,32 +98,34 @@ Tokens
 ======
 
     ACTION = 'action'
-    AND = '&&'
+    CONDITION = 'condition'
+    ELSE = 'else'
+    IF = 'if'
+    IN = 'in'
+    NOT = 'not'
+    PROPER = 'proper'
+    SUBSET = 'subset'
+    SUPERSET = 'superset'
+    WITH = 'with'
+    
     ARROW = '->'
+    AND = '&&'
     COLON = ':'
     COMMA = ','
-    CONDITION = 'condition'
     DASH = '-'
     DOT = '.'
-    ELSE = 'else'
     EQEQ = '=='
     EQUAL = '='
     GE = '>='
-    IF = 'if'
-    IN = 'in'
     LANGLE = '<'
     LCURLY = '{'
     LE = '<='
     LPAREN = '('
     LSQUARE = '['
-    NAME = [a-zA-Z_][a-zA-Z0-9_]*'?
-    NOT = 'not'
     NQ = '!='
-    NUMBER = [0-9]+
-    OR = 'or'
+    OR = '||'
     PIPE = '|'
     PLUS = '+'
-    PROPER = 'proper'
     RANGLE = '>'
     RCURLY = '}'
     RPAREN = ')'
@@ -134,8 +133,7 @@ Tokens
     SEMI = ';'
     SLASH = '/'
     STAR = '*'
+    
+    NAME = [a-zA-Z_][a-zA-Z0-9_]*'?
+    NUMBER = [0-9]+
     STRING = "([^"\\]|\\.)*"
-    SUBSET = 'subset'
-    SUPERSET = 'superset'
-    TERMINAL = [A-Z]+
-    WITH = 'with'
