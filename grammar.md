@@ -1,92 +1,92 @@
 Proposed Grammar For Defining Fuzzer
 ====================================
 
-Production -> NonTerminal ARROW Bodys SEMI
+    Production -> NonTerminal ARROW Bodys SEMI
 
-NonTerminal -> NAME
-             | NAME LPAREN NUMBER RPAREN
+    NonTerminal -> NAME
+                | NAME LPAREN NUMBER RPAREN
 
-Bodys -> Bodys PIPE Body
-       | Body
+    Bodys -> Bodys PIPE Body
+          | Body
 
-Body -> Symbols
-      | Symbols ACStmts
+    Body -> Symbols
+          | Symbols ACStmts
 
-ACStmts -> ACStmts ACStmt
-         | ACStmt
+    ACStmts -> ACStmts ACStmt
+            | ACStmt
 
-ACStmt -> WITH ACTION COLON ActionStmts
-        | WITH CONDITION COLON OrExpr
+    ACStmt -> WITH ACTION COLON ActionStmts
+            | WITH CONDITION COLON OrExpr
 
-OrExpr -> OrExpr OR AndExpr
-        | AndExpr
+    OrExpr -> OrExpr OR AndExpr
+            | AndExpr
 
-AndExpr -> AndExpr AND NotExpr
-         | NotExpr
+    AndExpr -> AndExpr AND NotExpr
+            | NotExpr
 
-NotExpr -> NOT BooleanExpr
-         | BooleanExpr
+    NotExpr -> NOT BooleanExpr
+            | BooleanExpr
 
-BooleanExpr -> Expr
-             | CmpExpr
-             | LPAREN OrExpr RPAREN
+    BooleanExpr -> Expr
+                | CmpExpr
+                | LPAREN OrExpr RPAREN
 
-CmpExpr -> Expr CmpOp Expr
+    CmpExpr -> Expr CmpOp Expr
 
-CmpOp -> EQEQ
-       | NQ
-       | LANGLE
-       | LE
-       | RANGLE
-       | GE
-       | IN
-       | NOT IN
-       | SUPERSET
-       | SUBSET
-       | PROPER SUPERSET
-       | PROPER SUBSET
+    CmpOp -> EQEQ
+          | NQ
+          | LANGLE
+          | LE
+          | RANGLE
+          | GE
+          | IN
+          | NOT IN
+          | SUPERSET
+          | SUBSET
+          | PROPER SUPERSET
+          | PROPER SUBSET
 
-ActionStmts -> ActionStmts ActionStmt
-             | ActionStmt
+    ActionStmts -> ActionStmts ActionStmt
+                | ActionStmt
 
-ActionStmt -> NAME EQUAL Expr
-            | IF LPAREN OrExpr RPAREN LCURLY ActionStmts RCURLY
-            | IF LPAREN OrExpr RPAREN LCURLY ActionStmts RCURLY ELSE LCURLY ActionStmts RCURLY
+    ActionStmt -> NAME EQUAL Expr
+                | IF LPAREN OrExpr RPAREN LCURLY ActionStmts RCURLY
+                | IF LPAREN OrExpr RPAREN LCURLY ActionStmts RCURLY ELSE LCURLY ActionStmts RCURLY
 
-Expr -> AddSub
+    Expr -> AddSub
 
-AddSub -> AddSub PLUS MulDiv
-        | AddSub DASH MulDiv
-        | MulDiv
-        
-MulDiv -> MulDiv STAR Atomic
-        | MulDiv SLASH Atomic
-        | Atomic
-        
-Atomic -> Value
-        | LPAREN Expr RPAREN
+    AddSub -> AddSub PLUS MulDiv
+            | AddSub DASH MulDiv
+            | MulDiv
 
-Value -> NUMBER
-       | STRING
-       | AttributeValue
+    MulDiv -> MulDiv STAR Atomic
+            | MulDiv SLASH Atomic
+            | Atomic
 
-AttributeValue -> AttributeValue DOT Attr
-                | NAME LCURLY NUMBER RCURLY
-                | Attr
+    Atomic -> Value
+            | LPAREN Expr RPAREN
 
-Attr -> NAME
-      | NAME Call
+    Value -> NUMBER
+          | STRING
+          | AttributeValue
 
-Call -> Call Call_
-      | Call_
+    AttributeValue -> AttributeValue DOT Attr
+                    | NAME LCURLY NUMBER RCURLY
+                    | Attr
 
-Call_ -> Fcall
-       | Dcall
+    Attr -> NAME
+          | NAME Call
 
-Fcall -> LPAREN RPAREN
-       | LPAREN ParameterList RPAREN
+    Call -> Call Call_
+          | Call_
 
-Dcall ->  LSQUARE Value RSQUARE
+    Call_ -> Fcall
+          | Dcall
 
-ParameterList -> ParameterList COMMA Value
-               | Value
+    Fcall -> LPAREN RPAREN
+          | LPAREN ParameterList RPAREN
+
+    Dcall ->  LSQUARE Value RSQUARE
+
+    ParameterList -> ParameterList COMMA Value
+                  | Value
