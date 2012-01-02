@@ -4,7 +4,7 @@ Proposed Grammar For Defining Fuzzer
     Production -> NonTerminal ARROW Bodys SEMI
 
     NonTerminal -> NAME
-                | NAME LPAREN NUMBER RPAREN
+                 | NAME LCURLY NUMBER RCURLY
 
     Bodys -> Bodys PIPE Body
           | Body
@@ -90,3 +90,46 @@ Proposed Grammar For Defining Fuzzer
 
     ParameterList -> ParameterList COMMA Value
                   | Value
+
+Tokens
+======
+
+
+ACTION = 'action'
+AND = '&&'
+ARROW = '->'
+COLON = ':'
+COMMA = ','
+CONDITION = 'condition'
+DASH = '-'
+DOT = '.'
+ELSE = 'else'
+EQEQ = '=='
+EQUAL = '='
+GE = '>='
+IF = 'if'
+IN = 'in'
+LANGLE = '<'
+LCURLY = '{'
+LE = '<='
+LPAREN = '('
+LSQUARE = '['
+NAME = [a-zA-Z_][a-zA-Z0-9_]*'?
+NOT = 'not'
+NQ = '!='
+NUMBER = [0-9]+
+OR = 'or'
+PIPE = '|'
+PLUS = '+'
+PROPER = 'proper'
+RANGLE = '>'
+RCURLY = '}'
+RPAREN = ')'
+RSQUARE = ']'
+SEMI = ';'
+SLASH = '/'
+STAR = '*'
+STRING = "([^"\\]|\\.)*"
+SUBSET = 'subset'
+SUPERSET = 'superset'
+WITH = 'with'
