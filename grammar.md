@@ -1,6 +1,9 @@
 Proposed Grammar For Defining Fuzzer
 ====================================
 
+    Productions -> Productions Production
+                 | Production
+
     Production -> Symbol ARROW Bodys SEMI
 
     Bodys -> Bodys PIPE Body
