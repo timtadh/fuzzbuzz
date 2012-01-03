@@ -15,6 +15,7 @@ class Parser(object):
 
     tokens = tokens
     precedence = (
+        ('left', 'RPAREN'),
     )
 
     def __new__(cls, **kwargs):
@@ -120,7 +121,7 @@ class Parser(object):
         t[0] = t[1]
 
     def p_BooleanExpr1(self, t):
-        'BooleanExpr : Value'
+        'BooleanExpr : Expr'
         t[0] = Node('BooleanCast').addkid(t[1])
 
     def p_BooleanExpr2(self, t):
@@ -132,7 +133,7 @@ class Parser(object):
         t[0] = t[2]
 
     def p_CmpExpr(self, t):
-        'CmpExpr : Value CmpOp Value'
+        'CmpExpr : Expr CmpOp Expr'
         t[0] = Node(t[2]).addkid(t[1]).addkid(t[3])
 
     def p_CmpOp1(self, t):
@@ -162,7 +163,7 @@ class Parser(object):
         t[0] = Node('ActionStmts').addkid(t[1])
 
     def p_ActionStmt1(self, t):
-        'ActionStmt : NAME EQUAL Expr'
+        'ActionStmt : AttributeValue EQUAL Expr'
         t[0] = Node('Assign').addkid(t[1]).addkid(t[3])
 
     def p_ActionStmt2(self, t):
@@ -292,29 +293,7 @@ class Parser(object):
 
 if __name__ == '__main__':
     print Parser().parse('''
-    Stmts{1} -> Stmts{2} Stmt
-        with action:
-          if (Stmt.decl) {
-            Stmts{1}.names = Stmts{2}.names | { stmt.decl }
-          }
-          else {
-            Stmts{1}.names = Stmts{2}.names
-          }
-        with condition:
-          (Stmt.uses is not None && Stmt.uses in Stmts{2}.names) ||
-          (Stmt.decl is not None && Stmt.decl not in Stmts{2}.names)
-      | Stmt
-        with action:
-          if Stmt.Decl is not None:
-            Stmts.names = { stmt.decl }
-          else:
-            Stsms.names = {}
-        with condition:
-          Stmt.uses is None
-      ;
-
-
-    Stmt -> VAR NAME EQUAL NUMBER
+    Stmt{1} -> VAR NAME EQUAL NUMBER
             with action:
               Stmt.decl = NAME.value
               Stmt.uses = None
