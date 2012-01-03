@@ -7,7 +7,7 @@ Proposed Grammar For Defining Fuzzer
     Production -> Symbol ARROW Bodys SEMI
 
     Bodys -> Bodys PIPE Body
-          | Body
+           | Body
 
     Body -> Symbols
           | Symbols ACStmts
@@ -19,38 +19,38 @@ Proposed Grammar For Defining Fuzzer
             | NAME LCURLY NUMBER RCURLY
 
     ACStmts -> ACStmts ACStmt
-            | ACStmt
+             | ACStmt
 
     ACStmt -> WITH ACTION COLON ActionStmts
             | WITH CONDITION COLON OrExpr
 
     OrExpr -> OrExpr OR AndExpr
-            | AndExpr
+             | AndExpr
 
     AndExpr -> AndExpr AND NotExpr
-            | NotExpr
+             | NotExpr
 
     NotExpr -> NOT BooleanExpr
-            | BooleanExpr
+             | BooleanExpr
 
     BooleanExpr -> Expr
-                | CmpExpr
-                | LPAREN OrExpr RPAREN
+                 | CmpExpr
+                 | LPAREN OrExpr RPAREN
 
     CmpExpr -> Expr CmpOp Expr
 
     CmpOp -> EQEQ
-          | NQ
-          | LANGLE
-          | LE
-          | RANGLE
-          | GE
-          | IN
-          | NOT IN
-          | SUPERSET
-          | SUBSET
-          | PROPER SUPERSET
-          | PROPER SUBSET
+           | NQ
+           | LANGLE
+           | LE
+           | RANGLE
+           | GE
+           | IN
+           | NOT IN
+           | SUPERSET
+           | SUBSET
+           | PROPER SUPERSET
+           | PROPER SUBSET
 
     ActionStmts -> ActionStmts ActionStmt
                 | ActionStmt
@@ -73,12 +73,13 @@ Proposed Grammar For Defining Fuzzer
             | LPAREN Expr RPAREN
 
     Value -> NUMBER
-          | STRING
-          | AttributeValue
+           | STRING
+           | AttributeValue
 
     AttributeValue -> AttributeValue DOT Attr
                     | NAME LCURLY NUMBER RCURLY
-                    | Attr
+                    | NAME Call
+                    | NAME
 
     Attr -> NAME
           | NAME Call
@@ -87,15 +88,15 @@ Proposed Grammar For Defining Fuzzer
           | Call_
 
     Call_ -> Fcall
-          | Dcall
+           | Dcall
 
     Fcall -> LPAREN RPAREN
-          | LPAREN ParameterList RPAREN
+           | LPAREN ParameterList RPAREN
 
     Dcall ->  LSQUARE Value RSQUARE
 
     ParameterList -> ParameterList COMMA Value
-                  | Value
+                   | Value
 
 Tokens
 ======

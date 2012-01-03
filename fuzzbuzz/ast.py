@@ -4,16 +4,15 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
-import collections
+import collections, math
 
 def build_tree(gen):
     stack = list()
     root = None
     for children, sym in gen:
-        if not sym.value: node = Node(sym.sym)
-        else: node = Node(sym.value)
-        if not root: root = node
-
+        node = Node(sym)
+        if not root:
+            root = node
         if stack:
             stack[-1]['node'].addkid(node)
             stack[-1]['children'] -= 1
@@ -21,6 +20,8 @@ def build_tree(gen):
                 stack.pop()
         if children:
             stack.append({'node':node, 'children':children})
+    if stack:
+        raise SyntaxError, 'Malformed input'
     return root
 
 class Node(object):
@@ -54,11 +55,26 @@ class Node(object):
             return sum(b in c for c in self.children)
         raise TypeError, "Object %s is not of type str or Node" % repr(b)
 
-    def __eq__(self, b):
+    def __eq__(self, b, tolerance=6):
         if b is None: return False
         if not isinstance(b, Node):
             raise TypeError, "Must compare against type Node"
-        return self.label == b.label
+        mylabels = [n.label for n in self.iter()]
+        theirlabels = [n.label for n in b.iter()]
+        if len(mylabels) != len(theirlabels):
+            return False
+        for a, b in zip(mylabels, theirlabels):
+            if isinstance(a, float) and isinstance(b, float):
+                af, ae = math.frexp(a)
+                bf, be = math.frexp(b)
+                af = round(af, tolerance)
+                bf = round(bf, tolerance)
+                #print af, ae, '\t', bf, be
+                if af != bf or ae != be:
+                    return False
+            elif a != b:
+                return False
+        return True
 
     def __ne__(self, b):
         return not self.__eq__(b)
@@ -101,4 +117,5 @@ class Node(object):
                 queue.append((i, c))
                 i += 1
         return 'digraph G {\n' + '\n'.join(nodes) + '\n' + '\n'.join(edges) + '\n}\n'
+
 
