@@ -6,7 +6,7 @@ Proposed Grammar For Defining Fuzzer
 
     Production -> Symbol ARROW Bodys SEMI
 
-    Bodys -> Bodys PIPE Body
+    Bodys -> Bodys COLON Body
            | Body
 
     Body -> Symbols
@@ -21,13 +21,13 @@ Proposed Grammar For Defining Fuzzer
     ACStmts -> ACStmts ACStmt
              | ACStmt
 
-    ACStmt -> WITH ACTION COLON ActionStmts
-            | WITH CONDITION COLON OrExpr
+    ACStmt -> WITH ACTION LCURLY ActionStmts RCURLY
+            | WITH CONDITION LCURLY OrExpr RCURLY
 
-    OrExpr -> OrExpr OR AndExpr
+    OrExpr -> OrExpr PIPE PIPE AndExpr
              | AndExpr
 
-    AndExpr -> AndExpr AND NotExpr
+    AndExpr -> AndExpr AMPERSTAND AMPERSTAND NotExpr
              | NotExpr
 
     NotExpr -> NOT BooleanExpr
@@ -55,12 +55,16 @@ Proposed Grammar For Defining Fuzzer
     ActionStmts -> ActionStmts ActionStmt
                 | ActionStmt
 
-    ActionStmt -> NAME EQUAL Expr
+    ActionStmt -> AttributeValue EQUAL Expr
                 | IF LPAREN OrExpr RPAREN LCURLY ActionStmts RCURLY
                 | IF LPAREN OrExpr RPAREN LCURLY ActionStmts RCURLY ELSE LCURLY ActionStmts RCURLY
 
-    Expr -> AddSub
+    Expr -> SetOps
 
+    SetOps -> SetOps PIPE AddSub
+            | SetOps AMPERSTAND AddSub
+            | AddSub
+    
     AddSub -> AddSub PLUS MulDiv
             | AddSub DASH MulDiv
             | MulDiv
@@ -74,6 +78,7 @@ Proposed Grammar For Defining Fuzzer
 
     Value -> NUMBER
            | STRING
+           | SetLiteral
            | AttributeValue
 
     AttributeValue -> AttributeValue DOT Attr
@@ -98,6 +103,8 @@ Proposed Grammar For Defining Fuzzer
     ParameterList -> ParameterList COMMA Value
                    | Value
 
+    SetLiteral -> LCURLY ParameterList RCURLY
+
 Tokens
 ======
 
@@ -111,9 +118,10 @@ Tokens
     SUBSET = 'subset'
     SUPERSET = 'superset'
     WITH = 'with'
-    
-    ARROW = '->'
+
+    AMPERSTAND = '&'
     AND = '&&'
+    ARROW = '->'
     COLON = ':'
     COMMA = ','
     DASH = '-'

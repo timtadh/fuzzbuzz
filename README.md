@@ -35,31 +35,31 @@ The grammar is specified informally as I have yet to formally define how the
 attribute grammar will be specified for FuzzBuzz. 
 
     Stmts{1} -> Stmts{2} Stmt
-                with Action:
+                with action:
                   if Stmt.decl is not None:
                     Stmts{1}.names = Stmts{2}.names | { stmt.decl }
                   else:
                     Stmts{1}.names = Stmts{2}.names
-                with Condition:
+                with condition:
                   (Stmt.uses is not None && Stmt.uses in Stmts{2}.names) ||
                   (Stmt.decl is not None && Stmt.decl not in Stmts{2}.names)
               | Stmt
-                with Action:
+                with action:
                   if Stmt.Decl is not None:
                     Stmts.names = { stmt.decl }
                   else:
                     Stsms.names = {}
-                with Condition:
+                with condition:
                   Stmt.uses is None
               ;
   
 
     Stmt -> VAR NAME EQUAL NUMBER
-            with Action:
+            with action:
               Stmt.decl = NAME.value
               Stmt.uses = None
           | PRINT NAME
-            with Action:
+            with action:
               Stmt.decl = None
               Stmt.uses = NAME.value
           ;

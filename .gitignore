@@ -5,3 +5,5 @@ env
 *.coverage
 parser.out
 *tab.py
+*.png
+

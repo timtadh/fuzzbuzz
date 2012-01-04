@@ -15,6 +15,7 @@ class Parser(object):
 
     tokens = tokens
     precedence = (
+        #('left', 'LCURLY'),
         ('left', 'RPAREN'),
     )
 
@@ -49,7 +50,7 @@ class Parser(object):
         t[0] = Node('Production').addkid(t[1]).addkid(t[3])
 
     def p_Bodys1(self, t):
-        'Bodys : Bodys PIPE Body'
+        'Bodys : Bodys COLON Body'
         t[0] = t[1].addkid(t[3])
 
     def p_Bodys2(self, t):
@@ -89,11 +90,11 @@ class Parser(object):
         t[0] = Node('ACStmts').addkid(t[1])
 
     def p_ACStmt1(self, t):
-        'ACStmt : WITH ACTION COLON ActionStmts'
+        'ACStmt : WITH ACTION LCURLY ActionStmts RCURLY'
         t[0] = Node('Action').addkid(t[4])
 
     def p_ACStmt2(self, t):
-        'ACStmt : WITH CONDITION COLON OrExpr'
+        'ACStmt : WITH CONDITION LCURLY OrExpr RCURLY'
         t[0] = Node('Condition').addkid(t[4])
 
     def p_OrExpr1(self, t):
@@ -175,9 +176,21 @@ class Parser(object):
         t[0] = Node('If').addkid(t[3]).addkid(t[10])
 
     def p_Expr(self, t):
-        'Expr : AddSub'
+        'Expr : SetOps'
         t[0] = t[1]
 
+    def p_SetOps1(self, t):
+        'SetOps : SetOps PIPE AddSub'
+        t[0] = Node('|').addkid(t[1]).addkid(t[3])
+    
+    def p_SetOps2(self, t):
+        'SetOps : SetOps AMPERSTAND AddSub'
+        t[0] = Node('&').addkid(t[1]).addkid(t[3])
+    
+    def p_SetOps3(self, t):
+        'SetOps : AddSub'
+        t[0] = t[1]
+    
     def p_AddSub1(self, t):
         'AddSub : AddSub PLUS MulDiv'
         t[0] = Node('+').addkid(t[1]).addkid(t[3])
@@ -219,6 +232,10 @@ class Parser(object):
         t[0] = t[1]
 
     def p_Value3(self, t):
+        'Value : SetLiteral'
+        t[0] = t[1]
+    
+    def p_Value4(self, t):
         'Value : AttributeValue'
         t[0] = t[1]
 
@@ -288,18 +305,49 @@ class Parser(object):
         'ParameterList : Value'
         t[0] = [t[1]]
 
+    def p_SetLiteral(self, t):
+        'SetLiteral : LCURLY ParameterList RCURLY'
+        t[0] = t[1]
+
     def p_error(self, t):
         raise SyntaxError, "Syntax error at '%s', %s.%s" % (t,t.lineno,t.lexpos)
 
 if __name__ == '__main__':
     print Parser().parse('''
+    Stmts{1} -> Stmts{2} Stmt
+                with action {
+                  if (Stmt.decl) {
+                    Stmts{1}.names = Stmts{2}.names | { stmt.decl }
+                  }
+                  else {
+                    Stmts{1}.names = Stmts{2}.names
+                  }
+                }
+                with condition {
+                  (Stmt.uses && Stmt.uses in Stmts{2}.names) ||
+                  (Stmt.decl && Stmt.decl not in Stmts{2}.names)
+                }
+              | Stmt
+                with action {
+                  if Stmt.Decl is not None:
+                    Stmts.names = { stmt.decl }
+                  else:
+                    Stsms.names = {}
+                  }
+                with condition {
+                  Stmt.uses is None
+                }
+              ;
+    
     Stmt{1} -> VAR NAME EQUAL NUMBER
-            with action:
+            with action {
               Stmt.decl = NAME.value
               Stmt.uses = None
+            }
           | PRINT NAME
-            with action:
+            with action {
               Stmt.decl = None
               Stmt.uses = NAME.value
+            }
           ;
     ''', lexer=Lexer()).dotty()
