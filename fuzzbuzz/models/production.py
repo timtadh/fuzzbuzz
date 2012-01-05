@@ -4,14 +4,6 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
-class Grammar(object):
-
-    def __init__(self):
-        self.rules = list()
-
-    def addrule(self, rule):
-        self.rules.append(rule)
-
 class Production(object):
 
     def __init__(self, name, pattern, action, condition):

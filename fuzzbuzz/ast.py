@@ -117,5 +117,3 @@ class Node(object):
                 queue.append((i, c))
                 i += 1
         return 'digraph G {\n' + '\n'.join(nodes) + '\n' + '\n'.join(edges) + '\n}\n'
-
-
