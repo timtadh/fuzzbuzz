@@ -50,7 +50,7 @@ class Parser(object):
         t[0] = Node('Production').addkid(t[1]).addkid(t[3])
 
     def p_Bodys1(self, t):
-        'Bodys : Bodys COLON Body'
+        'Bodys : Bodys PIPE Body'
         t[0] = t[1].addkid(t[3])
 
     def p_Bodys2(self, t):
@@ -75,7 +75,7 @@ class Parser(object):
 
     def p_Symbol1(self, t):
         'Symbol : NAME'
-        t[0] = Node('Symbol').addkid(t[1])
+        t[0] = Node('Symbol').addkid(t[1]).addkid(1)
         
     def p_Symbol2(self, t):
         'Symbol : NAME LCURLY NUMBER RCURLY'
@@ -232,10 +232,14 @@ class Parser(object):
         t[0] = t[1]
 
     def p_Value3(self, t):
+        'Value : NONE'
+        t[0] = t[1]
+
+    def p_Value4(self, t):
         'Value : SetLiteral'
         t[0] = t[1]
     
-    def p_Value4(self, t):
+    def p_Value5(self, t):
         'Value : AttributeValue'
         t[0] = t[1]
 
@@ -305,9 +309,13 @@ class Parser(object):
         'ParameterList : Value'
         t[0] = [t[1]]
 
-    def p_SetLiteral(self, t):
+    def p_SetLiteral1(self, t):
         'SetLiteral : LCURLY ParameterList RCURLY'
         t[0] = t[1]
+    
+    def p_SetLiteral2(self, t):
+        'SetLiteral : LCURLY RCURLY'
+        t[0] = list()
 
     def p_error(self, t):
         raise SyntaxError, "Syntax error at '%s', %s.%s" % (t,t.lineno,t.lexpos)
@@ -315,7 +323,7 @@ class Parser(object):
 if __name__ == '__main__':
     print Parser().parse('''
     Stmts{1} -> Stmts{2} Stmt
-                with action {
+                with Action {
                   if (Stmt.decl) {
                     Stmts{1}.names = Stmts{2}.names | { stmt.decl }
                   }
@@ -323,29 +331,31 @@ if __name__ == '__main__':
                     Stmts{1}.names = Stmts{2}.names
                   }
                 }
-                with condition {
+                with Condition {
                   (Stmt.uses && Stmt.uses in Stmts{2}.names) ||
                   (Stmt.decl && Stmt.decl not in Stmts{2}.names)
                 }
               | Stmt
-                with action {
-                  if Stmt.Decl is not None:
+                with Action {
+                  if (Stmt.Decl) {
                     Stmts.names = { stmt.decl }
-                  else:
+                  }
+                  else {
                     Stsms.names = {}
                   }
-                with condition {
-                  Stmt.uses is None
+                }
+                with Condition {
+                  Stmt.uses == None
                 }
               ;
     
     Stmt{1} -> VAR NAME EQUAL NUMBER
-            with action {
+            with Action {
               Stmt.decl = NAME.value
               Stmt.uses = None
             }
           | PRINT NAME
-            with action {
+            with Action {
               Stmt.decl = None
               Stmt.uses = NAME.value
             }

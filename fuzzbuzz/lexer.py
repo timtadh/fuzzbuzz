@@ -8,14 +8,14 @@ from ply import lex
 from ply.lex import Token
 
 reserved = dict(
-    (word.lower(), word.upper()) for word in (
-        'action', 'condition', 'else', 'if', 'in', 'not', 'proper', 'subset',
-        'superset', 'with',
+    (word, word.upper()) for word in (
+        'Action', 'Condition', 'else', 'if', 'in', 'not', 'proper', 'subset',
+        'superset', 'with', 'None'
     )
 )
 
 tokens = reserved.values() + [
-    'ARROW', 'AND', 'COLON', 'COMMA', 'DASH', 'DOT', 'EQEQ', 'EQUAL', 'GE',
+    'ARROW', 'AND', 'COMMA', 'DASH', 'DOT', 'EQEQ', 'EQUAL', 'GE',
     'LANGLE', 'LCURLY', 'LE', 'LPAREN', 'LSQUARE', 'NQ', 'OR', 'PIPE', 'PLUS',
     'RANGLE', 'RCURLY', 'RPAREN', 'RSQUARE', 'SEMI', 'SLASH', 'STAR', 'STRING',
     'NAME', 'NUMBER', 'AMPERSTAND',
@@ -41,10 +41,10 @@ class Lexer(object):
 
     tokens = tokens
 
+    t_AND = r'&&'
     t_AMPERSTAND = r'&'
-    #t_AND = r'&&'
     t_ARROW = r'->'
-    t_COLON = r':'
+    #t_COLON = r':'
     t_COMMA = r','
     t_DASH = r'-'
     t_DOT = r'\.'
@@ -57,7 +57,7 @@ class Lexer(object):
     t_LPAREN = r'\('
     t_LSQUARE = r'\['
     t_NQ = r'!='
-    #t_OR = r'\|\|'
+    t_OR = r'\|\|'
     t_PIPE = r'\|'
     t_PLUS = r'\+'
     t_RANGLE = r'>'
@@ -115,35 +115,8 @@ class Lexer(object):
 if __name__ == '__main__':
     lexer = Lexer()
     lexer.input('''
-     Stmts{1} -> Stmts{2} Stmt
-                with Action:
-                  if Stmt.decl is not None:
-                    Stmts{1}.names = Stmts{2}.names | { stmt.decl }
-                  else:
-                    Stmts{1}.names = Stmts{2}.names
-                with Condition:
-                  (Stmt.uses is not None && Stmt.uses in Stmts{2}.names) ||
-                  (Stmt.decl is not None && Stmt.decl not in Stmts{2}.names)
-              | Stmt
-                with Action:
-                  if Stmt.Decl is not None:
-                    Stmts.names = { stmt.decl }
-                  else:
-                    Stsms.names = {}
-                with Condition:
-                  Stmt.uses is None
-              ;
-
-
-    Stmt -> VAR NAME EQUAL NUMBER
-            with Action:
-              Stmt.decl = NAME.value
-              Stmt.uses = None
-          | PRINT NAME
-            with Action:
-              Stmt.decl = None
-              Stmt.uses = NAME.value
-          ;
+                  (Stmt.uses && Stmt.uses in Stmts{2}.names) ||
+                  (Stmt.decl && Stmt.decl not in Stmts{2}.names)
     ''')
     for s in [x for x in lexer]:
         print s
