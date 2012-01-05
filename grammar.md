@@ -6,7 +6,7 @@ Proposed Grammar For Defining Fuzzer
 
     Production -> Symbol ARROW Bodys SEMI
 
-    Bodys -> Bodys COLON Body
+    Bodys -> Bodys PIPE Body
            | Body
 
     Body -> Symbols
@@ -78,6 +78,7 @@ Proposed Grammar For Defining Fuzzer
 
     Value -> NUMBER
            | STRING
+           | NONE
            | SetLiteral
            | AttributeValue
 
@@ -104,6 +105,7 @@ Proposed Grammar For Defining Fuzzer
                    | Value
 
     SetLiteral -> LCURLY ParameterList RCURLY
+                | LCURLY RCURLY
 
 Tokens
 ======
