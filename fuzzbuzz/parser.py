@@ -5,8 +5,10 @@
 #For licensing see the LICENSE file in the top level directory.
 
 from ply import yacc
+
 from lexer import tokens, Lexer
 from ast import Node
+from models.production import mkprods
 
 ## If you are confused about the syntax in this file I recommend reading the
 ## documentation on the PLY website to see how this compiler compiler's syntax
@@ -56,6 +58,7 @@ class Parser(object):
                 count = names.get(kid.children[0], 1)
                 kid.addkid(count)
                 names[kid.children[0]] = count + 1
+        mkprods(t[0])
 
     def p_Bodys1(self, t):
         'Bodys : Bodys PIPE Body'
@@ -317,11 +320,11 @@ class Parser(object):
 
     def p_SetLiteral1(self, t):
         'SetLiteral : LCURLY ParameterList RCURLY'
-        t[0] = t[1]
+        t[0] = Node('SetLiteral', children=t[2])
     
     def p_SetLiteral2(self, t):
         'SetLiteral : LCURLY RCURLY'
-        t[0] = list()
+        t[0] = Node('SetLiteral')
 
     def p_error(self, t):
         raise SyntaxError, "Syntax error at '%s', %s.%s" % (t,t.lineno,t.lexpos)
@@ -362,4 +365,4 @@ if __name__ == '__main__':
             }
           ;
     ''', lexer=Lexer())
-    print tree.dotty()
+    #print tree.dotty()
