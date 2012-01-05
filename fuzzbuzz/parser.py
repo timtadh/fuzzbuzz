@@ -323,8 +323,7 @@ class Parser(object):
         raise SyntaxError, "Syntax error at '%s', %s.%s" % (t,t.lineno,t.lexpos)
 
 if __name__ == '__main__':
-    print Parser().parse('''
-    Stmts{1} -> Stmts{2} Stmt
+    print Parser().parse('''Stmts{1} -> Stmts{2} Stmt
                 with Action {
                   if (Stmt.decl is not None) {
                     Stmts{1}.names = Stmts{2}.names | { stmt.decl }
@@ -334,23 +333,18 @@ if __name__ == '__main__':
                   }
                 }
                 with Condition {
-                  (Stmt.uses && Stmt.uses in Stmts{2}.names) ||
-                  (Stmt.decl && Stmt.decl not in Stmts{2}.names)
+                  (Stmt.uses is not None && Stmt.uses in Stmts{2}.names) ||
+                  (Stmt.decl is not None && Stmt.decl not in Stmts{2}.names)
                 }
               | Stmt
                 with Action {
-                  if (Stmt.Decl is not None) {
-                    Stmts.names = { stmt.decl }
-                  }
-                  else {
-                    Stsms.names = {}
-                  }
+                  Stmts{1}.names = { stmt.decl }
                 }
                 with Condition {
                   Stmt.uses is None
                 }
               ;
-    
+
     Stmt{1} -> VAR NAME EQUAL NUMBER
             with Action {
               Stmt.decl = NAME.value

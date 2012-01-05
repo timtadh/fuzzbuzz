@@ -34,34 +34,48 @@ This grammar only parses examples which declare names before they use names.
 The grammar is specified informally as I have yet to formally define how the
 attribute grammar will be specified for FuzzBuzz. 
 
-    Stmts{1} -> Stmts{2} Stmt
-                with action:
-                  if Stmt.decl is not None:
-                    Stmts{1}.names = Stmts{2}.names | { stmt.decl }
-                  else:
-                    Stmts{1}.names = Stmts{2}.names
-                with condition:
-                  (Stmt.uses is not None && Stmt.uses in Stmts{2}.names) ||
-                  (Stmt.decl is not None && Stmt.decl not in Stmts{2}.names)
-              | Stmt
-                with action:
-                  if Stmt.Decl is not None:
-                    Stmts.names = { stmt.decl }
-                  else:
-                    Stsms.names = {}
-                with condition:
-                  Stmt.uses is None
-              ;
-  
+The Context Free Version:
+
+    Stmts -> Stmts Stmt
+          | Stmt
 
     Stmt -> VAR NAME EQUAL NUMBER
-            with action:
+          | PRINT NAME
+
+The Attributed Version:
+
+    Stmts{1} -> Stmts{2} Stmt
+                with Action {
+                  if (Stmt.decl is not None) {
+                    Stmts{1}.names = Stmts{2}.names | { stmt.decl }
+                  }
+                  else {
+                    Stmts{1}.names = Stmts{2}.names
+                  }
+                }
+                with Condition {
+                  (Stmt.uses is not None && Stmt.uses in Stmts{2}.names) ||
+                  (Stmt.decl is not None && Stmt.decl not in Stmts{2}.names)
+                }
+              | Stmt
+                with Action {
+                  Stmts{1}.names = { stmt.decl }
+                }
+                with Condition {
+                  Stmt.uses is None
+                }
+              ;
+
+    Stmt{1} -> VAR NAME EQUAL NUMBER
+            with Action {
               Stmt.decl = NAME.value
               Stmt.uses = None
+            }
           | PRINT NAME
-            with action:
+            with Action {
               Stmt.decl = None
               Stmt.uses = NAME.value
+            }
           ;
 
     VAR = "var", PRINT = "print", EQUAL = "=", NAME = "[A-Za-z][A-Za-z0-9_]*",
