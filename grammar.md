@@ -16,7 +16,6 @@ Proposed Grammar For Defining Fuzzer
              | Symbol
 
     Symbol -> NAME
-            | NAME LCURLY NUMBER RCURLY
 
     ACStmts -> ACStmts ACStmt
              | ACStmt

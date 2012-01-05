@@ -48,6 +48,14 @@ class Parser(object):
     def p_Production(self, t):
         'Production : Symbol ARROW Bodys SEMI'
         t[0] = Node('Production').addkid(t[1]).addkid(t[3])
+        t[1].addkid(1)
+        for body in t[3].children:
+            names = {t[1].children[0]:2}
+            for kid in body.children[0].children:
+                #print kid.children[0], names
+                count = names.get(kid.children[0], 1)
+                kid.addkid(count)
+                names[kid.children[0]] = count + 1
 
     def p_Bodys1(self, t):
         'Bodys : Bodys PIPE Body'
@@ -75,11 +83,7 @@ class Parser(object):
 
     def p_Symbol1(self, t):
         'Symbol : NAME'
-        t[0] = Node('Symbol').addkid(t[1]).addkid(1)
-        
-    def p_Symbol2(self, t):
-        'Symbol : NAME LCURLY NUMBER RCURLY'
-        t[0] = Node('Symbol').addkid(t[1]).addkid(t[3])
+        t[0] = Node('Symbol').addkid(t[1])
 
     def p_ACStmts1(self, t):
         'ACStmts : ACStmts ACStmt'
@@ -114,7 +118,7 @@ class Parser(object):
         t[0] = t[1]
 
     def p_NotExpr1(self, t):
-        'NotExpr : NOT BooleanExpr'
+        'NotExpr : BANG BooleanExpr'
         t[0] = Node('Not').addkid(t[2])
 
     def p_NotExpr2(self, t):
@@ -323,8 +327,8 @@ class Parser(object):
         raise SyntaxError, "Syntax error at '%s', %s.%s" % (t,t.lineno,t.lexpos)
 
 if __name__ == '__main__':
-    print Parser().parse('''
-    Stmts{1} -> Stmts{2} Stmt
+    tree = Parser().parse('''
+    Stmts -> Stmts Stmt
                 with Action {
                   if (Stmt.decl is not None) {
                     Stmts{1}.names = Stmts{2}.names | { stmt.decl }
@@ -346,7 +350,7 @@ if __name__ == '__main__':
                 }
               ;
 
-    Stmt{1} -> VAR NAME EQUAL NUMBER
+    Stmt -> VAR NAME EQUAL NUMBER
             with Action {
               Stmt.decl = NAME.value
               Stmt.uses = None
@@ -357,4 +361,5 @@ if __name__ == '__main__':
               Stmt.uses = NAME.value
             }
           ;
-    ''', lexer=Lexer()).dotty()
+    ''', lexer=Lexer())
+    print tree.dotty()

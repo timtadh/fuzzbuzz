@@ -18,7 +18,7 @@ tokens = reserved.values() + [
     'ARROW', 'AND', 'COMMA', 'DASH', 'DOT', 'EQEQ', 'EQUAL', 'GE',
     'LANGLE', 'LCURLY', 'LE', 'LPAREN', 'LSQUARE', 'NQ', 'OR', 'PIPE', 'PLUS',
     'RANGLE', 'RCURLY', 'RPAREN', 'RSQUARE', 'SEMI', 'SLASH', 'STAR', 'STRING',
-    'NAME', 'NUMBER', 'AMPERSTAND',
+    'NAME', 'NUMBER', 'AMPERSTAND', 'BANG',
 ]
 
 # Common Regex Parts
@@ -44,6 +44,7 @@ class Lexer(object):
     t_AND = r'&&'
     t_AMPERSTAND = r'&'
     t_ARROW = r'->'
+    t_BANG = r'!'
     #t_COLON = r':'
     t_COMMA = r','
     t_DASH = r'-'

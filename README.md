@@ -62,7 +62,8 @@ grammar symbols hold values assigned by actions. Conditions only allow a grammar
 rule to apply if the condition evaluates to true. Conditions generally make use
 of the values of attributes which were assigned by previous actions.
 
-    Stmts{1} -> Stmts{2} Stmt
+
+    Stmts -> Stmts Stmt
                 with Action {
                   if (Stmt.decl is not None) {
                     Stmts{1}.names = Stmts{2}.names | { stmt.decl }
@@ -84,7 +85,7 @@ of the values of attributes which were assigned by previous actions.
                 }
               ;
 
-    Stmt{1} -> VAR NAME EQUAL NUMBER
+    Stmt -> VAR NAME EQUAL NUMBER
             with Action {
               Stmt.decl = NAME.value
               Stmt.uses = None
