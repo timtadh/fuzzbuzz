@@ -29,7 +29,7 @@ Proposed Grammar For Defining Fuzzer
     AndExpr -> AndExpr AMPERSTAND AMPERSTAND NotExpr
              | NotExpr
 
-    NotExpr -> NOT BooleanExpr
+    NotExpr -> BANG BooleanExpr
              | BooleanExpr
 
     BooleanExpr -> Expr
@@ -125,6 +125,7 @@ Tokens
     AMPERSTAND = '&'
     AND = '&&'
     ARROW = '->'
+    BANG = '!'
     COLON = ':'
     COMMA = ','
     DASH = '-'
