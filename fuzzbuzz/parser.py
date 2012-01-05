@@ -323,7 +323,8 @@ class Parser(object):
         raise SyntaxError, "Syntax error at '%s', %s.%s" % (t,t.lineno,t.lexpos)
 
 if __name__ == '__main__':
-    print Parser().parse('''Stmts{1} -> Stmts{2} Stmt
+    print Parser().parse('''
+    Stmts{1} -> Stmts{2} Stmt
                 with Action {
                   if (Stmt.decl is not None) {
                     Stmts{1}.names = Stmts{2}.names | { stmt.decl }
