@@ -111,11 +111,13 @@ Proposed Grammar For Defining Fuzzer
 Tokens
 ======
 
-    ACTION = 'action'
-    CONDITION = 'condition'
+    ACTION = 'Action'
+    CONDITION = 'Condition'
     ELSE = 'else'
     IF = 'if'
     IN = 'in'
+    IS = 'is'
+    NONE = 'None'
     NOT = 'not'
     PROPER = 'proper'
     SUBSET = 'subset'
