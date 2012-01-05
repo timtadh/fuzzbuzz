@@ -10,7 +10,7 @@ from ply.lex import Token
 reserved = dict(
     (word, word.upper()) for word in (
         'Action', 'Condition', 'else', 'if', 'in', 'not', 'proper', 'subset',
-        'superset', 'with', 'None'
+        'superset', 'with', 'None', 'is',
     )
 )
 

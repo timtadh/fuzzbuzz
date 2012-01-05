@@ -135,7 +135,7 @@ class Parser(object):
 
     def p_CmpExpr(self, t):
         'CmpExpr : Expr CmpOp Expr'
-        t[0] = Node(t[2]).addkid(t[1]).addkid(t[3])
+        t[0] = t[2].addkid(t[1]).addkid(t[3])
 
     def p_CmpOp1(self, t):
         '''CmpOp : EQEQ
@@ -145,14 +145,16 @@ class Parser(object):
                  | RANGLE
                  | GE
                  | IN
-                 | NOT IN
+                 | IS
                  | SUPERSET
                  | SUBSET'''
         t[0] = Node(t[1])
 
     def p_CmpOp2(self, t):
         '''CmpOp : PROPER SUPERSET
-                 | PROPER SUBSET'''
+                 | PROPER SUBSET
+                 | NOT IN
+                 | IS NOT'''
         t[0] = Node(t[1] + ' ' + t[2])
 
     def p_ActionStmts1(self, t):
@@ -324,7 +326,7 @@ if __name__ == '__main__':
     print Parser().parse('''
     Stmts{1} -> Stmts{2} Stmt
                 with Action {
-                  if (Stmt.decl) {
+                  if (Stmt.decl is not None) {
                     Stmts{1}.names = Stmts{2}.names | { stmt.decl }
                   }
                   else {
@@ -337,7 +339,7 @@ if __name__ == '__main__':
                 }
               | Stmt
                 with Action {
-                  if (Stmt.Decl) {
+                  if (Stmt.Decl is not None) {
                     Stmts.names = { stmt.decl }
                   }
                   else {
@@ -345,7 +347,7 @@ if __name__ == '__main__':
                   }
                 }
                 with Condition {
-                  Stmt.uses == None
+                  Stmt.uses is None
                 }
               ;
     

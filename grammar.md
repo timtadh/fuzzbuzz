@@ -45,6 +45,8 @@ Proposed Grammar For Defining Fuzzer
            | LE
            | RANGLE
            | GE
+           | IS
+           | IS NOT
            | IN
            | NOT IN
            | SUPERSET
