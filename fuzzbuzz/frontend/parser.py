@@ -8,7 +8,8 @@ from ply import yacc
 
 from lexer import tokens, Lexer
 from ast import Node
-from models.production import mkprods
+from models.grammar import Grammar
+from models.rule import mkrules
 
 ## If you are confused about the syntax in this file I recommend reading the
 ## documentation on the PLY website to see how this compiler compiler's syntax
@@ -37,20 +38,24 @@ class Parser(object):
 
     def p_Start(self, t):
         'Start : Productions'
-        t[0] = t[1]
+        t[0] = (t[1]['node'], Grammar(t[1]['rules']))
 
     def p_Productions1(self, t):
         'Productions : Productions Production'
-        t[0] = t[1].addkid(t[2])
+        node = t[1]['node'].addkid(t[2]['node'])
+        rules = t[1]['rules'] + t[2]['rules']
+        t[0] = {'node':node, 'rules':rules}
+        
     
     def p_Productions2(self, t):
         'Productions : Production'
-        t[0] = Node('Productions').addkid(t[1])
+        node = Node('Productions').addkid(t[1]['node'])
+        t[0] = {'node':node, 'rules':t[1]['rules']}
 
     def p_Production(self, t):
         'Production : Symbol ARROW Bodys SEMI'
-        t[0] = Node('Production').addkid(t[1]).addkid(t[3])
         t[1].addkid(1)
+        node = Node('Production').addkid(t[1]).addkid(t[3])
         for body in t[3].children:
             names = {t[1].children[0]:2}
             for kid in body.children[0].children:
@@ -58,7 +63,7 @@ class Parser(object):
                 count = names.get(kid.children[0], 1)
                 kid.addkid(count)
                 names[kid.children[0]] = count + 1
-        mkprods(t[0])
+        t[0] = {'node':node, 'rules':mkrules(node)}
 
     def p_Bodys1(self, t):
         'Bodys : Bodys PIPE Body'
@@ -329,8 +334,11 @@ class Parser(object):
     def p_error(self, t):
         raise SyntaxError, "Syntax error at '%s', %s.%s" % (t,t.lineno,t.lexpos)
 
+def parse(string):
+    return Parser().parse(string, lexer=Lexer())
+
 if __name__ == '__main__':
-    tree = Parser().parse('''
+    tree = parse('''
     Stmts -> Stmts Stmt
                 with Action {
                   if (Stmt.decl is not None) {
@@ -364,5 +372,5 @@ if __name__ == '__main__':
               Stmt.uses = NAME.value
             }
           ;
-    ''', lexer=Lexer())
+    ''')
     #print tree.dotty()

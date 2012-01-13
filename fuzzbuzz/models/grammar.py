@@ -6,8 +6,13 @@
 
 class Grammar(object):
 
-    def __init__(self):
-        self.rules = list()
+    def __init__(self, rules):
+        self.rules = rules
 
-    def addrule(self, rule):
-        self.rules.append(rule)
+    def __str__(self):
+        return super(Grammar, self).__str__()[:-1] + ' ' + str(self.rules) + '>'
+
+class NonTerminal(object):
+
+    def __init__(self, rules):
+        pass

@@ -4,7 +4,7 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
-class Production(object):
+class Rule(object):
 
     def __init__(self, name, pattern, action, condition):
         self.name = name
@@ -15,7 +15,7 @@ class Production(object):
     def __repr__(self): return str(self)
     def __str__(self):
         return (
-            '<Production "%s -> %s"%s%s%s>'
+            '<Rule "%s -> %s"%s%s%s>'
         ) % (
           self.name,
           ' '.join(sym[0] for sym in self.pattern),
@@ -24,13 +24,13 @@ class Production(object):
           ' with condition' if self.condition is not None else ''
         )
 
-def mkprods(node):
+def mkrules(node):
     def sym_name(node): return node.children[0]
     def sym_num(node): return node.children[1]
-    productions = list()
+    rules = list()
     name = sym_name(node.children[0])
     bodys = node.children[1]
-    print name
+    #print name
     for body in bodys.children:
         pattern = body.children[0]
         pattern = [(sym_name(sym), sym_num(sym)) for sym in pattern.children]
@@ -45,7 +45,7 @@ def mkprods(node):
                     condition = ACStmt
                 else:
                     raise Exception, 'Unexpected type %s' % (type,)
-        productions.append(Production(name, pattern, action, condition))
-    print productions
-    print
-    return productions
+        rules.append(Rule(name, pattern, action, condition))
+    #print productions
+    #print
+    return rules
