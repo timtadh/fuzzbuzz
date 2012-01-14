@@ -4,6 +4,8 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
+from nonterminal import NonTerminal
+
 class Grammar(object):
 
     def __init__(self, rules):
@@ -13,20 +15,22 @@ class Grammar(object):
             nt = self.symbols.get(rule.name, NonTerminal(rule.name))
             nt.addrule(rule)
             self.symbols[rule.name] = nt
-        print self.symbols
+        #print self.symbols
+        for rule in self.rules:
+            for i, tup in enumerate(rule.pattern):
+                sym, cnt = tup
+                if sym not in self.symbols: continue
+                rule.pattern[i] = (self.symbols[sym], cnt)
+        for rule in self.rules:
+            print rule.pattern
+        print
+        print
 
     def __str__(self):
         return super(Grammar, self).__str__()[:-1] + ' ' + str(self.rules) + '>'
 
-class NonTerminal(object):
+class Terminal(object):
 
-    def __init__(self, name):
-        self.rules = list()
+    def __init__(self, name, id):
         self.name = name
 
-    def addrule(self, rule):
-        self.rules.append(rule)
-
-    def __repr__(self): return str(self)
-    def __str__(self):
-        return super(NonTerminal, self).__repr__()[:-1] + ' ' + str(self.rules) + '>'
