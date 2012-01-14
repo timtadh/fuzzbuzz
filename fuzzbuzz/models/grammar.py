@@ -12,7 +12,6 @@ class Grammar(object):
     def __init__(self, rules):
         self.rules = rules
         self.nonterminals = dict()
-        self.terminals = dict()
         for rule in rules:
             nt = self.nonterminals.get(rule.name, NonTerminal(rule.name))
             nt.addrule(rule)
@@ -24,9 +23,8 @@ class Grammar(object):
                 if sym in self.nonterminals:
                     rule.pattern[i] = (self.nonterminals[sym], cnt)
                 else:
-                    terminal = self.terminals.get(sym, Terminal(sym))
+                    terminal =  Terminal(sym)
                     rule.pattern[i] = (terminal, cnt)
-                    self.terminals[sym] = terminal
         self.start = self.nonterminals[rules[0].name]
         #for rule in self.rules:
             #print rule.pattern
