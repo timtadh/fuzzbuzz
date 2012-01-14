@@ -6,12 +6,33 @@
 
 ## Should contain the implementation of the main fuzzing algorithm.
 
+from random import seed, choice
+
 from frontend import parser
+from models.nonterminal import NonTerminal
+
+def init():
+    seed()
 
 def fuzz(grammar):
-    pass
+
+    def fuzz(start):
+        stack = list()
+        stack.append(start)
+        while stack:
+            nonterm = stack.pop()
+            rule = choice(nonterm.rules)
+            for sym, cnt in rule.pattern:
+                if isinstance(sym, NonTerminal):
+                    stack.append(sym)
+                else:
+                    yield sym
+                    
+
+    return list(fuzz(grammar.start))
 
 def main():
+    init()
     tree, grammar = parser.parse('''
     Stmts -> Stmts Stmt
                 with Action {
@@ -47,8 +68,9 @@ def main():
             }
           ;
     ''')
-    print repr(tree)
-    print grammar
+    #print repr(tree)
+    #print grammar
+    print fuzz(grammar)
 
 if __name__ =='__main__':
     main()

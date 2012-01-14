@@ -10,7 +10,6 @@ from terminal import Terminal
 class Grammar(object):
 
     def __init__(self, rules):
-        self.start = rules[0].name
         self.rules = rules
         self.nonterminals = dict()
         self.terminals = dict()
@@ -28,11 +27,12 @@ class Grammar(object):
                     terminal = self.terminals.get(sym, Terminal(sym))
                     rule.pattern[i] = (terminal, cnt)
                     self.terminals[sym] = terminal
-        for rule in self.rules:
-            print rule.pattern
-        print
-        print self.start
-        print
+        self.start = self.nonterminals[rules[0].name]
+        #for rule in self.rules:
+            #print rule.pattern
+        #print
+        #print self.start
+        #print
 
     def __str__(self):
         return super(Grammar, self).__str__()[:-1] + ' ' + str(self.rules) + '>'
