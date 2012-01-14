@@ -6,9 +6,10 @@
 
 ## Should contain the implementation of the main fuzzing algorithm.
 
-from random import seed, choice
+from random import seed, choice, randint, random
 
 from frontend import parser
+from models.terminal import Terminal
 from models.nonterminal import NonTerminal
 
 def init():
@@ -26,13 +27,21 @@ def fuzz(grammar):
                 if isinstance(sym, NonTerminal):
                     stack.append(sym)
                 else:
+                    sym.mkvalue()
                     yield sym
                     
 
-    return list(fuzz(grammar.start))
+    return list(sym.value for sym in fuzz(grammar.start))
 
 def main():
     init()
+    Terminal.stringifiers = {
+        'VAR' : (lambda: 'var'),
+        'NAME' : (lambda: 'name'),
+        'EQUAL' : (lambda: '='),
+        'NUMBER' : (lambda: str(randint(1, 10)*random())),
+        'PRINT' : (lambda: 'print'),
+    }
     tree, grammar = parser.parse('''
     Stmts -> Stmts Stmt
                 with Action {
