@@ -20,7 +20,7 @@ class Rule(object):
             '<Rule "%s -> %s"%s%s%s>'
         ) % (
           self.name,
-          ' '.join((sym.name if isinstance(sym, NonTerminal) else sym) for sym, cnt in self.pattern),
+          ' '.join(sym.name for sym, cnt in self.pattern),
           ' with action' if self.action is not None else '',
           ' and' if self.action is not None and self.condition is not None else '',
           ' with condition' if self.condition is not None else ''

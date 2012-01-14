@@ -8,6 +8,9 @@
 
 from frontend import parser
 
+def fuzz(grammar):
+    pass
+
 def main():
     tree, grammar = parser.parse('''
     Stmts -> Stmts Stmt

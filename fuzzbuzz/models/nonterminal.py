@@ -18,10 +18,7 @@ class NonTerminal(object):
         return (
           '<NonTerm' + ' ' + self.rules[0].name + ' -> ' +
           ' | '.join(
-            ' '.join(
-              (sym.name if isinstance(sym, NonTerminal) else sym)
-              for sym, cnt in rule.pattern
-            )
+            ' '.join(sym.name for sym, cnt in rule.pattern)
             for rule in self.rules
           ) + '>'
         )
