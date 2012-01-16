@@ -6,4 +6,5 @@ env
 parser.out
 *tab.py
 *.png
+*.dot
 

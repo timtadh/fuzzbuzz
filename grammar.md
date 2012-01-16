@@ -16,6 +16,7 @@ Proposed Grammar For Defining Fuzzer
              | Symbol
 
     Symbol -> NAME
+            | TERMINAL
 
     ACStmts -> ACStmts ACStmt
              | ACStmt
@@ -83,11 +84,14 @@ Proposed Grammar For Defining Fuzzer
            | SetLiteral
            | AttributeValue
 
-    AttributeValue -> AttributeValue DOT Attr
-                    | NAME LCURLY NUMBER RCURLY
-                    | NAME Call
-                    | NAME
+    AttributeValue -> SymbolObject AttributeValue_
 
+    AttributeValue_ -> DOT Attr AttributeValue_
+                     | e
+
+    SymbolObject -> Symbol
+                  | Symbol LCURLY NUMBER RCURLY
+    
     Attr -> NAME
           | NAME Call
 
@@ -95,13 +99,10 @@ Proposed Grammar For Defining Fuzzer
           | Call_
 
     Call_ -> Fcall
-           | Dcall
 
     Fcall -> LPAREN RPAREN
            | LPAREN ParameterList RPAREN
-
-    Dcall ->  LSQUARE Value RSQUARE
-
+    
     ParameterList -> ParameterList COMMA Value
                    | Value
 

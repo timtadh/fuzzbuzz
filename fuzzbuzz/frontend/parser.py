@@ -276,11 +276,11 @@ class Parser(object):
         'AttributeValue_ : '
         t[0] = list()
 
-    def p_Object1(self, t):
+    def p_SymbolObject1(self, t):
         'SymbolObject : Symbol'
         t[0] = Node('Symbol').addkid(t[1]).addkid(1)
         
-    def p_Object2(self, t):
+    def p_SymbolObject2(self, t):
         'SymbolObject : Symbol LCURLY NUMBER RCURLY'
         t[0] = Node('Symbol').addkid(t[1]).addkid(t[3])
 
