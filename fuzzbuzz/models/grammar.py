@@ -4,6 +4,8 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
+import functools
+
 from nonterminal import NonTerminal
 from terminal import Terminal
 
@@ -16,16 +18,18 @@ class Grammar(object):
             nt = self.nonterminals.get(rule.name, NonTerminal(rule.name))
             nt.addrule(rule)
             self.nonterminals[rule.name] = nt
-        #print self.symbols
         for rule in self.rules:
             for i, tup in enumerate(rule.pattern):
                 sym, cnt = tup
                 if sym in self.nonterminals:
                     rule.pattern[i] = (self.nonterminals[sym], cnt)
                 else:
-                    terminal =  Terminal(sym)
+                    terminal = functools.partial(Terminal, sym)
+                    print terminal
                     rule.pattern[i] = (terminal, cnt)
         self.start = self.nonterminals[rules[0].name]
+        print
+        print
         #for rule in self.rules:
             #print rule.pattern
         #print

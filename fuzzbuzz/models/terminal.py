@@ -23,10 +23,13 @@ class Terminal(object):
         return self.__value
 
     def mkvalue(self):
+        print self.name
+        print super(Terminal, self).__repr__()
         if self.__value is not None:
             raise RuntimeError, (
-              'Tried to make a new value for a terminal who already has one.'
-            )
+              'Tried to make a new value for a terminal, %s, who already has '
+              'one.'
+            ) % (self.name)
         # defers to user supplied function for each terminal type.
         self.__value = self.stringifiers[self.name]()
         return self.__value

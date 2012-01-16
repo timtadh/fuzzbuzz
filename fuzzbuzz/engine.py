@@ -27,19 +27,22 @@ def fuzz(grammar):
                 if isinstance(sym, NonTerminal):
                     stack.append(sym)
                 else:
-                    sym.mkvalue()
-                    yield sym
+                    terminal = sym()
+                    terminal.mkvalue()
+                    yield terminal
                     
 
-    return list(sym.value for sym in fuzz(grammar.start))
+    syms = list(sym for sym in fuzz(grammar.start))
+    print syms
+    return list(sym.value for sym in syms)
 
 def main():
     init()
     Terminal.stringifiers = {
         'VAR' : (lambda: 'var'),
-        'NAME' : (lambda: 'name'),
+        'NAME' : (lambda: ''.join(chr(randint(97, 122)) for x in xrange(1, randint(2,10)))),
         'EQUAL' : (lambda: '='),
-        'NUMBER' : (lambda: str(randint(1, 10)*random())),
+        'NUMBER' : (lambda: str(randint(1, 1000))),
         'PRINT' : (lambda: 'print'),
     }
     tree, grammar = parser.parse('''
