@@ -18,7 +18,7 @@ tokens = reserved.values() + [
     'ARROW', 'AND', 'COMMA', 'DASH', 'DOT', 'EQEQ', 'EQUAL', 'GE',
     'LANGLE', 'LCURLY', 'LE', 'LPAREN', 'LSQUARE', 'NQ', 'OR', 'PIPE', 'PLUS',
     'RANGLE', 'RCURLY', 'RPAREN', 'RSQUARE', 'SEMI', 'SLASH', 'STAR', 'STRING',
-    'NAME', 'NUMBER', 'AMPERSTAND', 'BANG',
+    'NAME', 'NUMBER', 'AMPERSTAND', 'BANG', 'TERMINAL'
 ]
 
 # Common Regex Parts
@@ -74,6 +74,7 @@ class Lexer(object):
     @Token(name)
     def t_NAME(self, token):
         if token.value in reserved: token.type = reserved[token.value]
+        elif token.value.isalpha() and token.value.isupper(): token.type = 'TERMINAL'
         else: token.type = 'NAME'
         return token
 

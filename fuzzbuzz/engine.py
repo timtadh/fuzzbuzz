@@ -6,11 +6,25 @@
 
 ## Should contain the implementation of the main fuzzing algorithm.
 
+import subprocess
 from random import seed, choice, randint, random
 
 from frontend import parser
 from models.terminal import Terminal
 from models.nonterminal import NonTerminal
+
+def dot(name, dotty):
+    dot = name + '.dot'
+    png = name + '.png'
+
+    f = open(dot, 'w')
+    f.write(dotty)
+    f.close()
+
+    p = subprocess.Popen(['dot', '-Tpng', '-o', png], stdin=subprocess.PIPE)
+    p.stdin.write(dotty + '\0')
+    p.stdin.close()
+    p.wait()
 
 def init():
     seed()
@@ -43,6 +57,7 @@ def main():
         'PRINT' : (lambda: 'print'),
     }
     tree, grammar = parser.parse('''
+    /*
     Stmts -> Stmts Stmt
                 with Action {
                   if (Stmt.decl is not None) {
@@ -64,19 +79,20 @@ def main():
                   Stmt.uses is None
                 }
               ;
-
+*/
     Stmt -> VAR NAME EQUAL NUMBER
-            with Action {
+         /*   with Action {
               Stmt.decl = NAME.value
               Stmt.uses = None
-            }
+            }*/
           | PRINT NAME
             with Action {
               Stmt.decl = None
-              Stmt.uses = NAME.value
+              Stmt.uses(a, b, c)(1,2,3)("asd", "asdf", "123") = NAME.value
             }
           ;
     ''')
+    dot('test', tree.dotty())
     #print tree.dotty()
     #print repr(tree)
     #print grammar

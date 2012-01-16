@@ -8,13 +8,23 @@ class Action(object):
 
     def __init__(self, node):
         pass
-        print node
-        self.node = node
+        #self.node = node
+        #print node
+        #print
+        #print
 
 ## There are two types of action statements
 ##  1) Assign statements
 ##  2) If statements
 
-class Assign(object): pass
+class Assign(object):
+
+    def __init__(self, node):
+        self.node = node
+        pass
+        print node
+        print
+        print
+        
 
 class If(object): pass

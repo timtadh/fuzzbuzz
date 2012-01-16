@@ -10,6 +10,7 @@ from lexer import tokens, Lexer
 from ast import Node
 from models.grammar import Grammar
 from models.rule import mkrules
+from models import action
 
 ## If you are confused about the syntax in this file I recommend reading the
 ## documentation on the PLY website to see how this compiler compiler's syntax
@@ -91,7 +92,11 @@ class Parser(object):
 
     def p_Symbol1(self, t):
         'Symbol : NAME'
-        t[0] = Node('Symbol').addkid(t[1])
+        t[0] = Node('NonTerminal').addkid(t[1])
+
+    def p_Symbol2(self, t):
+        'Symbol : TERMINAL'
+        t[0] = Node('Terminal').addkid(t[1])
 
     def p_ACStmts1(self, t):
         'ACStmts : ACStmts ACStmt'
@@ -180,6 +185,7 @@ class Parser(object):
     def p_ActionStmt1(self, t):
         'ActionStmt : AttributeValue EQUAL Expr'
         t[0] = Node('Assign').addkid(t[1]).addkid(t[3])
+        action.Assign(t[0])
 
     def p_ActionStmt2(self, t):
         'ActionStmt : IF LPAREN OrExpr RPAREN LCURLY ActionStmts RCURLY'
@@ -243,7 +249,7 @@ class Parser(object):
 
     def p_Value2(self, t):
         'Value : STRING'
-        t[0] = t[1]
+        t[0] = t[1][1:-1]
 
     def p_Value3(self, t):
         'Value : NONE'
@@ -258,50 +264,45 @@ class Parser(object):
         t[0] = t[1]
 
     def p_AttributeValue1(self, t):
-        'AttributeValue : AttributeValue DOT Attr'
-        t[0] = t[1].addkid(t[3])
+        'AttributeValue : SymbolObject AttributeValue_'
+        kids = [t[1]] + t[2]
+        t[0] = Node('AttrChain', children=kids)
 
-    def p_AttributeValue2(self, t):
-        'AttributeValue :  NAME LCURLY NUMBER RCURLY'
-        t[0] = Node('AttributeValue').addkid(
-            Node('Symbol').addkid(t[1]).addkid(t[3])
-        )
+    def p_AttributeValue_1(self, t):
+        'AttributeValue_ : DOT Attr AttributeValue_'
+        t[0] = [t[2]] + t[3]
 
-    def p_AttributeValue3(self, t):
-        'AttributeValue : NAME Call'
-        t[0] = Node('AttributeValue').addkid(
-            Node('Call').addkid(t[1]).addkid(t[2])
-        )
+    def p_AttributeValue_2(self, t):
+        'AttributeValue_ : '
+        t[0] = list()
 
-    def p_AttributeValue4(self, t):
-        'AttributeValue : NAME'
-        t[0] = Node('AttributeValue').addkid(
-            Node('Symbol').addkid(t[1]).addkid(1)
-        )
+    def p_Object1(self, t):
+        'SymbolObject : Symbol'
+        t[0] = Node('Symbol').addkid(t[1]).addkid(1)
+        
+    def p_Object2(self, t):
+        'SymbolObject : Symbol LCURLY NUMBER RCURLY'
+        t[0] = Node('Symbol').addkid(t[1]).addkid(t[3])
 
     def p_Attr1(self, t):
         'Attr : NAME'
-        t[0] = t[1]
+        t[0] = Node('Object').addkid(t[1])
 
     def p_Attr2(self, t):
         'Attr : NAME Call'
-        t[0] = Node('Call').addkid(t[1]).addkid(t[2])
-
+        t[0] = Node('Object').addkid(t[1]).addkid(t[2])
+    
     def p_Call1(self, t):
         'Call : Call Call_'
         t[0] = t[1].addkid(t[2])
 
     def p_Call2(self, t):
         'Call : Call_'
-        t[0] = Node('CallChain').addkid(t[2])
+        t[0] = Node('CallChain').addkid(t[1])
 
     def p_Call_1(self, t):
         'Call_ : Fcall'
         t[0] = Node('Fcall', children=t[1])
-    
-    def p_Call_2(self, t):
-        'Call_ : Dcall'
-        t[0] = Node('Dcall').addkid(t[1])
 
     def p_Fcall1(self, t):
         'Fcall : LPAREN RPAREN'
@@ -309,10 +310,6 @@ class Parser(object):
 
     def p_Fcall2(self, t):
         'Fcall : LPAREN ParameterList RPAREN'
-        t[0] = t[1]
-
-    def p_Dcall(self, t):
-        'Dcall : LSQUARE Value RSQUARE'
         t[0] = t[2]
 
     def p_ParameterList1(self, t):
@@ -336,41 +333,3 @@ class Parser(object):
 
 def parse(string):
     return Parser().parse(string, lexer=Lexer())
-
-if __name__ == '__main__':
-    tree = parse('''
-    Stmts -> Stmts Stmt
-                with Action {
-                  if (Stmt.decl is not None) {
-                    Stmts{1}.names = Stmts{2}.names | { stmt.decl }
-                  }
-                  else {
-                    Stmts{1}.names = Stmts{2}.names
-                  }
-                }
-                with Condition {
-                  (Stmt.uses is not None && Stmt.uses in Stmts{2}.names) ||
-                  (Stmt.decl is not None && Stmt.decl not in Stmts{2}.names)
-                }
-              | Stmt
-                with Action {
-                  Stmts{1}.names = { stmt.decl }
-                }
-                with Condition {
-                  Stmt.uses is None
-                }
-              ;
-
-    Stmt -> VAR NAME EQUAL NUMBER
-            with Action {
-              Stmt.decl = NAME.value
-              Stmt.uses = None
-            }
-          | PRINT NAME
-            with Action {
-              Stmt.decl = None
-              Stmt.uses = NAME.value
-            }
-          ;
-    ''')
-    #print tree.dotty()
