@@ -4,13 +4,15 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
-class AttributeValue(object):
+from value import Value
 
-    def __init__(self, node):
-        pass
-        #self.node = node
-        #print node
-        #print
+class AttrChain(Value):
 
-    def __call__(self, objs):
-        pass
+    def __init__(self, lookup_chain):
+        self.__type = type
+        self.lookup_chain
+
+class Attribute(Value):
+
+    def __init__(self, objs, call_chain):
+        self.call_chain = call_chain
