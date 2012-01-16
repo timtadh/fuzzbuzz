@@ -5,6 +5,7 @@
 #For licensing see the LICENSE file in the top level directory.
 
 from nonterminal import NonTerminal
+from action import Action
 
 class Rule(object):
 
@@ -42,7 +43,7 @@ def mkrules(node):
             for ACStmt in body.children[1].children:
                 type = ACStmt.label
                 if type == 'Action':
-                    action = ACStmt
+                    action = Action(ACStmt)
                 elif type == 'Condition':
                     condition = ACStmt
                 else:
