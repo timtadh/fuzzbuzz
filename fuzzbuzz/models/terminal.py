@@ -8,6 +8,13 @@ class Terminal(object):
 
     stringifiers = None
 
+    def __new__(cls, *args, **kwargs):
+        def create():
+            self = super(Terminal, cls).__new__(cls)
+            self.__init__(*args, **kwargs)
+            return self
+        return create
+
     def __init__(self, name):
         assert self.stringifiers is not None
         self.name = name
@@ -23,8 +30,6 @@ class Terminal(object):
         return self.__value
 
     def mkvalue(self):
-        print self.name
-        print super(Terminal, self).__repr__()
         if self.__value is not None:
             raise RuntimeError, (
               'Tried to make a new value for a terminal, %s, who already has '

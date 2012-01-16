@@ -31,10 +31,7 @@ def fuzz(grammar):
                     terminal.mkvalue()
                     yield terminal
                     
-
-    syms = list(sym for sym in fuzz(grammar.start))
-    print syms
-    return list(sym.value for sym in syms)
+    return list(sym.value for sym in fuzz(grammar.start))
 
 def main():
     init()
@@ -80,6 +77,7 @@ def main():
             }
           ;
     ''')
+    #print tree.dotty()
     #print repr(tree)
     #print grammar
     print fuzz(grammar)

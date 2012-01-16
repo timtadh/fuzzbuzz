@@ -24,12 +24,9 @@ class Grammar(object):
                 if sym in self.nonterminals:
                     rule.pattern[i] = (self.nonterminals[sym], cnt)
                 else:
-                    terminal = functools.partial(Terminal, sym)
-                    print terminal
+                    terminal = Terminal(sym)
                     rule.pattern[i] = (terminal, cnt)
         self.start = self.nonterminals[rules[0].name]
-        print
-        print
         #for rule in self.rules:
             #print rule.pattern
         #print
