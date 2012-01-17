@@ -18,6 +18,7 @@ class Attribute(Value):
 
     def __init__(self, objs, obj, call_chain=None):
         #self.__type = None
+        obj = obj(objs).value
         if call_chain is not None:
             assert hasattr(obj, '__call__')
             for call in call_chain:
@@ -26,7 +27,33 @@ class Attribute(Value):
             raise Exception
         else:
             value = obj
+        type = None                          ## TODO TYPES
+        super(Attribute, self).__init__(objs, type, value)
 
-class SymbolObject(Value): pass
+class FCall(Value):
 
-class Object(Value): pass
+    def __init__(self, objs, parameters):
+        type = None                          ## TODO TYPES
+        value = [param(objs).value for param in parameters]
+        super(Object, self).__init__(objs, type, value)
+
+class CallChain(Value):
+
+    def __init__(self, objs, calls):
+        type = None
+        value = [call(objs).value for call in calls]
+        super(Object, self).__init__(objs, type, value)
+
+class Object(Value):
+
+    def __init__(self, objs, name):
+        type = None                          ## TODO TYPES
+        value = objs[name]
+        super(Object, self).__init__(objs, type, value)
+
+class SymbolObject(Object):
+
+    def __init__(self, objs, name, id):
+        type = None                          ## TODO TYPES
+        value = objs[(name, id)]
+        super(SymbolObject, self).__init__(objs, type, value)

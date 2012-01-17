@@ -279,19 +279,20 @@ class Parser(object):
 
     def p_SymbolObject1(self, t):
         'SymbolObject : Symbol'
-        t[0] = Node('Symbol').addkid(t[1]).addkid(1)
+        t[0] = attribute.SymbolObject(t[1].children[0], 1)
         
     def p_SymbolObject2(self, t):
         'SymbolObject : Symbol LCURLY NUMBER RCURLY'
-        t[0] = Node('Symbol').addkid(t[1]).addkid(t[3])
+        t[0] = attribute.SymbolObject(t[1].children[0], t[3])
 
     def p_Attr1(self, t):
         'Attr : NAME'
-        t[0] = Node('Object').addkid(t[1])
+        t[0] = attribute.Attribute(attribute.Object(t[1]))
 
     def p_Attr2(self, t):
         'Attr : NAME Call'
-        t[0] = Node('Object').addkid(t[1]).addkid(t[2])
+        #t[0] = attribute.Attribute(attribute.Object(t[1]), t[2])
+        t[0] = Node('Object').addkid(attribute.Object(t[1]), attribute.CallChain(t[2].children))
     
     def p_Call1(self, t):
         'Call : Call Call_'
@@ -303,7 +304,8 @@ class Parser(object):
 
     def p_Call_1(self, t):
         'Call_ : Fcall'
-        t[0] = Node('Fcall', children=t[1])
+        t[0] = attribute.FCall(t[1])
+        #t[0] = Node('Fcall', children=t[1])
 
     def p_Fcall1(self, t):
         'Fcall : LPAREN RPAREN'

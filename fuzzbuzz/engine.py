@@ -88,7 +88,7 @@ def main():
           | PRINT NAME
             with Action {
               Stmt.decl = None
-              Stmt.uses(a, b, c)(1,2,3)("asd", "asdf", "123") = NAME.value
+              Stmt.uses = NAME.value(a, b, c)(1,2,3)("asd", "asdf", "123")
             }
           ;
     ''')
