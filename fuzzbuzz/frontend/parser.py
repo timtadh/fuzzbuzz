@@ -291,8 +291,7 @@ class Parser(object):
 
     def p_Attr2(self, t):
         'Attr : NAME Call'
-        #t[0] = attribute.Attribute(attribute.Object(t[1]), t[2])
-        t[0] = Node('Object').addkid(attribute.Object(t[1]), attribute.CallChain(t[2].children))
+        t[0] = attribute.Attribute(attribute.Object(t[1]), attribute.CallChain(t[2].children))
     
     def p_Call1(self, t):
         'Call : Call Call_'

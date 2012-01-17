@@ -9,19 +9,21 @@ from value import Value
 class AttrChain(Value):
 
     def __init__(self, objs, lookup_chain):
-        #self.__type = None
+        type = None                          ## TODO TYPES
+        cobjs = objs
+        cvalue = None
         for attr in lookup_chain:
-            if attr.label == 'Symbol':
-                name = attr.children[0].children[0]
+            cvalue = attr(cobjs).value
+            cobjs = cvalue.__dict__
+        super(Attribute, self).__init__(objs, type, value)
 
 class Attribute(Value):
 
     def __init__(self, objs, obj, call_chain=None):
-        #self.__type = None
         obj = obj(objs).value
         if call_chain is not None:
             assert hasattr(obj, '__call__')
-            for call in call_chain:
+            for call in call_chain(objs).value:
                 print call
             value = None
             raise Exception

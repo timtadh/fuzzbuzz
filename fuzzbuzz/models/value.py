@@ -4,6 +4,8 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
+import functools
+
 from attr_types import Set, String
 
 def defer(clazz, *args, **kwargs):
@@ -12,6 +14,7 @@ def defer(clazz, *args, **kwargs):
         instance = object.__new__(clazz)
         instance.__init__(objs, *args, **kwargs)
         return instance
+    instance_creator.func_name = clazz.__name__ + '_creator'
     return instance_creator
 
 class Value(object):
