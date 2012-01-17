@@ -9,10 +9,18 @@ from value import Value
 class AttrChain(Value):
 
     def __init__(self, lookup_chain):
-        self.__type = type
-        self.lookup_chain
+        #self.__type = None
+        pass
 
 class Attribute(Value):
 
-    def __init__(self, objs, call_chain):
-        self.call_chain = call_chain
+    def __init__(self, objs, obj, call_chain=None):
+        #self.__type = None
+        if call_chain is not None:
+            assert hasattr(obj, '__call__')
+            for call in call_chain:
+                print call
+            value = None
+            raise Exception
+        else:
+            value = obj

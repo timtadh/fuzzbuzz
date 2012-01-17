@@ -8,9 +8,10 @@ from ply import yacc
 
 from lexer import tokens, Lexer
 from ast import Node
+import models
 from models.grammar import Grammar
 from models.rule import mkrules
-from models import action
+from models import action, attr_types, value
 
 ## If you are confused about the syntax in this file I recommend reading the
 ## documentation on the PLY website to see how this compiler compiler's syntax
@@ -245,19 +246,19 @@ class Parser(object):
 
     def p_Value1(self, t):
         'Value : NUMBER'
-        t[0] = t[1]
+        t[0] = value.Value(attr_types.Number, attr_types.Number(t[1]))
 
     def p_Value2(self, t):
         'Value : STRING'
-        t[0] = t[1][1:-1]
+        t[0] = value.Value(attr_types.String, attr_types.String(t[1][1:-1]))
 
     def p_Value3(self, t):
         'Value : NONE'
-        t[0] = t[1]
+        t[0] = value.Value(attr_types.NoneType, attr_types.NoneType())
 
     def p_Value4(self, t):
         'Value : SetLiteral'
-        t[0] = t[1]
+        t[0] = value.SetValue(t[1].children)
     
     def p_Value5(self, t):
         'Value : AttributeValue'

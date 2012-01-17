@@ -21,10 +21,10 @@ class Assign(object):
 
     def __init__(self, node):
         self.node = node
-        pass
-        print node
-        print
-        print
+        #pass
+        #print node
+        #print
+        #print
         
 
 class If(object): pass
