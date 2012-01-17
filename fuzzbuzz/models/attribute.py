@@ -8,9 +8,11 @@ from value import Value
 
 class AttrChain(Value):
 
-    def __init__(self, lookup_chain):
+    def __init__(self, objs, lookup_chain):
         #self.__type = None
-        pass
+        for attr in lookup_chain:
+            if attr.label == 'Symbol':
+                name = attr.children[0].children[0]
 
 class Attribute(Value):
 
@@ -24,3 +26,7 @@ class Attribute(Value):
             raise Exception
         else:
             value = obj
+
+class SymbolObject(Value): pass
+
+class Object(Value): pass

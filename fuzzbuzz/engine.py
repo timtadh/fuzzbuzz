@@ -83,7 +83,7 @@ def main():
     Stmt -> VAR NAME EQUAL NUMBER
             with Action {
               Stmt.decl = NAME.value
-              Stmt.uses = {}
+              Stmt.uses = None
             }
           | PRINT NAME
             with Action {
