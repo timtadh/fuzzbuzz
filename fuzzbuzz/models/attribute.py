@@ -18,7 +18,7 @@ class AttrChain(Value):
         cobjs = objs
         cvalue = None
         for attr in lookup_chain:
-            cvalue = attr((objs, cobjs)).value
+            cvalue = attr(objs, cobjs).value
             #import pdb
             #pdb.set_trace()
             cobjs = cvalue
@@ -28,8 +28,7 @@ class AttrChain(Value):
 
 class Attribute(Value):
 
-    def __init__(self, gcobjs, obj, call_chain=None):
-        gobjs, cobjs = gcobjs
+    def __init__(self, gobjs, cobjs, obj, call_chain=None):
         obj = obj(cobjs).value
         if call_chain is not None:
             for params in call_chain(gobjs).value:
@@ -37,7 +36,7 @@ class Attribute(Value):
                 obj = obj.__call__(*params)
         value = obj
         type = None                          ## TODO TYPES
-        super(Attribute, self).__init__(gobjs, type, value)
+        super(Attribute, self).__init__(None, type, value)
 
 class FCall(Value):
 

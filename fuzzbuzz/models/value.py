@@ -9,10 +9,11 @@ import functools
 from attr_types import Set, String
 
 def defer(clazz, *args, **kwargs):
-    def instance_creator(objs):
+    def instance_creator(*objs):
         'Makes a new instance of the specified class'
+        allargs = list(objs) + list(args)
         instance = object.__new__(clazz)
-        instance.__init__(objs, *args, **kwargs)
+        instance.__init__(*allargs, **kwargs)
         return instance
     instance_creator.func_name = clazz.__name__ + '_creator'
     return instance_creator

@@ -55,7 +55,7 @@ def test_Attribute_instantiate():
     cc = CallChain([fc1, fc2, fc3])
     obj = Object('f')
     creator = Attribute(obj, cc)
-    v = creator(({'test':1}, {'f':f}))
+    v = creator({'test':1}, {'f':f})
     assert hasattr(creator, 'func_name')
     assert isinstance(v, Attribute)
     #assert v.type == 'type'
