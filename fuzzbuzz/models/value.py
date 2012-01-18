@@ -34,6 +34,11 @@ class Value(object):
     def value(self):
         return self.__value
 
+    @value.setter(self, value):
+    def value(self):
+        raise RuntimeError,
+          "%s does not support setting the value" % (self.__class__.__name__)
+
 class SetValue(Value):
 
     def __init__(self, objs, values):

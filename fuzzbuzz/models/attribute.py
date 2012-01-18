@@ -6,12 +6,6 @@
 
 from value import Value
 
-def get(o, name):
-    try:
-        return o[name]
-    except KeyError:
-        return getattr(o, name)
-
 class AttrChain(Value):
 
     def __init__(self, objs, lookup_chain):
@@ -56,8 +50,9 @@ class Object(Value):
 
     def __init__(self, objs, name):
         type = None                          ## TODO TYPES
-        if isinstance(objs, dict): value = objs[name]
-        else: value = getattr(objs, name)
+        value = objs[name]
+        #if isinstance(objs, dict): value = objs[name]
+        #else: value = getattr(objs, name)
         super(Object, self).__init__(objs, type, value)
 
 class SymbolObject(Value):

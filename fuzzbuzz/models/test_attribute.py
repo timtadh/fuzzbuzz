@@ -62,15 +62,16 @@ def test_Attribute_instantiate():
     assert v.value == 1*2*3 + 4*5 + 6*7
 
 def test_AttrChain_instantiate():
-    class A(object):
-        def reflect(self):
-            return self
-        def f(self, a,b,c):
-            def g(d,e):
-                def h(f, g):
-                    return a*b*c + d*e + f*g
-                return h
-            return g
+    A = dict()
+    def reflect():
+        return A
+    def f(a,b,c):
+        def g(d,e):
+            def h(f, g):
+                return a*b*c + d*e + f*g
+            return h
+        return g
+    A.update({'reflect':reflect, 'f':f})
     fc1 = FCall([Object('test'),Value(Number, 2),Value(Number, 3)])
     fc2 = FCall([Value(Number, 4),Value(Number, 5)])
     fc3 = FCall([Value(Number, 6),Value(Number, 7)])
@@ -81,7 +82,7 @@ def test_AttrChain_instantiate():
     a2 = Attribute(Object('reflect'), CallChain([FCall([])]))
     a3 = Attribute(obj, cc)
     creator = AttrChain([a1,a2,a3])
-    v = creator({'test':1, 'f':None, ('a',1):A()})
+    v = creator({'test':1, 'f':None, ('a',1):A})
     assert hasattr(creator, 'func_name')
     assert isinstance(v, AttrChain)
     #assert v.type == 'type'
