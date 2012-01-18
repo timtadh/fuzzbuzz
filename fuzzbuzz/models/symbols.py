@@ -47,3 +47,22 @@ class Terminal(object):
 
     def __repr__(self): return str(self)
     def __str__(self): return '<Term %s>' % self.name
+
+class NonTerminal(object):
+
+    def __init__(self, name):
+        self.rules = list()
+        self.name = name
+
+    def addrule(self, rule):
+        self.rules.append(rule)
+
+    def __repr__(self): return str(self)
+    def __str__(self):
+        return (
+          '<NonTerm' + ' ' + self.rules[0].name + ' -> ' +
+          ' | '.join(
+            ' '.join(sym.name for sym, cnt in rule.pattern)
+            for rule in self.rules
+          ) + '>'
+        )
