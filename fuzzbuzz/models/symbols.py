@@ -8,10 +8,9 @@ from attr_types import String, Namespace
 from value import Value, WritableValue
 
 def make_accessable(name, pos):
-    def dec(cls):
-        def maker(clazz, *args, **kwargs):
-            print clazz, args
-            defer = cls.__new__(clazz, *args, **kwargs)
+    def dec(f):
+        def maker(*args, **kwargs):
+            defer = f(*args, **kwargs)
             setattr(defer, name, args[pos])
             return defer
         return maker
@@ -21,6 +20,10 @@ class Terminal(WritableValue):
 
     stringifiers = None
 
+    @make_accessable('name', 1)
+    def __new__(cls, *args, **kwargs):
+        return super(Terminal, cls).__new__(cls, *args, **kwargs)
+    
     def __init__(self, name):
         assert self.stringifiers is not None
         self.name = name
@@ -42,29 +45,16 @@ class Terminal(WritableValue):
     def __repr__(self): return str(self)
     def __str__(self): return '<Term %s>' % self.name
 
-
-
 class NonTerminal(Value):
 
-
-    #def __new__(cls, *args, **kwargs):
-        #rules = list()
-        #def addrule(rule):
-            #rules.append(rule)
-        #args = list(args) + [rules]
-        #defer = super(NonTerminal, cls).__new__(cls, *args, **kwargs)
-        #setattr(defer, 'addrule', addrule)
-        #return defer
-        
+    @make_accessable('name', 1)
+    def __new__(cls, *args, **kwargs):
+        return super(NonTerminal, cls).__new__(cls, *args, **kwargs)
     
     def __init__(self, name, rules):
-        #print 'Called Nonterminal init', self.__class__.__name__
         self.name = name
         self.rules = rules
         super(NonTerminal, self).__init__(None, Namespace, dict())
-
-    #def addrule(self, rule):
-        #self.rules.append(rule)
 
     def __repr__(self): return str(self)
     def __str__(self):
