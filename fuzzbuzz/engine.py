@@ -35,16 +35,16 @@ def fuzz(grammar):
         stack.append(start)
         while stack:
             nonterm = stack.pop()
+            #print nonterm.name
             rule = choice(nonterm.rules)
-            print rule
+            #print rule
             for sym, cnt in rule.pattern:
                 #print object.__repr__(sym), repr(sym)
-                print sym.clazz, sym.clazz is NonTerminal
+                #print sym.clazz, sym.clazz is NonTerminal
                 if sym.clazz is NonTerminal:
                     stack.append(sym())
                 else:
                     terminal = sym()
-                    print sym
                     terminal.mkvalue()
                     yield terminal
                     

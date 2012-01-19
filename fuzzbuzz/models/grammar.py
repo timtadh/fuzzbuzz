@@ -13,10 +13,13 @@ class Grammar(object):
     def __init__(self, rules):
         self.rules = rules
         self.nonterminals = dict()
+        nts = dict()
         for rule in rules:
-            nt = self.nonterminals.get(rule.name, NonTerminal(rule.name))
-            nt.addrule(rule)
-            self.nonterminals[rule.name] = nt
+            nt_rules = nts.get(rule.name, list())
+            nt_rules.append(rule)
+            nts[rule.name] = nt_rules
+        for name, rules in nts.iteritems():
+            self.nonterminals[name] = NonTerminal(name, rules)
         for rule in self.rules:
             for i, tup in enumerate(rule.pattern):
                 sym, cnt = tup
@@ -25,7 +28,7 @@ class Grammar(object):
                 else:
                     terminal = Terminal(sym)
                     rule.pattern[i] = (terminal, cnt)
-        self.start = self.nonterminals[rules[0].name]
+        self.start = self.nonterminals[self.rules[0].name]
         #for rule in self.rules:
             #print rule.pattern
         #print

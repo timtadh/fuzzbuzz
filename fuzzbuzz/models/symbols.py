@@ -46,32 +46,19 @@ class Terminal(WritableValue):
 
 class NonTerminal(Value):
 
-    @staticmethod
-    def __ntdefer(clazz, *args, **kwargs):
-        rules = list()
-        def instance_creator(*objs):
-            'Makes a new instance of the specified class'
-            allargs = list(objs) + list(args) + [rules]
-            instance = object.__new__(clazz)
-            instance.__init__(*allargs, **kwargs)
-            return instance
-        instance_creator.func_name = clazz.__name__ + '_creator'
-        setattr(instance_creator, 'addrule', addrule)
-        setattr(instance_creator, 'clazz', clazz)
-        return instance_creator
 
-    def __new__(cls, *args, **kwargs):
-        rules = list()
-        def addrule(rule):
-            rules.append(rule)
-        args = list(args) + [rules]
-        defer = super(NonTerminal, cls).__new__(cls, *args, **kwargs)
-        setattr(defer, 'addrule', addrule)
-        return defer
+    #def __new__(cls, *args, **kwargs):
+        #rules = list()
+        #def addrule(rule):
+            #rules.append(rule)
+        #args = list(args) + [rules]
+        #defer = super(NonTerminal, cls).__new__(cls, *args, **kwargs)
+        #setattr(defer, 'addrule', addrule)
+        #return defer
         
     
     def __init__(self, name, rules):
-        print 'Called Nonterminal init', self.__class__.__name__
+        #print 'Called Nonterminal init', self.__class__.__name__
         self.name = name
         self.rules = rules
         super(NonTerminal, self).__init__(None, Namespace, dict())
