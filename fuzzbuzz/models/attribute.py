@@ -4,7 +4,7 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
-from value import Value
+from value import Value, WritableValue
 
 class AttrChain(Value):
 

@@ -22,10 +22,15 @@ class Value(object):
 
     def __new__(cls, *args, **kwargs): return defer(cls, *args, **kwargs)
 
-    def __init__(self, objs, type, value, writable=False):
+    def __init__(self, objs, type, value):
         self.__type = type
         self.__value = value
-        self.__writable = writable
+        self.__writable = False
+
+    def __set_writable__(self):
+        if self.__class__.__name__ != 'WritableValue':
+            raise RuntimeError, "Only WritableValue's are allowed to become writable"
+        self.__writable = True
     
     @property
     def type(self):
@@ -44,12 +49,13 @@ class Value(object):
             raise RuntimeError, \
             "%s already has a value" % (self.__class__.__name__)
         self.__value = value
+        self.__writehook__(value)
 
 class WritableValue(Value):
 
     def __init__(self, *args, **kwargs):
-        kwargs.update({'writable':True})
-        super(WritableValue, self).__init__(self, *args, **kwargs)
+        super(WritableValue, self).__init__(*args, **kwargs)
+        self.__set_writable__()
           
 class SetValue(Value):
 
