@@ -20,6 +20,10 @@ class Set(Type):
     def __new__(self):
         raise RuntimeError, 'Set cannot be instantiated'
 
+class Namespace(Type):
+    def __new__(self):
+        raise RuntimeError, 'Namespace cannot be instantiated'
+
 class NoneType(Type):
     def __new__(self):
         return None

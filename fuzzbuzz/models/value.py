@@ -22,9 +22,10 @@ class Value(object):
 
     def __new__(cls, *args, **kwargs): return defer(cls, *args, **kwargs)
 
-    def __init__(self, objs, type, value):
+    def __init__(self, objs, type, value, writable=False):
         self.__type = type
         self.__value = value
+        self.__writable = writable
     
     @property
     def type(self):
@@ -35,10 +36,21 @@ class Value(object):
         return self.__value
 
     @value.setter
-    def value(self):
-        raise RuntimeError,\
-          "%s does not support setting the value" % (self.__class__.__name__)
+    def value(self, value):
+        if not self.__writable:
+            raise RuntimeError, \
+            "%s does not support setting the value" % (self.__class__.__name__)
+        if self.value is not None:
+            raise RuntimeError, \
+            "%s already has a value" % (self.__class__.__name__)
+        self.__value = value
 
+class WritableValue(Value):
+
+    def __init__(self, *args, **kwargs):
+        kwargs.update({'writable':True})
+        super(WritableValue, self).__init__(self, *args, **kwargs)
+          
 class SetValue(Value):
 
     def __init__(self, objs, values):
