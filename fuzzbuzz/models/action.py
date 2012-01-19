@@ -19,12 +19,9 @@ class Action(object):
 
 class Assign(object):
 
-    def __init__(self, node):
-        self.node = node
-        #pass
-        #print node
-        #print
-        #print
+    def __init__(self, left, right):
+        self.left = left
+        self.right = right
         
 
 class If(object): pass

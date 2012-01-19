@@ -1,2 +1,2 @@
-import action, attribute, condition, grammar, nonterminal, rule, terminal
+import action, attribute, condition, grammar, symbols, rule
 import types, value

@@ -10,8 +10,7 @@ import subprocess
 from random import seed, choice, randint, random
 
 from frontend import parser
-from models.terminal import Terminal
-from models.nonterminal import NonTerminal
+from models.symbols import Terminal, NonTerminal
 
 def dot(name, dotty):
     dot = name + '.dot'
@@ -37,15 +36,19 @@ def fuzz(grammar):
         while stack:
             nonterm = stack.pop()
             rule = choice(nonterm.rules)
+            print rule
             for sym, cnt in rule.pattern:
-                if isinstance(sym, NonTerminal):
-                    stack.append(sym)
+                #print object.__repr__(sym), repr(sym)
+                print sym.clazz, sym.clazz is NonTerminal
+                if sym.clazz is NonTerminal:
+                    stack.append(sym())
                 else:
                     terminal = sym()
+                    print sym
                     terminal.mkvalue()
                     yield terminal
                     
-    return list(sym.value for sym in fuzz(grammar.start))
+    return list(sym.value for sym in fuzz(grammar.start()))
 
 def main():
     init()
@@ -57,7 +60,6 @@ def main():
         'PRINT' : (lambda: 'print'),
     }
     tree, grammar = parser.parse('''
-    /*
     Stmts -> Stmts Stmt
                 with Action {
                   if (Stmt.decl is not None) {
@@ -79,7 +81,7 @@ def main():
                   Stmt.uses is None
                 }
               ;
-*/
+
     Stmt -> VAR NAME EQUAL NUMBER
             with Action {
               Stmt.decl = NAME.value

@@ -6,8 +6,7 @@
 
 import functools
 
-from nonterminal import NonTerminal
-from terminal import Terminal
+from symbols import NonTerminal, Terminal
 
 class Grammar(object):
 

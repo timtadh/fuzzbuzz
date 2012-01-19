@@ -185,8 +185,8 @@ class Parser(object):
 
     def p_ActionStmt1(self, t):
         'ActionStmt : AttributeValue EQUAL Expr'
-        t[0] = Node('Assign').addkid(t[1]).addkid(t[3])
-        action.Assign(t[0])
+        #t[0] = Node('Assign').addkid(t[1]).addkid(t[3])
+        t[0] = action.Assign(t[1], t[3])
 
     def p_ActionStmt2(self, t):
         'ActionStmt : IF LPAREN OrExpr RPAREN LCURLY ActionStmts RCURLY'

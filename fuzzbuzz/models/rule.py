@@ -4,7 +4,7 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
-from nonterminal import NonTerminal
+from symbols import NonTerminal
 from action import Action
 
 class Rule(object):
@@ -15,17 +15,18 @@ class Rule(object):
         self.action = action
         self.condition = condition
 
-    def __repr__(self): return str(self)
-    def __str__(self):
-        return (
-            '<Rule "%s -> %s"%s%s%s>'
-        ) % (
-          self.name,
-          ' '.join(sym.name for sym, cnt in self.pattern),
-          ' with action' if self.action is not None else '',
-          ' and' if self.action is not None and self.condition is not None else '',
-          ' with condition' if self.condition is not None else ''
-        )
+    #def __repr__(self): return str(self)
+    #def __str__(self):
+        #print [object.__repr__(x[0]()) if not hasattr(x[0], 'name') else x[0].name for x in self.pattern]
+        #return (
+            #'<Rule "%s -> %s"%s%s%s>'
+        #) % (
+          #self.name,
+          #' '.join(sym.name for sym, cnt in self.pattern),
+          #' with action' if self.action is not None else '',
+          #' and' if self.action is not None and self.condition is not None else '',
+          #' with condition' if self.condition is not None else ''
+        #)
 
 def mkrules(node):
     def sym_name(node): return node.children[0]

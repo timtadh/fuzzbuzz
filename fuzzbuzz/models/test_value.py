@@ -23,6 +23,7 @@ def test_Value_attempt_write():
     v = creator(None)
     v.__writehook__ = lambda value: value
     assert v.value == None
+    assert not v.hasvalue()
     v.value = 'value'
 
 def test_Set_instantiate():
@@ -46,6 +47,7 @@ def test_WritableValue_write():
     v = creator(None)
     v.__writehook__ = lambda value: value
     assert v.value == None
+    assert not v.hasvalue()
     v.value = 'value'
     assert v.value == 'value'
     
@@ -55,6 +57,7 @@ def test_WritableValue_2_writes():
     v = creator(None)
     v.__writehook__ = lambda value: value
     assert v.value == None
+    assert not v.hasvalue()
     v.value = 'value'
     assert v.value == 'value'
     v.value = 'value2'
