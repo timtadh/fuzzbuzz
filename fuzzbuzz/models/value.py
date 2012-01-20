@@ -13,10 +13,13 @@ def defer(clazz, *args, **kwargs):
         'Makes a new instance of the specified class'
         allargs = list(objs) + list(args)
         instance = object.__new__(clazz)
+        print clazz, allargs
         instance.__init__(*allargs, **kwargs)
         return instance
     instance_creator.func_name = clazz.__name__ + '_creator'
     setattr(instance_creator, 'clazz', clazz)
+    for key, value in kwargs.get('register', dict()).iteritems():
+        setattr(instance_creator, name, value)
     return instance_creator
 
 
@@ -38,7 +41,7 @@ def defer(clazz, *args, **kwargs):
 class Value(object):
 
     #__metaclass__ = defer
-
+    
     def __new__(cls, *args, **kwargs): return defer(cls, *args, **kwargs)
 
     def __init__(self, objs, type, value):

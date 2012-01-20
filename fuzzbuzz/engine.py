@@ -38,6 +38,7 @@ def fuzz(grammar):
             #print nonterm.name
             rule = choice(nonterm.rules)
             print rule
+            print rule.condition
             for sym, cnt in rule.pattern:
                 #print object.__repr__(sym), repr(sym)
                 #print sym.clazz, sym.clazz is NonTerminal
@@ -60,7 +61,7 @@ def main():
         'PRINT' : (lambda: 'print'),
     }
     tree, grammar = parser.parse('''
-    Stmts -> Stmts Stmt
+    Stmts -> /*Stmts Stmt
                 with Action {
                   if (Stmt.decl is not None) {
                     Stmts{1}.names = Stmts{2}.names | { stmt.decl }
@@ -73,9 +74,9 @@ def main():
                   (Stmt.uses is not None && Stmt.uses in Stmts{2}.names) ||
                   (Stmt.decl is not None && Stmt.decl not in Stmts{2}.names)
                 }
-              | Stmt
+              | */Stmt
                 with Action {
-                  Stmts{1}.names = { stmt.decl }
+                  Stmts{1}.names.games.thames.james = { stmt.decl }
                 }
                 with Condition {
                   Stmt.uses is None
@@ -90,7 +91,7 @@ def main():
           | PRINT NAME
             with Action {
               Stmt.decl = None
-              Stmt.uses = NAME.value(a, b, c)(1,2,3)("asd", "asdf", "123")
+              Stmt.uses = NAME.value
             }
           ;
     ''')

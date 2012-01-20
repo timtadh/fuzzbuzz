@@ -262,15 +262,17 @@ class Parser(object):
     
     def p_Value5(self, t):
         'Value : AttributeValue'
-        t[0] = t[1]
+        print '***', t[1]
+        t[0] = attribute.AttrChain(t[1])
 
-    def p_AttributeValue1(self, t):
+    def p_AttributeValue(self, t):
         'AttributeValue : SymbolObject AttributeValue_'
-        kids = [t[1]] + t[2]
-        t[0] = Node('AttrChain', children=kids)
+        t[0] = [t[1]] + t[2]
 
     def p_AttributeValue_1(self, t):
         'AttributeValue_ : DOT Attr AttributeValue_'
+        print t[2](dict(),
+          {'james':'james', 'thames':'thames', 'games':'games', 'names':'names', 'decl':'decl', 'uses':'uses', 'value':'value'}).value
         t[0] = [t[2]] + t[3]
 
     def p_AttributeValue_2(self, t):
@@ -279,11 +281,11 @@ class Parser(object):
 
     def p_SymbolObject1(self, t):
         'SymbolObject : Symbol'
-        t[0] = attribute.SymbolObject(t[1].children[0], 1)
+        t[0] = attribute.Attribute(attribute.SymbolObject(t[1].children[0], 1))
         
     def p_SymbolObject2(self, t):
         'SymbolObject : Symbol LCURLY NUMBER RCURLY'
-        t[0] = attribute.SymbolObject(t[1].children[0], t[3])
+        t[0] = attribute.Attribute(attribute.SymbolObject(t[1].children[0], t[3]))
 
     def p_Attr1(self, t):
         'Attr : NAME'
@@ -312,6 +314,7 @@ class Parser(object):
 
     def p_Fcall2(self, t):
         'Fcall : LPAREN ParameterList RPAREN'
+        print t[2]
         t[0] = t[2]
 
     def p_ParameterList1(self, t):
@@ -320,6 +323,7 @@ class Parser(object):
 
     def p_ParameterList2(self, t):
         'ParameterList : Value'
+        print '----------->', t[1]
         t[0] = [t[1]]
 
     def p_SetLiteral1(self, t):
