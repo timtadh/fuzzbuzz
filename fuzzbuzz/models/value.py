@@ -13,7 +13,7 @@ def defer(clazz, *args, **kwargs):
         'Makes a new instance of the specified class'
         allargs = list(objs) + list(args)
         instance = object.__new__(clazz)
-        print clazz, allargs
+        #print clazz, allargs
         instance.__init__(*allargs, **kwargs)
         return instance
     instance_creator.func_name = clazz.__name__ + '_creator'

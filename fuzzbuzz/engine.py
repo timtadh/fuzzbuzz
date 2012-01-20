@@ -30,26 +30,40 @@ def init():
 
 def fuzz(grammar):
 
+    #def fuzz(start):
+    out = list()
     def fuzz(start):
+
         stack = list()
-        stack.append(start)
+        stack.append((start, 0))
         while stack:
-            nonterm = stack.pop()
-            #print nonterm.name
+            nonterm, i = stack.pop()
             rule = choice(nonterm.rules)
-            print rule
-            print rule.condition
+            nextfuzz = list()
             for sym, cnt in rule.pattern:
-                #print object.__repr__(sym), repr(sym)
-                #print sym.clazz, sym.clazz is NonTerminal
                 if sym.clazz is NonTerminal:
-                    stack.append(sym())
+                    stack.append((sym(),i))
+                    #for t in fuzz(sym()): yield t
                 else:
                     terminal = sym()
                     terminal.mkvalue()
-                    yield terminal
-                    
-    return list(sym.value for sym in fuzz(grammar.start()))
+                    out.insert(i, terminal)
+                    i += 1
+            print rule, out
+        ##stack = list()
+        ##stack.append(start)
+        #while stack:
+            #nonterm = stack.pop()
+            #rule = choice(nonterm.rules)
+            #for sym, cnt in rule.pattern:
+                #if sym.clazz is NonTerminal:
+                    #stack.append(sym())
+                #else:
+                    #terminal = sym()
+                    #terminal.mkvalue()
+                    #yield terminal
+    fuzz(grammar.start())
+    return list(sym.value for sym in out)
 
 def main():
     init()
@@ -59,9 +73,15 @@ def main():
         'EQUAL' : (lambda: '='),
         'NUMBER' : (lambda: str(randint(1, 1000))),
         'PRINT' : (lambda: 'print'),
+        'NEWLINE' : (lambda: '\n'),
     }
     tree, grammar = parser.parse('''
-    Stmts -> /*Stmts Stmt
+    As -> As NEWLINE A
+        | A
+        ;
+    A -> VAR B NUMBER  ;
+    B -> EQUAL ;
+    /*Stmts -> Stmts Stmt
                 with Action {
                   if (Stmt.decl is not None) {
                     Stmts{1}.names = Stmts{2}.names | { stmt.decl }
@@ -74,7 +94,7 @@ def main():
                   (Stmt.uses is not None && Stmt.uses in Stmts{2}.names) ||
                   (Stmt.decl is not None && Stmt.decl not in Stmts{2}.names)
                 }
-              | */Stmt
+             | Stmt
                 with Action {
                   Stmts{1}.names.games.thames.james = { stmt.decl }
                 }
@@ -93,13 +113,13 @@ def main():
               Stmt.decl = None
               Stmt.uses = NAME.value
             }
-          ;
+          ; */
     ''')
     dot('test', tree.dotty())
     #print tree.dotty()
     #print repr(tree)
     #print grammar
-    print fuzz(grammar)
+    print ' '.join(fuzz(grammar))
 
 if __name__ =='__main__':
     main()
