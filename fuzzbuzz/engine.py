@@ -29,60 +29,24 @@ def init():
     seed()
 
 def fuzz(grammar):
-
-    #def fuzz(start):
-    out = list()
-    def fuzzR(nonterm):
-        rule = choice(nonterm.rules)
-        nextfuzz = list()
-        for sym, cnt in rule.pattern:
-            if sym.clazz is NonTerminal:
-                fuzzR(sym())
-            else:
-                terminal = sym()
-                terminal.mkvalue()
-                out.append(terminal)
-        
-    
-    out = list()
+  
     def fuzz(start):
         stack = list()
-        no_continue = (lambda:None)
-        def make_continue(rule, i, next_continue):
-            def continuef():
-                stack.append((rule, i, next_continue))
-            return continuef
-
-        stack.append((choice(start.rules), 0, no_continue))
+        stack.append((choice(start.rules), 0))
         while stack:
-            rule, j, continuef = stack.pop()
+            rule, j = stack.pop()
             nextfuzz = list()
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.clazz is NonTerminal:
-                    stack.append((choice(sym().rules),0,make_continue(rule,i+1,continuef)))
+                    stack.append((rule,i+1))
+                    stack.append((choice(sym().rules), 0))
                     break
                 else:
                     terminal = sym()
                     terminal.mkvalue()
-                    out.append(terminal)
-            else:
-                continuef()
-            #if i+1 == len(rule.pattern):
-                #print rule, out
-        ##stack = list()
-        ##stack.append(start)
-        #while stack:
-            #nonterm = stack.pop()
-            #rule = choice(nonterm.rules)
-            #for sym, cnt in rule.pattern:
-                #if sym.clazz is NonTerminal:
-                    #stack.append(sym())
-                #else:
-                    #terminal = sym()
-                    #terminal.mkvalue()
-                    #yield terminal
-    fuzz(grammar.start())
-    return list(sym.value for sym in out)
+                    yield terminal
+    
+    return list(sym.value for sym in fuzz(grammar.start()))
 
 def main():
     init()
