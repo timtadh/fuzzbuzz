@@ -38,7 +38,6 @@ def test_Object_has_novalue():
     creator = Object('test')
     assert not creator.has_value(objs)
 
-@tools.raises(UnboundValueError)
 def test_Object_has_value_uninstantiatable():
     objs = {'asdf':None}
     creator = Object('test')

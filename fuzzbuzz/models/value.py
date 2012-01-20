@@ -34,7 +34,10 @@ def defer(clazz, *args, **kwargs):
     def has_value(*objs):
         'returns True if the value of this object will not be None'
         instance, allargs = _mkinst(objs)
-        instance.__init__(*allargs, **kwargs)
+        try:
+            instance.__init__(*allargs, **kwargs)
+        except UnboundValueError:
+            return False
         return instance.value is not None
     
     instance_creator.func_name = clazz.__name__ + '_creator'

@@ -5,7 +5,6 @@
 #For licensing see the LICENSE file in the top level directory.
 
 from executable import Executable
-from 
 
 class Constraint(Executable):
 
@@ -16,5 +15,13 @@ class Constraint(Executable):
 class Is(Constraint):
 
     def execute(self, objs):
-        a = self.a(objs)
-        b = self.b(objs)
+        a_hasvalue = self.a.has_value(objs)
+        b_hasvalue = self.b.has_value(objs)
+        if a_hasvalue and b_hasvalue:
+            pass
+        elif a_hasvalue:
+            pass
+        elif b_hasvalue:
+            pass
+        else:
+            pass # nothing should need to be done here

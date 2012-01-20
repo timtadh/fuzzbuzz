@@ -153,7 +153,10 @@ class Parser(object):
 
     def p_CmpExpr(self, t):
         'CmpExpr : Expr CmpOp Expr'
-        t[0] = t[2].addkid(t[1]).addkid(t[3])
+        if t[2].label == 'is':
+            t[0] = models.constraints.Is(t[1], t[3])
+        else:
+            t[0] = t[2].addkid(t[1]).addkid(t[3])
 
     def p_CmpOp1(self, t):
         '''CmpOp : EQEQ
