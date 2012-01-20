@@ -4,6 +4,9 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
+from nose import tools
+
+from value import UnboundValueError
 from attribute import *
 from attr_types import *
 
@@ -14,6 +17,32 @@ def test_Object_instantiate():
     assert isinstance(v, Object)
     #assert v.type == 'type'
     assert v.value == 1
+
+def test_Object_can_instantiate():
+    objs = {'test':1}
+    creator = Object('test')
+    assert creator.can_instantiate(objs)
+
+def test_Object_cannot_instantiate():
+    objs = {'asdf':1}
+    creator = Object('test')
+    assert not creator.can_instantiate(objs)
+
+def test_Object_has_value():
+    objs = {'test':1}
+    creator = Object('test')
+    assert creator.has_value(objs)
+
+def test_Object_has_novalue():
+    objs = {'test':None}
+    creator = Object('test')
+    assert not creator.has_value(objs)
+
+@tools.raises(UnboundValueError)
+def test_Object_has_value_uninstantiatable():
+    objs = {'asdf':None}
+    creator = Object('test')
+    assert not creator.has_value(objs)
 
 def test_SymbolObject_instantiate():
     creator = SymbolObject('test', 12)

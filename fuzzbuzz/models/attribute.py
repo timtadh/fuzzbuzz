@@ -24,7 +24,6 @@ class Attribute(Value):
 
     def __init__(self, gobjs, cobjs, obj, call_chain=None):
         obj = obj(cobjs).value
-        print obj
         if call_chain is not None:
             for params in call_chain(gobjs).value:
                 assert hasattr(obj, '__call__')
@@ -36,7 +35,6 @@ class Attribute(Value):
 class FCall(Value):
 
     def __init__(self, objs, parameters):
-        print parameters
         type = None                          ## TODO TYPES
         value = [param(objs).value for param in parameters]
         super(FCall, self).__init__(objs, type, value)
