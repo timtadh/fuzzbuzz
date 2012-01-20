@@ -30,29 +30,37 @@ def init():
 
 def fuzz(grammar):
 
-    def display(nonterm):
-        print nonterm
-        print ' '*2, nonterm.value
+    def display(nonterm, i=0):
+        if not nonterm.value: return
+        print ' '*i, nonterm
+        for key, value in nonterm.value.iteritems():
+            print ' '*(i+2), key,
+            if isinstance(value, NonTerminal):
+                print
+                display(value, i+4)
+            else:
+                print value
   
     def fuzz(start):
         stack = list()
         stack.append((start, choice(start.rules), 0))
         while stack:
             nonterm, rule, j = stack.pop()
-            display(nonterm)
             nextfuzz = list()
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.clazz is NonTerminal:
                     new_nonterm = sym()
                     stack.append((nonterm, rule, i+1))
                     stack.append((new_nonterm, choice(new_nonterm.rules), 0))
-                    nonterm.value[(new_nonterm.name, cnt)] = new_nonterm.value
+                    nonterm.value[(new_nonterm.name, cnt)] = new_nonterm
                     break
                 else:
                     terminal = sym()
                     terminal.mkvalue()
                     yield terminal
                     nonterm.value[(terminal.name, cnt)] = terminal
+
+        display(start)
     
     return list(sym.value for sym in fuzz(grammar.start()))
 
