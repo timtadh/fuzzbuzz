@@ -6,7 +6,7 @@
 
 ## Should contain the implementation of the main fuzzing algorithm.
 
-import subprocess
+import subprocess, functools
 from random import seed, choice, randint, random
 
 from frontend import parser
@@ -32,24 +32,43 @@ def fuzz(grammar):
 
     #def fuzz(start):
     out = list()
+    def fuzzR(nonterm):
+        rule = choice(nonterm.rules)
+        nextfuzz = list()
+        for sym, cnt in rule.pattern:
+            if sym.clazz is NonTerminal:
+                fuzzR(sym())
+            else:
+                terminal = sym()
+                terminal.mkvalue()
+                out.append(terminal)
+        
+    
+    out = list()
     def fuzz(start):
-
         stack = list()
-        stack.append((start, 0))
+        no_continue = (lambda:None)
+        def make_continue(rule, i, next_continue):
+            def continuef():
+                stack.append((rule, i, next_continue))
+            return continuef
+
+        stack.append((choice(start.rules), 0, no_continue))
         while stack:
-            nonterm, i = stack.pop()
-            rule = choice(nonterm.rules)
+            rule, j, continuef = stack.pop()
             nextfuzz = list()
-            for sym, cnt in rule.pattern:
+            for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.clazz is NonTerminal:
-                    stack.append((sym(),i))
-                    #for t in fuzz(sym()): yield t
+                    stack.append((choice(sym().rules),0,make_continue(rule,i+1,continuef)))
+                    break
                 else:
                     terminal = sym()
                     terminal.mkvalue()
-                    out.insert(i, terminal)
-                    i += 1
-            print rule, out
+                    out.append(terminal)
+            else:
+                continuef()
+            #if i+1 == len(rule.pattern):
+                #print rule, out
         ##stack = list()
         ##stack.append(start)
         #while stack:
@@ -81,7 +100,7 @@ def main():
         ;
     A -> VAR B NUMBER  ;
     B -> EQUAL ;
-    /*Stmts -> Stmts Stmt
+    /*Stmts -> Stmts NEWLINE Stmt
                 with Action {
                   if (Stmt.decl is not None) {
                     Stmts{1}.names = Stmts{2}.names | { stmt.decl }
