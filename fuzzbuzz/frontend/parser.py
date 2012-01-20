@@ -262,7 +262,6 @@ class Parser(object):
     
     def p_Value5(self, t):
         'Value : AttributeValue'
-        print '***', t[1]
         t[0] = attribute.AttrChain(t[1])
 
     def p_AttributeValue(self, t):
@@ -271,8 +270,7 @@ class Parser(object):
 
     def p_AttributeValue_1(self, t):
         'AttributeValue_ : DOT Attr AttributeValue_'
-        print t[2](dict(),
-          {'james':'james', 'thames':'thames', 'games':'games', 'names':'names', 'decl':'decl', 'uses':'uses', 'value':'value'}).value
+        #print t[2](dict(), {'james':'james', 'thames':'thames', 'games':'games', 'names':'names', 'decl':'decl', 'uses':'uses', 'value':'value'}).value
         t[0] = [t[2]] + t[3]
 
     def p_AttributeValue_2(self, t):
@@ -323,7 +321,6 @@ class Parser(object):
 
     def p_ParameterList2(self, t):
         'ParameterList : Value'
-        print '----------->', t[1]
         t[0] = [t[1]]
 
     def p_SetLiteral1(self, t):

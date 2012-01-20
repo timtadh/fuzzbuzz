@@ -29,22 +29,30 @@ def init():
     seed()
 
 def fuzz(grammar):
+
+    def display(nonterm):
+        print nonterm
+        print ' '*2, nonterm.value
   
     def fuzz(start):
         stack = list()
-        stack.append((choice(start.rules), 0))
+        stack.append((start, choice(start.rules), 0))
         while stack:
-            rule, j = stack.pop()
+            nonterm, rule, j = stack.pop()
+            display(nonterm)
             nextfuzz = list()
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.clazz is NonTerminal:
-                    stack.append((rule,i+1))
-                    stack.append((choice(sym().rules), 0))
+                    new_nonterm = sym()
+                    stack.append((nonterm, rule, i+1))
+                    stack.append((new_nonterm, choice(new_nonterm.rules), 0))
+                    nonterm.value[(new_nonterm.name, cnt)] = new_nonterm.value
                     break
                 else:
                     terminal = sym()
                     terminal.mkvalue()
                     yield terminal
+                    nonterm.value[(terminal.name, cnt)] = terminal
     
     return list(sym.value for sym in fuzz(grammar.start()))
 
@@ -59,12 +67,14 @@ def main():
         'NEWLINE' : (lambda: '\n'),
     }
     tree, grammar = parser.parse('''
+    /*
     As -> As NEWLINE A
         | A
         ;
     A -> VAR B NUMBER  ;
     B -> EQUAL ;
-    /*Stmts -> Stmts NEWLINE Stmt
+    */
+    Stmts -> Stmts NEWLINE Stmt
                 with Action {
                   if (Stmt.decl is not None) {
                     Stmts{1}.names = Stmts{2}.names | { stmt.decl }
@@ -96,13 +106,13 @@ def main():
               Stmt.decl = None
               Stmt.uses = NAME.value
             }
-          ; */
+          ;
     ''')
+    print ' '.join(fuzz(grammar))
     dot('test', tree.dotty())
     #print tree.dotty()
     #print repr(tree)
     #print grammar
-    print ' '.join(fuzz(grammar))
 
 if __name__ =='__main__':
     main()
