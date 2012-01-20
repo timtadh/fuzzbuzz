@@ -18,10 +18,14 @@ class Is(Constraint):
         a_hasvalue = self.a.has_value(objs)
         b_hasvalue = self.b.has_value(objs)
         if a_hasvalue and b_hasvalue:
-            pass
+            assert self.a(objs).value == self.b(objs).value
         elif a_hasvalue:
+            print 'set b to', self.a(objs).value
             pass
         elif b_hasvalue:
+            print 'set a to', self.b(objs).value
             pass
         else:
+            print self.b(objs).value
+            print 'no values'
             pass # nothing should need to be done here

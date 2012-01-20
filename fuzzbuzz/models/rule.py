@@ -46,7 +46,7 @@ def mkrules(node):
                 if type == 'Action':
                     action = Action(ACStmt)
                 elif type == 'Condition':
-                    condition = ACStmt
+                    condition = ACStmt.children[0]['obj']
                 else:
                     raise Exception, 'Unexpected type %s' % (type,)
         rules.append(Rule(name, pattern, action, condition))

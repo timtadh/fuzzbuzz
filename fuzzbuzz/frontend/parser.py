@@ -141,7 +141,7 @@ class Parser(object):
 
     def p_BooleanExpr1(self, t):
         'BooleanExpr : Expr'
-        t[0] = Node('BooleanCast').addkid(t[1])
+        t[0] = {'node':Node('BooleanCast').addkid(t[1]), 'obj':None}
 
     def p_BooleanExpr2(self, t):
         'BooleanExpr : CmpExpr'
@@ -149,14 +149,12 @@ class Parser(object):
 
     def p_BooleanExpr3(self, t):
         'BooleanExpr : LPAREN OrExpr RPAREN'
-        t[0] = t[2]
+        t[0] = {'node':t[2], 'obj':None}
 
     def p_CmpExpr(self, t):
         'CmpExpr : Expr CmpOp Expr'
-        if t[2].label == 'is':
-            t[0] = models.constraints.Is(t[1], t[3])
-        else:
-            t[0] = t[2].addkid(t[1]).addkid(t[3])
+        obj = models.constraints.Is(t[1], t[3]) if t[2].label == 'is' else None
+        t[0] = {'node':t[2].addkid(t[1]).addkid(t[3]), 'obj':obj}
 
     def p_CmpOp1(self, t):
         '''CmpOp : EQEQ

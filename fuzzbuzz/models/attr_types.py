@@ -26,5 +26,5 @@ class Namespace(Type):
 
 class NoneType(Type):
     def __new__(self):
-        return None
+        return object.__new__(NoneType)
 
