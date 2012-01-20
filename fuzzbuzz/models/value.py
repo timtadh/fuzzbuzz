@@ -8,16 +8,39 @@ import functools
 
 from attr_types import Set, String
 
+class UnboundValueError(RuntimeError): pass
+
 def defer(clazz, *args, **kwargs):
+
+    def _mkinst(objs):
+        allargs = list(objs) + list(args)
+        return object.__new__(clazz), allargs
+
     def instance_creator(*objs):
         'Makes a new instance of the specified class'
-        allargs = list(objs) + list(args)
-        instance = object.__new__(clazz)
-        #print clazz, allargs
+        instance, allargs = _mkinst(objs)
         instance.__init__(*allargs, **kwargs)
         return instance
+  
+    def can_instantiate(*objs):
+        'returns True if this object can actually be created'
+        instance, allargs = _mkinst(objs)
+        try:
+            instance.__init__(*allargs, **kwargs)
+        except UnboundValueError:
+            return False
+        return True
+    
+    def has_value(*objs):
+        'returns True if the value of this object will not be None'
+        instance, allargs = _mkinst(objs)
+        instance.__init__(*allargs, **kwargs)
+        return instance.value is not None
+    
     instance_creator.func_name = clazz.__name__ + '_creator'
     setattr(instance_creator, 'clazz', clazz)
+    setattr(instance_creator, 'can_instantiate', can_instantiate)
+    setattr(instance_creator, 'has_value', has_value)
     for key, value in kwargs.get('register', dict()).iteritems():
         setattr(instance_creator, name, value)
     return instance_creator

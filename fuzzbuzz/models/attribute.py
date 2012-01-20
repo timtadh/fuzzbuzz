@@ -4,7 +4,7 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
-from value import Value, WritableValue
+from value import Value, WritableValue, UnboundValueError
 
 class AttrChain(Value):
 
@@ -52,6 +52,8 @@ class Object(Value):
 
     def __init__(self, objs, name):
         type = None                          ## TODO TYPES
+        if name not in objs:
+            raise UnboundValueError
         value = objs[name]
         #if isinstance(objs, dict): value = objs[name]
         #else: value = getattr(objs, name)
@@ -61,5 +63,7 @@ class SymbolObject(Value):
 
     def __init__(self, objs, name, id):
         type = None                          ## TODO TYPES
+        if (name, id) not in objs:
+            raise UnboundValueError
         value = objs[(name, id)]
         super(SymbolObject, self).__init__(objs, type, value)
