@@ -31,17 +31,17 @@ def test_Object_cannot_instantiate():
 def test_Object_has_value():
     objs = {'test':1}
     creator = Object('test')
-    assert creator.has_value(objs)
+    assert creator.hasvalue(objs)
 
 def test_Object_has_novalue():
     objs = {'test':None}
     creator = Object('test')
-    assert not creator.has_value(objs)
+    assert not creator.hasvalue(objs)
 
 def test_Object_has_value_uninstantiatable():
     objs = {'asdf':None}
     creator = Object('test')
-    assert not creator.has_value(objs)
+    assert not creator.hasvalue(objs)
 
 def test_SymbolObject_instantiate():
     creator = SymbolObject('test', 12)

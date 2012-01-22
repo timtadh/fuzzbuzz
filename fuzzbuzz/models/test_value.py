@@ -6,7 +6,7 @@
 
 from nose import tools
 
-from value import Value, SetValue, WritableValue
+from value import Value, SetValue, WritableValue, BoundValueError
 from attr_types import *
 
 def test_Value_instantiate():
@@ -16,6 +16,12 @@ def test_Value_instantiate():
     assert isinstance(v, Value)
     assert v.type == 'type'
     assert v.value == 'value'
+
+@tools.raises(BoundValueError)
+def test_Value_attempt_write():
+    creator = Value('type', None)
+    v.creator.provide_value('value', None)
+   
 
 @tools.raises(RuntimeError)
 def test_Value_attempt_write():

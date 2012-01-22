@@ -9,6 +9,7 @@ import functools
 from attr_types import Set, String
 
 class UnboundValueError(RuntimeError): pass
+class BoundValueError(RuntimeError): pass
 
 def defer(clazz, *args, **kwargs):
 
@@ -31,7 +32,7 @@ def defer(clazz, *args, **kwargs):
             return False
         return True
     
-    def has_value(*objs):
+    def hasvalue(*objs):
         'returns True if the value of this object will not be None'
         instance, allargs = _mkinst(objs)
         try:
@@ -39,11 +40,22 @@ def defer(clazz, *args, **kwargs):
         except UnboundValueError:
             return False
         return instance.value is not None
+
+    def provide_value(value, *objs):
+        '''creates an instance and provides it a value. Will cause an error if
+        a value could have been provided by objs.
+        '''
+        if hasvalue(*objs):
+            raise BoundValueError, \
+            'Cannot bind a custom value to an object which already has one.'
+        instance, allargs = _mkinst(objs)
+        instance.__init_with_value__(value, *allargs, **kwargs)
+        return instance
     
     instance_creator.func_name = clazz.__name__ + '_creator'
     setattr(instance_creator, 'clazz', clazz)
     setattr(instance_creator, 'can_instantiate', can_instantiate)
-    setattr(instance_creator, 'has_value', has_value)
+    setattr(instance_creator, 'hasvalue', hasvalue)
     for key, value in kwargs.get('register', dict()).iteritems():
         setattr(instance_creator, name, value)
     return instance_creator
@@ -83,6 +95,10 @@ class Value(object):
         #self.__writable = False
         #if delhook:
             #del self.__writehook__
+
+    def __init_with_value__(self, value1, objs, type, value2):
+        raise BoundValueError, \
+        'Cannot bind a generic value-type with a provided value'
 
     def __set_writable__(self):
         if not issubclass(self.__class__, WritableValue):
