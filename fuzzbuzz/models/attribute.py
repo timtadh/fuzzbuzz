@@ -10,61 +10,68 @@ class AttrChain(Value):
 
     def __init__(self, lookup_chain):
         self.lookup_chain = lookup_chain
+        self.__type = None                          ## TODO TYPES
 
     def value(self, objs):
         cobjs = objs
         cvalue = None
-        for attr in lookup_chain:
-            cvalue = attr(objs, cobjs).value
-            #import pdb
-            #pdb.set_trace()
+        for attr in self.lookup_chain:
+            cvalue = attr.value(objs, cobjs)
             cobjs = cvalue
-        type = None                          ## TODO TYPES
-        value = cvalue
-        super(AttrChain, self).__init__(objs, type, value)
+        return cvalue
 
 class Attribute(Value):
 
-    def __init__(self, gobjs, cobjs, obj, call_chain=None):
-        obj = obj(cobjs).value
-        if call_chain is not None:
-            for params in call_chain(gobjs).value:
+    def __init__(self, obj, call_chain=None):
+        self.obj = obj
+        self.call_chain = call_chain
+        self.__type = None                          ## TODO TYPES
+
+    def value(self, gobjs, cobjs):
+        obj = self.obj.value(cobjs)
+        if self.call_chain is not None:
+            for params in self.call_chain.value(gobjs):
                 assert hasattr(obj, '__call__')
                 obj = obj.__call__(*params)
-        value = obj
-        type = None                          ## TODO TYPES
-        super(Attribute, self).__init__(None, type, value)
+        return obj
 
 class FCall(Value):
 
-    def __init__(self, objs, parameters):
-        type = None                          ## TODO TYPES
-        value = [param(objs).value for param in parameters]
-        super(FCall, self).__init__(objs, type, value)
+    def __init__(self, parameters):
+        self.parameters = parameters
+        self.__type = None                          ## TODO TYPES
+
+    def value(self, objs):
+        return [param.value(objs) for param in self.parameters]
 
 class CallChain(Value):
 
-    def __init__(self, objs, calls):
-        type = None
-        value = [call(objs).value for call in calls]
-        super(CallChain, self).__init__(objs, type, value)
+    def __init__(self, calls):
+        self.calls = calls
+        self.__type = None                          ## TODO TYPES
+
+    def value(self, objs):
+        return [call.value(objs) for call in self.calls]
 
 class Object(Value):
 
-    def __init__(self, objs, name):
-        type = None                          ## TODO TYPES
-        if name not in objs:
+    def __init__(self, name):
+        self.name = name
+        self.__type = None                          ## TODO TYPES
+
+    def value(self, objs):
+        if self.name not in objs:
             raise UnboundValueError
-        value = objs[name]
-        #if isinstance(objs, dict): value = objs[name]
-        #else: value = getattr(objs, name)
-        super(Object, self).__init__(objs, type, value)
+        return objs[self.name]
 
 class SymbolObject(Value):
 
-    def __init__(self, objs, name, id):
-        type = None                          ## TODO TYPES
-        if (name, id) not in objs:
+    def __init__(self, name, id):
+        self.name = name
+        self.id = id
+        self.__type = None                          ## TODO TYPES
+
+    def value(self, objs):
+        if (self.name, self.id) not in objs:
             raise UnboundValueError
-        value = objs[(name, id)]
-        super(SymbolObject, self).__init__(objs, type, value)
+        return objs[(self.name, self.id)]

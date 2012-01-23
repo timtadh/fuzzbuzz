@@ -11,64 +11,46 @@ from attribute import *
 from attr_types import *
 
 def test_Object_instantiate():
-    creator = Object('test')
-    v = creator({'test':1})
-    assert hasattr(creator, 'func_name')
-    assert isinstance(v, Object)
-    #assert v.type == 'type'
-    assert v.value == 1
-
-def test_Object_can_instantiate():
     objs = {'test':1}
-    creator = Object('test')
-    assert creator.can_instantiate(objs)
-
-def test_Object_cannot_instantiate():
-    objs = {'asdf':1}
-    creator = Object('test')
-    assert not creator.can_instantiate(objs)
+    v = Object('test')
+    assert isinstance(v, Object)
+    assert v.value(objs) == 1
 
 def test_Object_has_value():
     objs = {'test':1}
-    creator = Object('test')
-    assert creator.hasvalue(objs)
+    v = Object('test')
+    assert v.has_value(objs)
 
 def test_Object_has_novalue():
     objs = {'test':None}
-    creator = Object('test')
-    assert not creator.hasvalue(objs)
+    v = Object('test')
+    assert not v.has_value(objs)
 
 def test_Object_has_value_uninstantiatable():
     objs = {'asdf':None}
-    creator = Object('test')
-    assert not creator.hasvalue(objs)
+    v = Object('test')
+    assert not v.has_value(objs)
 
 def test_SymbolObject_instantiate():
-    creator = SymbolObject('test', 12)
-    v = creator({('test', 12):1})
-    assert hasattr(creator, 'func_name')
+    objs = {('test', 12):1}
+    v = SymbolObject('test', 12)
     assert isinstance(v, SymbolObject)
-    #assert v.type == 'type'
-    assert v.value == 1
+    assert v.value(objs) == 1
 
 def test_FCall_instantiate():
-    creator = FCall([Object('test'),Value(Number, 2),Value(Number, 3)])
-    v = creator({'test':1})
-    assert hasattr(creator, 'func_name')
+    objs = {'test':1}
+    v = FCall([Object('test'),Value(Number, 2),Value(Number, 3)])
     assert isinstance(v, FCall)
-    #assert v.type == 'type'
-    assert v.value == [1,2,3]
+    assert v.value(objs) == [1,2,3]
 
 def test_CallChain_instantiate():
+    objs = {'test':1}
     fc1 = FCall([Object('test'),Value(Number, 2),Value(Number, 3)])
     fc2 = FCall([Value(Number, 4),Value(Number, 5)])
     fc3 = FCall([Value(Number, 6),Value(Number, 7)])
-    creator = CallChain([fc1, fc2, fc3])
-    v = creator({'test':1})
-    assert hasattr(creator, 'func_name')
+    v = CallChain([fc1, fc2, fc3])
     assert isinstance(v, CallChain)
-    #assert v.type == 'type'
-    assert v.value == [[1,2,3],[4,5],[6,7]]
+    assert v.value(objs) == [[1,2,3],[4,5],[6,7]]
 
 def test_Attribute_instantiate():
     def f(a,b,c):
@@ -77,17 +59,15 @@ def test_Attribute_instantiate():
                 return a*b*c + d*e + f*g
             return h
         return g
+    gobjs, cobjs = {'test':1}, {'f':f}
     fc1 = FCall([Object('test'),Value(Number, 2),Value(Number, 3)])
     fc2 = FCall([Value(Number, 4),Value(Number, 5)])
     fc3 = FCall([Value(Number, 6),Value(Number, 7)])
     cc = CallChain([fc1, fc2, fc3])
     obj = Object('f')
-    creator = Attribute(obj, cc)
-    v = creator({'test':1}, {'f':f})
-    assert hasattr(creator, 'func_name')
+    v = Attribute(obj, cc)
     assert isinstance(v, Attribute)
-    #assert v.type == 'type'
-    assert v.value == 1*2*3 + 4*5 + 6*7
+    assert v.value(gobjs, cobjs) == 1*2*3 + 4*5 + 6*7
 
 def test_AttrChain_instantiate():
     A = dict()
@@ -100,6 +80,7 @@ def test_AttrChain_instantiate():
             return h
         return g
     A.update({'reflect':reflect, 'f':f})
+    objs = {'test':1, 'f':None, ('a',1):A}
     fc1 = FCall([Object('test'),Value(Number, 2),Value(Number, 3)])
     fc2 = FCall([Value(Number, 4),Value(Number, 5)])
     fc3 = FCall([Value(Number, 6),Value(Number, 7)])
@@ -109,9 +90,6 @@ def test_AttrChain_instantiate():
     a1 = Attribute(sym)
     a2 = Attribute(Object('reflect'), CallChain([FCall([])]))
     a3 = Attribute(obj, cc)
-    creator = AttrChain([a1,a2,a3])
-    v = creator({'test':1, 'f':None, ('a',1):A})
-    assert hasattr(creator, 'func_name')
+    v = AttrChain([a1,a2,a3])
     assert isinstance(v, AttrChain)
-    #assert v.type == 'type'
-    assert v.value == 1*2*3 + 4*5 + 6*7
+    assert v.value(objs) == 1*2*3 + 4*5 + 6*7
