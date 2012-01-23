@@ -5,7 +5,7 @@
 #For licensing see the LICENSE file in the top level directory.
 
 from attr_types import String, Namespace
-from value import Value, WritableValue
+from value import Value
 
 def make_accessable(name, pos):
     def dec(f):
@@ -16,7 +16,7 @@ def make_accessable(name, pos):
         return maker
     return dec
 
-class Terminal(WritableValue):
+class Terminal(Value):
 
     stringifiers = None
 
