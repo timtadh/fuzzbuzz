@@ -7,54 +7,28 @@
 from attr_types import String, Namespace
 from value import Value
 
-def make_accessable(name, pos):
-    def dec(f):
-        def maker(*args, **kwargs):
-            defer = f(*args, **kwargs)
-            setattr(defer, name, args[pos])
-            return defer
-        return maker
-    return dec
-
-class Terminal(Value):
+class Terminal(object):
 
     stringifiers = None
-
-    @make_accessable('name', 1)
-    def __new__(cls, *args, **kwargs):
-        return super(Terminal, cls).__new__(cls, *args, **kwargs)
     
     def __init__(self, name):
         assert self.stringifiers is not None
         self.name = name
-        super(Terminal, self).__init__(None, String, None)
 
-    def __writehook__(self, value):
-        pass
-    
     def mkvalue(self):
-        if self.value is not None:
-            raise RuntimeError, (
-              'Tried to make a new value for a terminal, %s, who already has '
-              'one.'
-            ) % (self.name)
-        # defers to user supplied function for each terminal type.
-        self.value = self.stringifiers[self.name]()
-        return self.value
+        return self.stringifiers[self.name]()
 
     def __repr__(self): return str(self)
     def __str__(self): return '<Term %s>' % self.name
 
-class NonTerminal(Value):
-
-    @make_accessable('name', 1)
-    def __new__(cls, *args, **kwargs):
-        return super(NonTerminal, cls).__new__(cls, *args, **kwargs)
+class NonTerminal(object):
     
     def __init__(self, name, rules):
         self.name = name
         self.rules = rules
-        super(NonTerminal, self).__init__(None, Namespace, dict())
+
+    def mkvalue(self):
+        return dict()
 
     def __repr__(self): return str(self)
     def __str__(self):

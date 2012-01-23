@@ -30,11 +30,11 @@ def init():
 
 def fuzz(grammar):
 
-    def choose(nonterm):
+    def choose(nonterm, namespace):
         rule = choice(nonterm.rules)
         if rule.condition is not None:
             #print nonterm.value
-            rule.condition.execute(nonterm.value)
+            rule.condition.execute(namespace)
         return rule
 
     def display(nonterm, i=0):
@@ -50,26 +50,30 @@ def fuzz(grammar):
   
     def fuzz(start):
         stack = list()
-        stack.append((start, choose(start), 0))
+        objs = start.mkvalue()
+        stack.append((objs, choose(start, objs), 0))
         while stack:
-            nonterm, rule, j = stack.pop()
+            objs, rule, j = stack.pop()
             nextfuzz = list()
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
-                if sym.clazz is NonTerminal:
-                    new_nonterm = sym()
-                    stack.append((nonterm, rule, i+1))
-                    stack.append((new_nonterm, choose(new_nonterm), 0))
-                    nonterm.value[(new_nonterm.name, cnt)] = new_nonterm.value
+                if sym.__class__ is NonTerminal:
+                    new_objs = sym.mkvalue()
+                    objs[(sym.name, cnt)] = new_objs
+                    stack.append((objs, rule, i+1))
+                    stack.append((new_objs, choose(sym, new_objs), 0))
                     break
                 else:
-                    terminal = sym()
-                    terminal.mkvalue()
-                    yield terminal
-                    nonterm.value[(terminal.name, cnt)] = terminal
+                    if (sym.name, cnt) in objs:
+                        yield objs[(terminal.name, cnt)]
+                    else:
+                        yield sym.mkvalue()
+                    #terminal = sym.mkvalue()
+                    #yield terminal
+                    #objs[] = terminal
 
         #display(start)
     
-    return list(sym.value for sym in fuzz(grammar.start()))
+    return list(sym for sym in fuzz(grammar.start))
 
 def main():
     init()
