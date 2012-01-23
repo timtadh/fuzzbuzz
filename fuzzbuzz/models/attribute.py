@@ -8,7 +8,10 @@ from value import Value, UnboundValueError
 
 class AttrChain(Value):
 
-    def __init__(self, objs, lookup_chain):
+    def __init__(self, lookup_chain):
+        self.lookup_chain = lookup_chain
+
+    def value(self, objs):
         cobjs = objs
         cvalue = None
         for attr in lookup_chain:

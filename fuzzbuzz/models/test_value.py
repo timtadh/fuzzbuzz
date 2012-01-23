@@ -10,14 +10,16 @@ from value import Value, SetValue, BoundValueError
 from attr_types import *
 
 def test_Value_instantiate():
+    objs = dict()
     v = Value('type', 'value')
     assert isinstance(v, Value)
-    assert v.type() == 'type'
-    assert v.value() == 'value'
+    assert v.type(objs) == 'type'
+    assert v.value(objs) == 'value'
 
 def test_Set_instantiate():
+    objs = dict()
     v = SetValue([Value(Number, 1),Value(Number, 2),Value(Number, 3)])
     assert isinstance(v, SetValue)
-    assert v.type() == Set
-    assert v.value() == {1,2,3}
+    assert v.type(objs) == Set
+    assert v.value(objs) == {1,2,3}
     

@@ -18,16 +18,16 @@ class Value(object):
         self.__type = type
         self.__value = value
     
-    def type(self, *objs):
+    def type(self, objs):
         return getattr(self, '_%s__type' % self.__class__.__name__)
 
-    def value(self, *objs):
+    def value(self, objs):
         return getattr(self, '_%s__value' % self.__class__.__name__)
 
-    def has_value(self, *objs):
-        return self.value(*objs) is not None
+    def has_value(self, objs):
+        return self.value(objs) is not None
     
-    def set_value(self, value, *objs):
+    def set_value(self, value, objs):
         raise Unwritable, \
         "%s does not support setting the value" % (self.__class__.__name__)
           
@@ -37,8 +37,8 @@ class SetValue(Value):
         self.values = values
         self.__type = Set
 
-    def value(self, *objs):
-        return set(val.value(*objs) for val in self.values)
+    def value(self, objs):
+        return set(val.value(objs) for val in self.values)
 
 if __name__ == '__main__':
     import attribute
