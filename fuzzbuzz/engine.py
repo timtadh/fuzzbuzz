@@ -38,7 +38,6 @@ def fuzz(grammar):
         return rule
 
     def display(nonterm, i=0):
-        if not nonterm.value: return
         print ' '*i, nonterm
         for key, value in nonterm.value.iteritems():
             print ' '*(i+2), key,
@@ -51,14 +50,18 @@ def fuzz(grammar):
     def fuzz(start):
         stack = list()
         objs = start.mkvalue()
+        print objs, id(objs)
         stack.append((objs, choose(start, objs), 0))
         while stack:
             objs, rule, j = stack.pop()
             nextfuzz = list()
+            print rule.name, objs, id(objs)
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.__class__ is NonTerminal:
-                    new_objs = sym.mkvalue()
-                    objs[(sym.name, cnt)] = new_objs
+                    objs[(sym.name, cnt)] = objs.get((sym.name, cnt), sym.mkvalue())
+                    new_objs = {(sym.name, 1) : objs[(sym.name, cnt)]}
+                    print rule.name, objs, id(objs)
+                    #new_objs[(rule.name, 1)] = objs
                     stack.append((objs, rule, i+1))
                     stack.append((new_objs, choose(sym, new_objs), 0))
                     break
@@ -71,7 +74,7 @@ def fuzz(grammar):
                     #yield terminal
                     #objs[] = terminal
 
-        #display(start)
+        #display(objs)
     
     return list(sym for sym in fuzz(grammar.start))
 
@@ -117,13 +120,13 @@ def main():
 
     Stmt -> VAR NAME EQUAL NUMBER
             with Action {
-              Stmt.decl = NAME.value
+              Stmt.decl = NAME
               Stmt.uses = None
             }
           | PRINT NAME
             with Action {
               Stmt.decl = None
-              Stmt.uses = NAME.value
+              Stmt.uses = NAME
             }
           ;
     ''')

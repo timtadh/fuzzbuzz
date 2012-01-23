@@ -24,10 +24,10 @@ class Value(object):
     def value(self, objs):
         return getattr(self, '_%s__value' % self.__class__.__name__)
 
-    def has_value(self, objs):
+    def has_value(self, *objs):
         value = None
         try:
-            value = self.value(objs)
+            value = self.value(*objs)
         except UnboundValueError:
             return False
         return value is not None
