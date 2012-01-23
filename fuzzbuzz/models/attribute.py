@@ -4,7 +4,7 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
-from value import Value, UnboundValueError
+from value import Value, UnboundValueError, BoundValueError, Unwritable
 
 class AttrChain(Value):
 
@@ -19,6 +19,13 @@ class AttrChain(Value):
             cvalue = attr.value(objs, cobjs)
             cobjs = cvalue
         return cvalue
+    
+    def set_value(self, objs, value):
+        cobjs = objs
+        for attr in self.lookup_chain[:-1]:
+            cobjs = attr.value(objs, cobjs)
+        last_attr = self.lookup_chain[-1]
+        last_attr.set_value(objs, cobjs, value)
 
 class Attribute(Value):
 
@@ -35,6 +42,11 @@ class Attribute(Value):
                 obj = obj.__call__(*params)
         return obj
 
+    def set_value(self, gobjs, cobjs, value):
+        if self.call_chain is not None:
+            raise Unwritable, 'Can not write to a function call'
+        self.obj.set_value(cobjs, value)
+        
 class FCall(Value):
 
     def __init__(self, parameters):
@@ -64,6 +76,11 @@ class Object(Value):
             raise UnboundValueError
         return objs[self.name]
 
+    def set_value(self, objs, value):
+        if self.name in objs:
+            raise BoundValueError
+        objs[self.name] = value
+
 class SymbolObject(Value):
 
     def __init__(self, name, id):
@@ -75,3 +92,8 @@ class SymbolObject(Value):
         if (self.name, self.id) not in objs:
             raise UnboundValueError
         return objs[(self.name, self.id)]
+
+    def set_value(self, objs, value):
+        if (self.name, self.id) in objs:
+            raise BoundValueError
+        objs[(self.name, self.id)] = value
