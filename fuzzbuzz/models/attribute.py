@@ -12,6 +12,8 @@ class AttrChain(Value):
         self.lookup_chain = lookup_chain
         self.__type = None                          ## TODO TYPES
 
+    def writable(self): return all(x.writable() for x in self.lookup_chain)
+
     def value(self, objs):
         cobjs = objs
         cvalue = None
@@ -23,8 +25,9 @@ class AttrChain(Value):
     def set_value(self, objs, value):
         cobjs = objs
         for attr in self.lookup_chain[:-1]:
-            if not attr.has_value(objs, cobjs):
-                attr.set_value(objs, cobjs, dict())
+            #if not attr.has_value(objs, cobjs):
+                #attr.set_value(objs, cobjs, dict())
+            #print attr.obj.name, objs
             cobjs = attr.value(objs, cobjs)
         last_attr = self.lookup_chain[-1]
         last_attr.set_value(objs, cobjs, value)
@@ -35,6 +38,9 @@ class Attribute(Value):
         self.obj = obj
         self.call_chain = call_chain
         self.__type = None                          ## TODO TYPES
+
+    def writable(self):
+        return self.call_chain is None and self.obj.writable()
 
     def value(self, gobjs, cobjs):
         obj = self.obj.value(cobjs)
@@ -73,6 +79,8 @@ class Object(Value):
         self.name = name
         self.__type = None                          ## TODO TYPES
 
+    def writable(self): return True
+
     def value(self, objs):
         if self.name not in objs:
             raise UnboundValueError
@@ -94,8 +102,3 @@ class SymbolObject(Value):
         if (self.name, self.id) not in objs:
             raise UnboundValueError
         return objs[(self.name, self.id)]
-
-    def set_value(self, objs, value):
-        if (self.name, self.id) in objs:
-            raise BoundValueError
-        objs[(self.name, self.id)] = value

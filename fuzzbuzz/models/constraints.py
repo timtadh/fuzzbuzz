@@ -24,7 +24,7 @@ class Is(Constraint):
             self.b.set_value(objs, self.a.value(objs))
         elif b_hasvalue:
             print 'set a to', self.b.value(objs)
-            print self.b.value(objs)
+            #print self.b.value(objs)
             self.a.set_value(objs, self.b.value(objs))
         else:
             print self.b(objs).value

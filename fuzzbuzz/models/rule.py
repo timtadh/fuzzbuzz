@@ -15,6 +15,14 @@ class Rule(object):
         self.action = action
         self.condition = condition
 
+    def mknamespace(self, objs):
+        objs = {(self.name, 1) : objs}
+        print objs
+        for sym, cnt in self.pattern:
+            if isinstance(sym, NonTerminal):
+                objs.update({(sym.name, cnt):  dict()})
+        return objs
+        
     def __repr__(self): return str(self)
     def __str__(self):
         #print [object.__repr__(x[0]()) if not hasattr(x[0], 'name') else x[0].name for x in self.pattern]
@@ -44,7 +52,7 @@ def mkrules(node):
             for ACStmt in body.children[1].children:
                 type = ACStmt.label
                 if type == 'Action':
-                    action = Action(ACStmt)
+                    action = Action(ACStmt.children)
                 elif type == 'Condition':
                     condition = ACStmt.children[0]['obj']
                 else:

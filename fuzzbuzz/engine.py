@@ -30,12 +30,20 @@ def init():
 
 def fuzz(grammar):
 
-    def choose(nonterm, namespace):
-        rule = choice(nonterm.rules)
+    def filter(objs, rules):
+        for rule in rules:
+            if rule.action.unconstrained(rule.mknamespace(objs)):
+                print rule
+                yield rule
+
+    def choose(nonterm, objs):
+        #print list(filter(objs, nonterm.rules))
+        rule = choice(list(filter(objs, nonterm.rules)))
+        cobjs = rule.mknamespace(objs)
         if rule.condition is not None:
             #print nonterm.value
-            rule.condition.execute(namespace)
-        return rule
+            rule.condition.execute(cobjs)
+        return rule, cobjs
 
     def display(nonterm, i=0):
         print ' '*i, nonterm
@@ -49,25 +57,25 @@ def fuzz(grammar):
   
     def fuzz(start):
         stack = list()
-        objs = start.mkvalue()
-        print objs, id(objs)
-        stack.append((objs, choose(start, objs), 0))
+        crule, cobjs = choose(start, dict())
+        #print cobjs, id(cobjs)
+        stack.append((cobjs, crule, 0))
         while stack:
             objs, rule, j = stack.pop()
             nextfuzz = list()
-            print rule.name, objs, id(objs)
+            #print rule.name, objs, id(objs)
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.__class__ is NonTerminal:
-                    objs[(sym.name, cnt)] = objs.get((sym.name, cnt), sym.mkvalue())
-                    new_objs = {(sym.name, 1) : objs[(sym.name, cnt)]}
-                    print rule.name, objs, id(objs)
+                    #objs[(sym.name, cnt)] = objs.get[(sym.name, cnt)]
+                    crule, cobjs = choose(sym, objs[(sym.name, cnt)])
+                    #print rule.name, cobjs, id(cobjs)
                     #new_objs[(rule.name, 1)] = objs
                     stack.append((objs, rule, i+1))
-                    stack.append((new_objs, choose(sym, new_objs), 0))
+                    stack.append((cobjs, crule, 0))
                     break
                 else:
                     if (sym.name, cnt) in objs:
-                        yield objs[(terminal.name, cnt)]
+                        yield objs[(sym.name, cnt)]
                     else:
                         yield sym.mkvalue()
                     #terminal = sym.mkvalue()
@@ -130,7 +138,9 @@ def main():
             }
           ;
     ''')
-    print ' '.join(fuzz(grammar))
+    strings = fuzz(grammar)
+    print strings
+    print ' '.join(strings)
     dot('test', tree.dotty())
     #print tree.dotty()
     #print repr(tree)

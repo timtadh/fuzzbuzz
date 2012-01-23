@@ -109,7 +109,7 @@ class Parser(object):
 
     def p_ACStmt1(self, t):
         'ACStmt : WITH ACTION LCURLY ActionStmts RCURLY'
-        t[0] = Node('Action').addkid(t[4])
+        t[0] = Node('Action', children=t[4])
 
     def p_ACStmt2(self, t):
         'ACStmt : WITH CONDITION LCURLY OrExpr RCURLY'
@@ -178,16 +178,17 @@ class Parser(object):
 
     def p_ActionStmts1(self, t):
         'ActionStmts : ActionStmts ActionStmt'
-        t[0] = t[1].addkid(t[2])
+        t[0] = t[1] + [t[2]]
 
     def p_ActionStmts2(self, t):
         'ActionStmts : ActionStmt'
-        t[0] = Node('ActionStmts').addkid(t[1])
+        t[0] = [t[1]]
 
     def p_ActionStmt1(self, t):
         'ActionStmt : AttributeValue EQUAL Expr'
         #t[0] = Node('Assign').addkid(t[1]).addkid(t[3])
-        t[0] = action.Assign(t[1], t[3])
+        #print t[1], t[3]
+        t[0] = action.Assign(attribute.AttrChain(t[1]), t[3])
 
     def p_ActionStmt2(self, t):
         'ActionStmt : IF LPAREN OrExpr RPAREN LCURLY ActionStmts RCURLY'
@@ -313,7 +314,7 @@ class Parser(object):
 
     def p_Fcall2(self, t):
         'Fcall : LPAREN ParameterList RPAREN'
-        print t[2]
+        #print t[2]
         t[0] = t[2]
 
     def p_ParameterList1(self, t):

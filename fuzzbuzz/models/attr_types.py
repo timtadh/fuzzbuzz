@@ -28,3 +28,11 @@ class NoneType(Type):
     def __new__(self):
         return object.__new__(NoneType)
 
+    def __eq__(self, b):
+        return isinstance(b, NoneType)
+
+    def __ne__(self, b):
+        return not isinstance(b, NoneType)
+        
+        
+

@@ -17,6 +17,8 @@ class Value(object):
     def __init__(self, type, value):
         self.__type = type
         self.__value = value
+
+    def writable(self): return False
     
     def type(self, objs):
         return getattr(self, '_%s__type' % self.__class__.__name__)
