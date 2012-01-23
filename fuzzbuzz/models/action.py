@@ -46,6 +46,7 @@ class Assign(object):
         if self.left.has_value(objs):
             assert self.left.value(objs) == self.right.value(objs)
             return
+        
         assert self.right.has_value(objs)
         self.left.set_value(objs, self.right.value(objs))
         

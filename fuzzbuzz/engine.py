@@ -59,9 +59,9 @@ def fuzz(grammar):
   
     def fuzz(start):
         stack = list()
-        crule, cobjs = choose(start, dict())
+        trule, tobjs = choose(start, dict())
         #print cobjs, id(cobjs)
-        stack.append((cobjs, crule, 0))
+        stack.append((tobjs, trule, 0))
         while stack:
             objs, rule, j = stack.pop()
             nextfuzz = list()
@@ -86,7 +86,7 @@ def fuzz(grammar):
             else:
                 if rule.action is not None:
                     rule.action.execute(objs)
-
+        print tobjs
         #display(objs)
     
     return list(sym for sym in fuzz(grammar.start))
