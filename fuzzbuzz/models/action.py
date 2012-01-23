@@ -11,7 +11,10 @@ class Action(object):
 
     def unconstrained(self, objs):
         return all(stmt.unconstrained(objs) for stmt in self.stmts)
-            
+
+    def execute(self, objs):
+        for stmt in self.stmts:
+            stmt.execute(objs)
 
 ## There are two types of action statements
 ##  1) Assign statements
@@ -25,8 +28,8 @@ class Assign(object):
         self.right = right
 
     def unconstrained(self, objs):
-        print ' '*4, objs
-        print ' '*4, self.left.has_value(objs), '==', self.right.has_value(objs)
+        #print ' '*4, objs
+        #print ' '*4, self.left.has_value(objs), '==', self.right.has_value(objs)
         if not self.left.has_value(objs): return True
         
         if self.right.has_value(objs):
@@ -38,7 +41,13 @@ class Assign(object):
                 return True
             else:
                 return False
-        
+
+    def execute(self, objs):
+        if self.left.has_value(objs):
+            assert self.left.value(objs) == self.right.value(objs)
+            return
+        assert self.right.has_value(objs)
+        self.left.set_value(objs, self.right.value(objs))
         
 
 class If(object): pass

@@ -20,13 +20,13 @@ class Is(Constraint):
         if a_hasvalue and b_hasvalue:
             assert self.a.value(objs) == self.b.value(objs)
         elif a_hasvalue:
-            print 'set b to', self.a.value(objs)
+            #print 'set b to', self.a.value(objs)
             self.b.set_value(objs, self.a.value(objs))
         elif b_hasvalue:
-            print 'set a to', self.b.value(objs)
+            #print 'set a to', self.b.value(objs)
             #print self.b.value(objs)
             self.a.set_value(objs, self.b.value(objs))
         else:
-            print self.b(objs).value
-            print 'no values'
+            #print self.b(objs).value
+            #print 'no values'
             pass # nothing should need to be done here

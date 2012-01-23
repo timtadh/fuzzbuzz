@@ -17,7 +17,6 @@ class Rule(object):
 
     def mknamespace(self, objs):
         objs = {(self.name, 1) : objs}
-        print objs
         for sym, cnt in self.pattern:
             if isinstance(sym, NonTerminal):
                 objs.update({(sym.name, cnt):  dict()})

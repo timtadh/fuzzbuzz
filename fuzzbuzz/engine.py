@@ -32,13 +32,15 @@ def fuzz(grammar):
 
     def filter(objs, rules):
         for rule in rules:
-            if rule.action.unconstrained(rule.mknamespace(objs)):
-                print rule
+            if rule.action is None:
+                yield rule
+            elif rule.action.unconstrained(rule.mknamespace(objs)):
                 yield rule
 
     def choose(nonterm, objs):
-        #print list(filter(objs, nonterm.rules))
-        rule = choice(list(filter(objs, nonterm.rules)))
+        rules = list(filter(objs, nonterm.rules))
+        #print 'allowed rules for', nonterm.name, rules
+        rule = choice(rules)
         cobjs = rule.mknamespace(objs)
         if rule.condition is not None:
             #print nonterm.value
@@ -63,6 +65,7 @@ def fuzz(grammar):
         while stack:
             objs, rule, j = stack.pop()
             nextfuzz = list()
+            print rule.name, j, objs
             #print rule.name, objs, id(objs)
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.__class__ is NonTerminal:
@@ -74,13 +77,15 @@ def fuzz(grammar):
                     stack.append((cobjs, crule, 0))
                     break
                 else:
-                    if (sym.name, cnt) in objs:
-                        yield objs[(sym.name, cnt)]
-                    else:
-                        yield sym.mkvalue()
+                    if (sym.name, cnt) not in objs:
+                        objs[(sym.name, cnt)] = sym.mkvalue()
+                    yield objs[(sym.name, cnt)]
                     #terminal = sym.mkvalue()
                     #yield terminal
                     #objs[] = terminal
+            else:
+                if rule.action is not None:
+                    rule.action.execute(objs)
 
         #display(objs)
     
@@ -104,7 +109,7 @@ def main():
     A -> VAR B NUMBER  ;
     B -> EQUAL ;
     */
-    Stmts -> /* Stmts NEWLINE Stmt 
+    Stmts ->  /* Stmts NEWLINE Stmt
                 with Action {
                   if (Stmt.decl is not None) {
                     Stmts{1}.names = Stmts{2}.names | { stmt.decl }
@@ -116,10 +121,10 @@ def main():
                 with Condition {
                   (Stmt.uses is not None && Stmt.uses in Stmts{2}.names) ||
                   (Stmt.decl is not None && Stmt.decl not in Stmts{2}.names)
-                }
-             | */Stmt
+                } 
+             | */ Stmt
                 with Action {
-                  Stmts{1}.names.games.thames.james = { stmt.decl }
+                  Stmts{1}.names = { Stmt.decl }
                 }
                 with Condition {
                   Stmt.uses is None
