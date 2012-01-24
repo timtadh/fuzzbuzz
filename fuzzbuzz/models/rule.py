@@ -6,6 +6,7 @@
 
 from symbols import NonTerminal
 from action import Action
+from constraints import Constraint
 
 class Rule(object):
 
@@ -29,7 +30,7 @@ class Rule(object):
             '<Rule "%s -> %s"%s%s%s>'
         ) % (
           self.name,
-          ' '.join(sym.name for sym, cnt in self.pattern),
+          ' '.join(sym.name if hasattr(sym, 'name') else sym for sym, cnt in self.pattern),
           ' with action' if self.action is not None else '',
           ' and' if self.action is not None and self.condition is not None else '',
           ' with condition' if self.condition is not None else ''
@@ -43,7 +44,7 @@ def mkrules(node, objs):
     bodys = node.children[1]
     #print name
     #print bodys
-    for body in bodys.children:
+    for body, bodyobjs in zip(bodys.children, objs):
         pattern = body.children[0]
         #print
         #print
@@ -51,17 +52,24 @@ def mkrules(node, objs):
         pattern = [(sym_name(sym), sym_num(sym)) for sym in pattern.children]
         action = None
         condition = None
-        if len(body.children) == 2:
-            for ACStmt, obj in zip(body.children[1].children, objs):
-                print repr(ACStmt), obj
-                type = ACStmt.label
-                if type == 'Action':
-                    action = Action(ACStmt.children)
-                elif type == 'Condition':
-                    condition = ACStmt.children[0]['obj']
-                else:
-                    raise Exception, 'Unexpected type %s' % (type,)
-        rules.append(Rule(name, pattern, action, condition))
+        print body
+        for obj in bodyobjs:
+            #print repr(ACStmt), obj
+            #type = ACStmt.label
+            print obj, Action, isinstance(obj, Action)
+            if isinstance(obj, Action):
+                if action is not None:
+                    raise SyntaxError, "More than one action for grammar rule."
+                action = obj
+            elif isinstance(obj, Constraint):
+                if condition is not None:
+                    raise SyntaxError, "More than one action for grammar rule."
+                condition = obj
+            else:
+                raise Exception, 'Unexpected type %s' % (obj,)
+        rule = Rule(name, pattern, action, condition)
+        print rule
+        rules.append(rule)
     #print productions
     #print
     return rules
