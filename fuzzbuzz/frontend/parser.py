@@ -57,7 +57,7 @@ class Parser(object):
     def p_Production(self, t):
         'Production : Symbol ARROW Bodys SEMI'
         t[1].addkid(1)
-        node = Node('Production', children=([t[1]]+t[3]['nodes']))
+        node = Node('Production').addkid(t[1]).addkid(Node('Bodys', children=t[3]['nodes']))
         for body in t[3]['nodes']:
             names = {t[1].children[0]:2}
             for kid in body.children[0].children:
@@ -110,7 +110,7 @@ class Parser(object):
 
     def p_ACStmt1(self, t):
         'ACStmt : WITH ACTION LCURLY ActionStmts RCURLY'
-        t[0] = {'node':Node('Action', children=t[4]), 'obj':t[4]}
+        t[0] = {'node':Node('Action', children=t[4]), 'obj':action.Action(t[4])}
 
     def p_ACStmt2(self, t):
         'ACStmt : WITH CONDITION LCURLY OrExpr RCURLY'

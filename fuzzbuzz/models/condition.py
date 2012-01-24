@@ -4,7 +4,10 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
-class Condition(object): pass
+class Condition(object):
 
+    def __init__(self, constraint):
+        self.constraint = constraint
 
-
+    def execute(self, objs):
+        self.constraint.execute(objs)

@@ -42,17 +42,18 @@ def mkrules(node, objs):
     name = sym_name(node.children[0])
     bodys = node.children[1]
     #print name
-    print bodys
+    #print bodys
     for body in bodys.children:
         pattern = body.children[0]
-        print
-        print
-        print pattern
+        #print
+        #print
+        #print pattern
         pattern = [(sym_name(sym), sym_num(sym)) for sym in pattern.children]
         action = None
         condition = None
         if len(body.children) == 2:
-            for ACStmt in body.children[1].children:
+            for ACStmt, obj in zip(body.children[1].children, objs):
+                print repr(ACStmt), obj
                 type = ACStmt.label
                 if type == 'Action':
                     action = Action(ACStmt.children)
