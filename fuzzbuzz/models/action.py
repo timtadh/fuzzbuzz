@@ -4,7 +4,20 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
-class Action(object):
+import abc
+
+class AbstractAction(object):
+
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
+    def unconstrained(self, objs): pass
+
+    @abc.abstractmethod
+    def execute(self, objs): pass
+    
+
+class Action(AbstractAction):
 
     def __init__(self, stmts):
         self.stmts = stmts
@@ -20,7 +33,7 @@ class Action(object):
 ##  1) Assign statements
 ##  2) If statements
 
-class Assign(object):
+class Assign(AbstractAction):
 
     def __init__(self, left, right):
         #print left, right
@@ -51,4 +64,15 @@ class Assign(object):
         self.left.set_value(objs, self.right.value(objs))
         
 
-class If(object): pass
+class If(AbstractAction):
+
+    def __init__(self, condition, then, otherwise=None):
+        self.condition = condition
+        self.then = then
+        self.otherwise = otherwise
+
+    def unconstrained(self, objs):
+        pass
+
+    def execute(self, objs):
+        pass

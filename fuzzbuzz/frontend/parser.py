@@ -103,6 +103,7 @@ class Parser(object):
     def p_ACStmts1(self, t):
         'ACStmts : ACStmts ACStmt'
         t[0] = {'nodes':t[1]['nodes']+[t[2]['node']], 'objs':t[1]['objs']+[t[2]['obj']]}
+        print t[0]
 
     def p_ACStmts2(self, t):
         'ACStmts : ACStmt'

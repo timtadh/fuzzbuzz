@@ -111,12 +111,12 @@ def main():
     */
     Stmts ->  Stmts NEWLINE Stmt
                 with Action {
-                 /* if (Stmt.decl is not None) {
+                  if (Stmt.decl is not None) {
                     Stmts{1}.names = Stmts{2}.names | { stmt.decl }
                   }
-                  else { */
+                  else { 
                     Stmts{1}.names = Stmts{2}.names
-                 // }
+                  }
                 }
                 /*
                 with Condition {
