@@ -35,15 +35,19 @@ class Rule(object):
           ' with condition' if self.condition is not None else ''
         )
 
-def mkrules(node):
+def mkrules(node, objs):
     def sym_name(node): return node.children[0]
     def sym_num(node): return node.children[1]
     rules = list()
     name = sym_name(node.children[0])
     bodys = node.children[1]
     #print name
+    print bodys
     for body in bodys.children:
         pattern = body.children[0]
+        print
+        print
+        print pattern
         pattern = [(sym_name(sym), sym_num(sym)) for sym in pattern.children]
         action = None
         condition = None

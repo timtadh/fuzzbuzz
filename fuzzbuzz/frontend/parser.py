@@ -57,31 +57,32 @@ class Parser(object):
     def p_Production(self, t):
         'Production : Symbol ARROW Bodys SEMI'
         t[1].addkid(1)
-        node = Node('Production').addkid(t[1]).addkid(t[3])
-        for body in t[3].children:
+        node = Node('Production', children=([t[1]]+t[3]['nodes']))
+        for body in t[3]['nodes']:
             names = {t[1].children[0]:2}
             for kid in body.children[0].children:
-                #print kid.children[0], names
+                print kid.children[0], names
                 count = names.get(kid.children[0], 1)
                 kid.addkid(count)
                 names[kid.children[0]] = count + 1
-        t[0] = {'node':node, 'rules':mkrules(node)}
+        t[0] = {'node':node, 'rules':mkrules(node, t[3]['objs'])}
 
     def p_Bodys1(self, t):
         'Bodys : Bodys PIPE Body'
-        t[0] = t[1].addkid(t[3])
+        t[0] = {'nodes':t[1]['nodes']+[t[3]['node']], 'objs':t[1]['objs']+[t[3]['objs']]}
 
     def p_Bodys2(self, t):
         'Bodys : Body'
-        t[0] = Node('Bodys').addkid(t[1])
+        t[0] = {'nodes':[t[1]['node']], 'objs':[t[1]['objs']]}
 
     def p_Body1(self, t):
         'Body : Symbols'
-        t[0] = Node('Body').addkid(t[1])
+        t[0] = {'node':Node('Body').addkid(t[1]), 'objs':None}
         
     def p_Body2(self, t):
         'Body : Symbols ACStmts'
-        t[0] = Node('Body').addkid(t[1]).addkid(t[2])
+        t[0] = {'node':Node('Body').addkid(t[1]).addkid(Node('ACStmts', children=t[2]['nodes'])),
+                'objs':t[2]['objs']}
 
     def p_Symbols1(self, t):
         'Symbols : Symbols Symbol'
@@ -101,19 +102,19 @@ class Parser(object):
 
     def p_ACStmts1(self, t):
         'ACStmts : ACStmts ACStmt'
-        t[0] = t[1].addkid(t[2])
+        t[0] = {'nodes':t[1]['nodes']+[t[2]['node']], 'objs':t[1]['objs']+[t[2]['obj']]}
 
     def p_ACStmts2(self, t):
         'ACStmts : ACStmt'
-        t[0] = Node('ACStmts').addkid(t[1])
+        t[0] = {'nodes':[t[1]['node']], 'objs':[t[1]['obj']]}
 
     def p_ACStmt1(self, t):
         'ACStmt : WITH ACTION LCURLY ActionStmts RCURLY'
-        t[0] = Node('Action', children=t[4])
+        t[0] = {'node':Node('Action', children=t[4]), 'obj':t[4]}
 
     def p_ACStmt2(self, t):
         'ACStmt : WITH CONDITION LCURLY OrExpr RCURLY'
-        t[0] = Node('Condition').addkid(t[4])
+        t[0] = {'node':Node('Condition').addkid(t[4]['node']), 'obj':t[4]['obj']}
 
     def p_OrExpr1(self, t):
         'OrExpr : OrExpr OR AndExpr'
