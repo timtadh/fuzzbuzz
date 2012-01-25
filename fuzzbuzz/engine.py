@@ -115,7 +115,7 @@ def main():
                     Stmts{1}.names = Stmts{2}.names
                   }
                   else {
-                    Stmts{1}.names = Stmts{2}.names | { stmt.decl }
+                    Stmts{1}.names = Stmts{2}.names | { Stmt.decl }
                   }
                 }
                 /*

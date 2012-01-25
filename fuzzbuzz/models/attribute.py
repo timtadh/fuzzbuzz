@@ -135,9 +135,11 @@ class SymbolObject(Value):
         return issubclass(type, self.type(None))
 
     def value(self, objs):
-        if (self.name, self.id) not in objs:
+        key = (self.name, self.id)
+        print key, objs, key in objs
+        if key not in objs:
             raise UnboundValueError
-        return objs[(self.name, self.id)]
+        return objs[key]
 
     def set_value(self, objs, value):
         if self.name in objs:

@@ -31,6 +31,7 @@ class Union(SetOp):
         b = self.b.value(objs)
         assert isinstance(a, set)
         assert isinstance(b, set)
+        print a, b
         return a | b
 
 class Intersection(SetOp):

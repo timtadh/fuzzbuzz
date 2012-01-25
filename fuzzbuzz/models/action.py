@@ -55,13 +55,23 @@ class Assign(AbstractAction):
                 return False
 
     def execute(self, objs):
-        if self.left.has_value(objs):
+        left = self.left.has_value(objs)
+        right = self.right.has_value(objs)
+        print objs
+        print self.left
+        print self.right
+        print self.right.value(objs)
+        if left and right:
             print self.left.value(objs), self.right.value(objs)
             assert self.left.value(objs) == self.right.value(objs)
             return
-        
-        assert self.right.has_value(objs)
-        self.left.set_value(objs, self.right.value(objs))
+        elif left:
+            #self.right.has_value(objs)
+            self.right.set_value(objs, self.left.value(objs))
+        elif right:
+            self.left.set_value(objs, self.right.value(objs))
+        else:
+            raise RuntimeError, "Impossible?"
         
 
 class If(AbstractAction):
