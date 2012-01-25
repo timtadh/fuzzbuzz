@@ -11,6 +11,7 @@ from random import seed, choice, randint, random
 
 from frontend import parser
 from models.symbols import Terminal, NonTerminal
+from models.attribute import SymbolObject
 
 def dot(name, dotty):
     dot = name + '.dot'
@@ -29,6 +30,7 @@ def init():
     seed()
 
 def fuzz(grammar):
+    out = list()
 
     def filter(objs, rules):
         for rule in rules:
@@ -43,9 +45,6 @@ def fuzz(grammar):
         print 'allowed rules for', nonterm.name, rules
         rule = choice(rules)
         cobjs = rule.mknamespace(objs)
-        if rule.condition is not None:
-            #print nonterm.value
-            rule.condition.flow(cobjs)
         return rule, cobjs
 
     def display(d, i=0):
@@ -62,9 +61,12 @@ def fuzz(grammar):
         stack = list()
         trule, tobjs = choose(start, dict())
         #print cobjs, id(cobjs)
-        stack.append((tobjs, trule, 0))
+        stack.append((tobjs, trule, 0, list()))
         while stack:
-            objs, rule, j = stack.pop()
+            objs, rule, j, sobs = stack.pop()
+            if rule.condition is not None:
+                #print nonterm.value
+                rule.condition.flow(objs)
             nextfuzz = list()
             #print rule.name, j, objs
             print rule, id(objs), display(objs)
@@ -74,22 +76,31 @@ def fuzz(grammar):
                     crule, cobjs = choose(sym, objs[(sym.name, cnt)])
                     #print rule.name, cobjs, id(cobjs)
                     #new_objs[(rule.name, 1)] = objs
-                    stack.append((objs, rule, i+1))
-                    stack.append((cobjs, crule, 0))
+                    stack.append((objs, rule, i+1, sobs))
+                    stack.append((cobjs, crule, 0, list()))
                     break
                 else:
-                    if (sym.name, cnt) not in objs:
-                        objs[(sym.name, cnt)] = sym.mkvalue()
-                    yield objs[(sym.name, cnt)]
+                    #if (sym.name, cnt) not in objs:
+                        #objs[(sym.name, cnt)] = sym.mkvalue()
+                    so = SymbolObject('Terminal', sym.name, cnt)
+                    sobs.append((so, sym.mkvalue))
+                    #yield objs[(sym.name, cnt)]
+                    out.append(functools.partial(so.value, objs))
                     #terminal = sym.mkvalue()
                     #yield terminal
                     #objs[] = terminal
             else:
                 if rule.action is not None:
+                    rule.action.fillvalues(objs)
+                for so, mkval in sobs:
+                    if not so.has_value(objs): so.set_value(objs, mkval())
+                display(objs)
+                print objs
+                if rule.action is not None:
                     rule.action.execute(objs)
         print trule.name, display(tobjs)
-    
-    return list(sym for sym in fuzz(grammar.start))
+    fuzz(grammar.start)
+    return list(sym() for sym in out)
 
 def main():
     init()

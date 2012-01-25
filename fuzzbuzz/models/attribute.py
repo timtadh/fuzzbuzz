@@ -139,6 +139,7 @@ class SymbolObject(Value):
         return objs[key]
 
     def set_value(self, objs, value):
-        if self.name in objs:
+        key = (self.name, self.id)
+        if key in objs:
             raise BoundValueError
-        objs[self.name] = value
+        objs[key] = value

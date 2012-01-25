@@ -29,6 +29,10 @@ class Action(AbstractAction):
         for stmt in self.stmts:
             stmt.execute(objs)
 
+    def fillvalues(self, objs):
+        for stmt in self.stmts:
+            stmt.fillvalues(objs)
+
 ## There are two types of action statements
 ##  1) Assign statements
 ##  2) If statements
@@ -58,21 +62,29 @@ class Assign(AbstractAction):
     def execute(self, objs):
         left = self.left.has_value(objs)
         right = self.right.has_value(objs)
-        print objs
-        print self.left
-        print self.right
-        print self.right.value(objs)
+        #print objs
+        #print self.left
+        #print self.right
+        #print self.right.value(objs)
+        #print self.left, self.right.lookup_chain[0].obj.id
         if left and right:
             print self.left.value(objs), self.right.value(objs)
             assert self.left.value(objs) == self.right.value(objs)
             return
-        elif left:
-            #self.right.has_value(objs)
-            self.right.set_value(objs, self.left.value(objs))
-        elif right:
-            self.left.set_value(objs, self.right.value(objs))
         else:
-            raise RuntimeError, "Impossible?"
+            assert right
+            #self.right.has_value(objs)
+            self.left.set_value(objs, self.right.value(objs))
+        #elif right:
+            #self.left.set_value(objs, self.right.value(objs))
+        #else:
+            #raise RuntimeError, "Impossible?"
+
+    def fillvalues(self, objs):
+        if self.right.has_value(objs): return
+        if self.left.has_value(objs):
+            print self.left.has_value(objs)
+            self.right.set_value(objs, self.left.value(objs))
         
 
 class If(AbstractAction):
@@ -83,9 +95,9 @@ class If(AbstractAction):
         self.otherwise = otherwise
 
     def unconstrained(self, objs):
-        print 'xxx', objs
-        print 'xxx', self.condition
-        print 'xxx', 'condition applies', self.condition.applies(objs)
+        #print 'xxx', objs
+        #print 'xxx', self.condition
+        #print 'xxx', 'condition applies', self.condition.applies(objs)
         then = self.then.unconstrained(objs)
         otherwise = True
         if self.otherwise is not None:
@@ -105,3 +117,9 @@ class If(AbstractAction):
             self.then.execute(objs)
         elif self.otherwise is not None:
             self.otherwise.execute(objs)
+    
+    def fillvalues(self, objs):
+        if self.condition.evaluate(objs):
+            self.then.fillvalues(objs)
+        elif self.otherwise is not None:
+            self.otherwise.fillvalues(objs)
