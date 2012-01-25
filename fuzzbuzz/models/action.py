@@ -72,7 +72,8 @@ class If(AbstractAction):
         self.otherwise = otherwise
 
     def unconstrained(self, objs):
-        pass
+        print self.condition.applies(objs)
+        return True
 
     def execute(self, objs):
         pass

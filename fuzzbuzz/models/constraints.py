@@ -14,7 +14,13 @@ class Constraint(Executable):
 
 class Is(Constraint):
 
-    def execute(self, objs):
+    def applies(self, objs):
+        return self.a.has_value(objs) and self.b.has_value(objs)
+      
+    def evaluate(self, objs):
+        return self.a.value(objs) == self.b.value(objs)
+
+    def flow(self, objs):
         a_hasvalue = self.a.has_value(objs)
         b_hasvalue = self.b.has_value(objs)
         if a_hasvalue and b_hasvalue:

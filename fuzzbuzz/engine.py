@@ -32,7 +32,7 @@ def fuzz(grammar):
 
     def filter(objs, rules):
         for rule in rules:
-            print rule.action.unconstrained
+            #print rule.action.unconstrained
             if rule.action is None:
                 yield rule
             elif rule.action.unconstrained(rule.mknamespace(objs)):
@@ -40,23 +40,23 @@ def fuzz(grammar):
 
     def choose(nonterm, objs):
         rules = list(filter(objs, nonterm.rules))
-        #print 'allowed rules for', nonterm.name, rules
+        print 'allowed rules for', nonterm.name, rules
         rule = choice(rules)
         cobjs = rule.mknamespace(objs)
         if rule.condition is not None:
             #print nonterm.value
-            rule.condition.execute(cobjs)
+            rule.condition.flow(cobjs)
         return rule, cobjs
 
-    def display(nonterm, i=0):
-        print ' '*i, nonterm
-        for key, value in nonterm.value.iteritems():
-            print ' '*(i+2), key,
-            if isinstance(value, NonTerminal):
-                print
-                display(value, i+4)
+    def display(d, i=0):
+        print
+        for key, value in d.iteritems():
+            print ' '*(i+1), key,
+            if isinstance(value, dict):
+                display(value, i+3)
             else:
                 print value
+        return ''
   
     def fuzz(start):
         stack = list()
@@ -66,8 +66,8 @@ def fuzz(grammar):
         while stack:
             objs, rule, j = stack.pop()
             nextfuzz = list()
-            print rule.name, j, objs
-            #print rule.name, objs, id(objs)
+            #print rule.name, j, objs
+            print rule, id(objs), display(objs)
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.__class__ is NonTerminal:
                     #objs[(sym.name, cnt)] = objs.get[(sym.name, cnt)]
@@ -87,8 +87,7 @@ def fuzz(grammar):
             else:
                 if rule.action is not None:
                     rule.action.execute(objs)
-        print tobjs
-        #display(objs)
+        print trule.name, display(tobjs)
     
     return list(sym for sym in fuzz(grammar.start))
 
@@ -112,11 +111,11 @@ def main():
     */
     Stmts ->  Stmts NEWLINE Stmt
                 with Action {
-                  if (Stmt.decl is not None) {
-                    Stmts{1}.names = Stmts{2}.names | { stmt.decl }
-                  }
-                  else { 
+                  if (Stmt.decl is None) {
                     Stmts{1}.names = Stmts{2}.names
+                  }
+                  else {
+                    Stmts{1}.names = Stmts{2}.names | { stmt.decl }
                   }
                 }
                 /*

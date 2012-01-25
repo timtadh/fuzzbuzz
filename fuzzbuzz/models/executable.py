@@ -11,7 +11,7 @@ class Executable(object):
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractproperty
-    def execute(self, objs): pass
+    def flow(self, objs): pass
 
 class Any(Executable): pass
 class All(Executable): pass

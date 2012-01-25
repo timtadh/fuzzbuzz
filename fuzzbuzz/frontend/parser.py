@@ -61,7 +61,7 @@ class Parser(object):
         for body in t[3]['nodes']:
             names = {t[1].children[0]:2}
             for kid in body.children[0].children:
-                print kid.children[0], names
+                #print kid.children[0], names
                 count = names.get(kid.children[0], 1)
                 kid.addkid(count)
                 names[kid.children[0]] = count + 1
@@ -103,7 +103,7 @@ class Parser(object):
     def p_ACStmts1(self, t):
         'ACStmts : ACStmts ACStmt'
         t[0] = {'nodes':t[1]['nodes']+[t[2]['node']], 'objs':t[1]['objs']+[t[2]['obj']]}
-        print t[0]
+        #print t[0]
 
     def p_ACStmts2(self, t):
         'ACStmts : ACStmt'

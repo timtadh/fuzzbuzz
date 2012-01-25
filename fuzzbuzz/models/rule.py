@@ -52,11 +52,11 @@ def mkrules(node, objs):
         pattern = [(sym_name(sym), sym_num(sym)) for sym in pattern.children]
         action = None
         condition = None
-        print body
+        #print body
         for obj in bodyobjs:
             #print repr(ACStmt), obj
             #type = ACStmt.label
-            print obj, Action, isinstance(obj, Action)
+            #print obj, Action, isinstance(obj, Action)
             if isinstance(obj, Action):
                 if action is not None:
                     raise SyntaxError, "More than one action for grammar rule."
@@ -68,9 +68,9 @@ def mkrules(node, objs):
             else:
                 raise Exception, 'Unexpected type %s' % (obj,)
         rule = Rule(name, pattern, action, condition)
-        print rule
-        print rule.action
-        print rule.condition
+        #print rule
+        #print rule.action
+        #print rule.condition
         rules.append(rule)
     #print productions
     #print
