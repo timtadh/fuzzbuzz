@@ -7,7 +7,7 @@
 from attr_types import Set
 from value import Value
 
-def BinOp(Value):
+class BinOp(Value):
   
     def __init__(self, a, b):
         self.a = a
@@ -19,12 +19,12 @@ def BinOp(Value):
     def value(self, objs):
         raise Exception
 
-def SetOp(BinOp):
+class SetOp(BinOp):
 
     def type(self, objs):
         return Set
 
-def Union(SetOp):
+class Union(SetOp):
 
     def value(self, objs):
         a = self.a.value(objs)
@@ -33,7 +33,7 @@ def Union(SetOp):
         assert isinstance(b, set)
         return a | b
 
-def Intersection(SetOp):
+class Intersection(SetOp):
 
     def value(self, objs):
         a = self.a.value(objs)
