@@ -124,19 +124,16 @@ class SymbolObject(Value):
     def __init__(self, symtype, name, id):
         self.name = name
         self.id = id
-        #self.__type = None                          ## TODO TYPES
         if symtype == 'Terminal':
             self.__type = String
         else:
             self.__type = Namespace
         
     def writable(self, type):
-        #print type, self.type
         return issubclass(type, self.type(None))
 
     def value(self, objs):
         key = (self.name, self.id)
-        print key, objs, key in objs
         if key not in objs:
             raise UnboundValueError
         return objs[key]

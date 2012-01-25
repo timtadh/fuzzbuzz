@@ -118,12 +118,10 @@ def main():
                     Stmts{1}.names = Stmts{2}.names | { Stmt.decl }
                   }
                 }
-                /*
                 with Condition {
-                  (Stmt.uses is not None && Stmt.uses in Stmts{2}.names) ||
-                  (Stmt.decl is not None && Stmt.decl not in Stmts{2}.names)
+                  // Stmt.decl is None &&
+                  Stmt.uses in Stmts{2}.names
                 }
-                */
              | Stmt
                 with Action {
                   Stmts{1}.names = { Stmt.decl }

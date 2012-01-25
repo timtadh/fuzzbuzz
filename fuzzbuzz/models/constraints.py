@@ -4,6 +4,9 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
+from random import choice
+
+from attr_types import Set
 from executable import Executable
 
 class Constraint(Executable):
@@ -32,6 +35,33 @@ class Is(Constraint):
             #print 'set a to', self.b.value(objs)
             #print self.b.value(objs)
             self.a.set_value(objs, self.b.value(objs))
+        else:
+            #print self.b(objs).value
+            #print 'no values'
+            pass # nothing should need to be done here
+
+
+class In(Constraint):
+
+    def applies(self, objs):
+        return self.a.has_value(objs) and self.b.has_value(objs)
+
+    def evaluate(self, objs):
+        return self.a.value(objs) in self.b.value(objs)
+
+    def flow(self, objs):
+        a_hasvalue = self.a.has_value(objs)
+        b_hasvalue = self.b.has_value(objs)
+        if a_hasvalue and b_hasvalue:
+            assert self.b.type(objs) == Set
+            assert self.a.value(objs) in self.b.value(objs)
+        elif a_hasvalue:
+            raise Exception, 'Need to think about how to do this correctly'
+        elif b_hasvalue:
+            assert self.b.type(objs) == Set
+            value = choice(tuple(self.b.value(objs)))
+            print '----->', value
+            self.a.set_value(objs, value)
         else:
             #print self.b(objs).value
             #print 'no values'

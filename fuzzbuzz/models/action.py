@@ -50,6 +50,7 @@ class Assign(AbstractAction):
         else:
             #print 'yyy', 'hello', self.right.writable(self.left.type(objs)), self.right.lookup_chain[0].obj.name
             if self.right.writable(self.left.type(objs)):
+                #self.right.set_value(objs, self.left.value(objs))
                 return True
             else:
                 return False
