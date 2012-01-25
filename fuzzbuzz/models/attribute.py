@@ -4,6 +4,7 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
+from attr_types import *
 from value import Value, UnboundValueError, BoundValueError, Unwritable
 
 class AttrChain(Value):
@@ -12,8 +13,16 @@ class AttrChain(Value):
         self.lookup_chain = lookup_chain
         self.__type = None                          ## TODO TYPES
 
-    def writable(self): return all(x.writable() for x in self.lookup_chain)
+    def writable(self, type):
+        return all(x.writable(type) for x in self.lookup_chain)
 
+    def type(self, objs):
+        cobjs = objs
+        for attr in self.lookup_chain[:-1]:
+            cobjs = attr.value(objs, cobjs)
+        last_attr = self.lookup_chain[-1]
+        return last_attr.type(objs, cobjs)
+        
     def value(self, objs):
         cobjs = objs
         cvalue = None
@@ -25,9 +34,6 @@ class AttrChain(Value):
     def set_value(self, objs, value):
         cobjs = objs
         for attr in self.lookup_chain[:-1]:
-            #if not attr.has_value(objs, cobjs):
-                #attr.set_value(objs, cobjs, dict())
-            #print attr.obj.name, objs
             cobjs = attr.value(objs, cobjs)
         last_attr = self.lookup_chain[-1]
         last_attr.set_value(objs, cobjs, value)
@@ -39,9 +45,19 @@ class Attribute(Value):
         self.call_chain = call_chain
         self.__type = None                          ## TODO TYPES
 
-    def writable(self):
-        return self.call_chain is None and self.obj.writable()
+    def writable(self, type):
+        return self.call_chain is None and self.obj.writable(type)
 
+    def type(self, gobjs, cobjs):
+        #obj = self.obj.value(cobjs)
+        otype = self.obj.type(cobjs)
+        if self.call_chain is not None:
+            raise Exception, NotImplemented
+            #for params in self.call_chain.value(gobjs):
+                #assert hasattr(obj, '__call__')
+                #obj = obj.__call__(*params)
+        return otype
+    
     def value(self, gobjs, cobjs):
         obj = self.obj.value(cobjs)
         if self.call_chain is not None:
@@ -77,9 +93,21 @@ class Object(Value):
 
     def __init__(self, name):
         self.name = name
-        self.__type = None                          ## TODO TYPES
+        #self.__type = None                          ## TODO TYPES
 
-    def writable(self): return True
+    def writable(self, type):
+        return True
+
+    def type(self, objs):
+        if self.name not in objs:
+            raise UnboundValueError
+        obj = objs[self.name]
+        if isinstance(obj, NoneType): return NoneType
+        elif isinstance(obj, set): return Set
+        elif isinstance(obj, int): return Number
+        elif isinstance(obj, str): return String
+        elif isinstance(obj, dict): return Namespace
+        else: raise RuntimeError
 
     def value(self, objs):
         if self.name not in objs:
@@ -93,12 +121,25 @@ class Object(Value):
 
 class SymbolObject(Value):
 
-    def __init__(self, name, id):
+    def __init__(self, symtype, name, id):
         self.name = name
         self.id = id
-        self.__type = None                          ## TODO TYPES
+        #self.__type = None                          ## TODO TYPES
+        if symtype == 'Terminal':
+            self.__type = String
+        else:
+            self.__type = Namespace
+        
+    def writable(self, type):
+        #print type, self.type
+        return issubclass(type, self.type(None))
 
     def value(self, objs):
         if (self.name, self.id) not in objs:
             raise UnboundValueError
         return objs[(self.name, self.id)]
+
+    def set_value(self, objs, value):
+        if self.name in objs:
+            raise BoundValueError
+        objs[self.name] = value

@@ -48,15 +48,15 @@ class Assign(AbstractAction):
         if self.right.has_value(objs):
             return self.left.value(objs) == self.right.value(objs)
         else:
-            if self.right.writable():
-                #print self.right.lookup_chain[0].obj.name
-                self.right.set_value(objs, self.left.value(objs))
+            #print 'yyy', 'hello', self.right.writable(self.left.type(objs)), self.right.lookup_chain[0].obj.name
+            if self.right.writable(self.left.type(objs)):
                 return True
             else:
                 return False
 
     def execute(self, objs):
         if self.left.has_value(objs):
+            print self.left.value(objs), self.right.value(objs)
             assert self.left.value(objs) == self.right.value(objs)
             return
         
@@ -72,8 +72,25 @@ class If(AbstractAction):
         self.otherwise = otherwise
 
     def unconstrained(self, objs):
-        print self.condition.applies(objs)
-        return True
+        print 'xxx', objs
+        print 'xxx', self.condition
+        print 'xxx', 'condition applies', self.condition.applies(objs)
+        then = self.then.unconstrained(objs)
+        otherwise = True
+        if self.otherwise is not None:
+            otherwise = self.otherwise.unconstrained(objs)
+        
+        if not self.condition.applies(objs):
+            if then and otherwise: return True
+            elif then or otherwise: raise Exception, 'Need to pass the condition on as a checked constraint'
+            else: return False
+        elif self.condition.evaluate(objs):
+            return then
+        else:
+            return otherwise
 
     def execute(self, objs):
-        pass
+        if self.condition.evaluate(objs):
+            self.then.execute(objs)
+        elif self.otherwise is not None:
+            self.otherwise.execute(objs)
