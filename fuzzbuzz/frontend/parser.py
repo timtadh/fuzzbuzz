@@ -194,11 +194,13 @@ class Parser(object):
 
     def p_ActionStmt2(self, t):
         'ActionStmt : IF LPAREN OrExpr RPAREN LCURLY ActionStmts RCURLY'
-        t[0] = Node('If').addkid(t[3]).addkid(t[6])
+        #t[0] = Node('If').addkid(t[3]).addkid(t[6])
+        t[0] = action.If(t[3], t[6])
 
     def p_ActionStmt3(self, t):
         'ActionStmt : IF LPAREN OrExpr RPAREN LCURLY ActionStmts RCURLY ELSE LCURLY ActionStmts RCURLY'
-        t[0] = Node('If').addkid(t[3]).addkid(t[10])
+        #t[0] = Node('If').addkid(t[3]).addkid(t[10])
+        t[0] = action.If(t[3], t[6], t[10])
 
     def p_Expr(self, t):
         'Expr : SetOps'

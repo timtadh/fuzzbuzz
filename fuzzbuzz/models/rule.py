@@ -69,6 +69,8 @@ def mkrules(node, objs):
                 raise Exception, 'Unexpected type %s' % (obj,)
         rule = Rule(name, pattern, action, condition)
         print rule
+        print rule.action
+        print rule.condition
         rules.append(rule)
     #print productions
     #print

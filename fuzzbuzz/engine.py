@@ -32,6 +32,7 @@ def fuzz(grammar):
 
     def filter(objs, rules):
         for rule in rules:
+            print rule.action.unconstrained
             if rule.action is None:
                 yield rule
             elif rule.action.unconstrained(rule.mknamespace(objs)):
