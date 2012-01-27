@@ -124,7 +124,7 @@ class Parser(object):
 
     def p_OrExpr1(self, t):
         'OrExpr : OrExpr OR AndExpr'
-        t[0] = models.condition.All(t[1], t[3])
+        t[0] = models.condition.Any(t[1], t[3])
 
     def p_OrExpr2(self, t):
         'OrExpr : AndExpr'

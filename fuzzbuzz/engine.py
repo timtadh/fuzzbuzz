@@ -51,15 +51,15 @@ def fuzz(grammar):
         stack.append((tobjs, trule, 0, list()))
         while stack:
             objs, rule, j, sobjs = stack.pop()
+            print rule, id(objs), rule.condition, display(objs)
             if rule.condition is not None:
                 ## TODO: Condtion flows return several canidate object sets
                 ##       based on the Any operator. This needs to be integrated
                 ##       into this engine. Right now it works because the All
                 ##       operator mutates the given object space. Mutation
                 ##       should be considered to deprecated behavior.
-                rule.condition.flow(objs) ## Needs to be reflowed to update
+                print '->', rule.condition.flow(objs) ## Needs to be reflowed to update
                                           ## conditions which rely on earlier Nonterminals
-            print rule, id(objs), display(objs)
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.__class__ is NonTerminal:
                     crule, cobjs = choose(sym, objs[(sym.name, cnt)])
@@ -79,6 +79,7 @@ def fuzz(grammar):
                 print objs
                 if rule.action is not None:
                     rule.action.execute(objs)
+                #print [sym() for sym in out]
         print trule.name, display(tobjs)
     fuzz(grammar.start)
     return list(sym() for sym in out)
@@ -111,7 +112,7 @@ def main():
                   }
                 }
                 with Condition {
-                  Stmt.decl is None && Stmt.uses in Stmts{2}.names
+                  Stmt.uses in Stmts{2}.names// || Stmt.uses is None
                 }
              | Stmt
                 with Action {

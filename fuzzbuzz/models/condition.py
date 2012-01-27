@@ -24,6 +24,10 @@ class Any(Condition):
     def flow(self, objs):
         choices = list()
         for opt in self.options:
+            print opt.applies(objs),
+            if opt.applies(objs): print opt.evaluate(objs)
+            else: print
+            if opt.applies(objs) and not opt.evaluate(objs): continue
             for choice in opt.flow(dict(objs)):
                 choices.append(choice)
         return choices
@@ -70,7 +74,7 @@ class Is(Constraint):
             #print self.b(objs).value
             #print 'no values'
             pass # nothing should need to be done here
-        return objs
+        return [objs]
 
 
 class In(Constraint):
@@ -86,6 +90,7 @@ class In(Constraint):
         b_hasvalue = self.b.has_value(objs)
         if a_hasvalue and b_hasvalue:
             assert self.b.type(objs) == Set
+            #print self.a.value(objs), self.b.value(objs)
             assert self.a.value(objs) in self.b.value(objs)
         elif a_hasvalue:
             raise Exception, 'Need to think about how to do this correctly'
@@ -98,4 +103,4 @@ class In(Constraint):
             #print self.b(objs).value
             #print 'no values'
             pass # nothing should need to be done here
-        return objs
+        return [objs]
