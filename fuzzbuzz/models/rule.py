@@ -6,7 +6,7 @@
 
 from symbols import NonTerminal
 from action import Action
-from condition import Constraint
+from condition import Condition
 
 class Rule(object):
 
@@ -52,16 +52,14 @@ def mkrules(node, objs):
         pattern = [(sym_name(sym), sym_num(sym)) for sym in pattern.children]
         action = None
         condition = None
-        #print body
+        print body
         for obj in bodyobjs:
-            #print repr(ACStmt), obj
-            #type = ACStmt.label
-            #print obj, Action, isinstance(obj, Action)
+            print obj, Action, isinstance(obj, Action)
             if isinstance(obj, Action):
                 if action is not None:
                     raise SyntaxError, "More than one action for grammar rule."
                 action = obj
-            elif isinstance(obj, Constraint):
+            elif isinstance(obj, Condition):
                 if condition is not None:
                     raise SyntaxError, "More than one action for grammar rule."
                 condition = obj

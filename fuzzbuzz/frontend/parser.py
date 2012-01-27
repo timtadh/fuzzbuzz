@@ -81,8 +81,8 @@ class Parser(object):
         
     def p_Body2(self, t):
         'Body : Symbols ACStmts'
-        t[0] = {'node':Node('Body').addkid(t[1]).addkid(Node('ACStmts', children=t[2]['nodes'])),
-                'objs':t[2]['objs']}
+        t[0] = {'node':Node('Body').addkid(t[1]),
+                'objs':t[2]}
 
     def p_Symbols1(self, t):
         'Symbols : Symbols Symbol'
@@ -102,24 +102,23 @@ class Parser(object):
 
     def p_ACStmts1(self, t):
         'ACStmts : ACStmts ACStmt'
-        t[0] = {'nodes':t[1]['nodes']+[t[2]['node']], 'objs':t[1]['objs']+[t[2]['obj']]}
-        #print t[0]
+        t[0] = t[1]+[t[2]]
 
     def p_ACStmts2(self, t):
         'ACStmts : ACStmt'
-        t[0] = {'nodes':[t[1]['node']], 'objs':[t[1]['obj']]}
+        t[0] = [t[1]]
 
     def p_ACStmt1(self, t):
         'ACStmt : WITH ACTION LCURLY ActionStmts RCURLY'
-        t[0] = {'node':Node('Action', children=t[4]), 'obj':action.Action(t[4])}
+        t[0] = action.Action(t[4])
 
     def p_ACStmt2(self, t):
         'ACStmt : WITH CONDITION LCURLY OrExpr RCURLY'
-        t[0] = {'node':Node('Condition').addkid(t[4]['node']), 'obj':t[4]['obj']}
+        t[0] = t[4]
 
     def p_OrExpr1(self, t):
         'OrExpr : OrExpr OR AndExpr'
-        t[0] = Node('Or').addkid(t[1]).addkid(t[3])
+        t[0] = models.condition.All(t[1], t[3])
 
     def p_OrExpr2(self, t):
         'OrExpr : AndExpr'
@@ -127,7 +126,7 @@ class Parser(object):
 
     def p_AndExpr1(self, t):
         'AndExpr : AndExpr AND NotExpr'
-        t[0] = Node('And').addkid(t[1]).addkid(t[3])
+        t[0] = models.condition.All(t[1], t[3])
     
     def p_AndExpr2(self, t):
         'AndExpr : NotExpr'
@@ -136,6 +135,7 @@ class Parser(object):
     def p_NotExpr1(self, t):
         'NotExpr : BANG BooleanExpr'
         t[0] = Node('Not').addkid(t[2])
+        raise Exception, "Not operator not yet implemented"
 
     def p_NotExpr2(self, t):
         'NotExpr : BooleanExpr'
@@ -143,7 +143,8 @@ class Parser(object):
 
     def p_BooleanExpr1(self, t):
         'BooleanExpr : Expr'
-        t[0] = {'node':Node('BooleanCast').addkid(t[1]), 'obj':None}
+        t[0] = Node('BooleanCast').addkid(t[1])
+        raise Exception, "Boolean Casts not yet implemented"
 
     def p_BooleanExpr2(self, t):
         'BooleanExpr : CmpExpr'
@@ -151,18 +152,17 @@ class Parser(object):
 
     def p_BooleanExpr3(self, t):
         'BooleanExpr : LPAREN OrExpr RPAREN'
-        t[0] = {'node':t[2], 'obj':None}
+        t[0] = t[1]
 
     def p_CmpExpr(self, t):
         'CmpExpr : Expr CmpOp Expr'
-        obj = (
+        t[0] = (
           {
             'is':models.condition.Is,
             'in':models.condition.In
           }
           .get(t[2].label, lambda x,y: None)
         )(t[1], t[3])
-        t[0] = {'node':t[2].addkid(t[1]).addkid(t[3]), 'obj':obj}
 
     def p_CmpOp1(self, t):
         '''CmpOp : EQEQ
@@ -201,11 +201,11 @@ class Parser(object):
     def p_ActionStmt2(self, t):
         'ActionStmt : IF LPAREN OrExpr RPAREN LCURLY ActionStmts RCURLY'
         #t[0] = Node('If').addkid(t[3]).addkid(t[6])
-        t[0] = action.If(t[3]['obj'], action.Action(t[6]))
+        t[0] = action.If(t[3], action.Action(t[6]))
 
     def p_ActionStmt3(self, t):
         'ActionStmt : IF LPAREN OrExpr RPAREN LCURLY ActionStmts RCURLY ELSE LCURLY ActionStmts RCURLY'
-        t[0] = action.If(t[3]['obj'], action.Action(t[6]), action.Action(t[10]))
+        t[0] = action.If(t[3], action.Action(t[6]), action.Action(t[10]))
 
     def p_Expr(self, t):
         'Expr : SetOps'
