@@ -155,8 +155,8 @@ class Parser(object):
 
     def p_CmpExpr(self, t):
         'CmpExpr : Expr CmpOp Expr'
-        obj = models.constraints.Is(t[1], t[3]) if t[2].label == 'is' else None
-        obj = models.constraints.In(t[1], t[3]) if t[2].label == 'in' else obj
+        obj = models.condition.Is(t[1], t[3]) if t[2].label == 'is' else None
+        obj = models.condition.In(t[1], t[3]) if t[2].label == 'in' else obj
         t[0] = {'node':t[2].addkid(t[1]).addkid(t[3]), 'obj':obj}
 
     def p_CmpOp1(self, t):

@@ -6,7 +6,7 @@
 
 from symbols import NonTerminal
 from action import Action
-from constraints import Constraint
+from condition import Constraint
 
 class Rule(object):
 
