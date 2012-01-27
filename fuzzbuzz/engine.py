@@ -13,19 +13,6 @@ from frontend import parser
 from models.symbols import Terminal, NonTerminal
 from models.attribute import SymbolObject
 
-def dot(name, dotty):
-    dot = name + '.dot'
-    png = name + '.png'
-
-    f = open(dot, 'w')
-    f.write(dotty)
-    f.close()
-
-    p = subprocess.Popen(['dot', '-Tpng', '-o', png], stdin=subprocess.PIPE)
-    p.stdin.write(dotty + '\0')
-    p.stdin.close()
-    p.wait()
-
 def init():
     seed()
 
@@ -63,25 +50,30 @@ def fuzz(grammar):
         #print cobjs, id(cobjs)
         stack.append((tobjs, trule, 0, list()))
         while stack:
-            objs, rule, j, sobs = stack.pop()
+            objs, rule, j, sobjs = stack.pop()
             if rule.condition is not None:
+                ## TODO: Condtion flows return several canidate object sets
+                ##       based on the Any operator. This needs to be integrated
+                ##       into this engine. Right now it works because the All
+                ##       operator mutates the given object space. Mutation
+                ##       should be considered to deprecated behavior.
                 rule.condition.flow(objs) ## Needs to be reflowed to update
                                           ## conditions which rely on earlier Nonterminals
             print rule, id(objs), display(objs)
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.__class__ is NonTerminal:
                     crule, cobjs = choose(sym, objs[(sym.name, cnt)])
-                    stack.append((objs, rule, i+1, sobs))
+                    stack.append((objs, rule, i+1, sobjs))
                     stack.append((cobjs, crule, 0, list()))
                     break
                 else:
                     so = SymbolObject('Terminal', sym.name, cnt)
-                    sobs.append(so)
+                    sobjs.append(so)
                     out.append(functools.partial(so.value, objs))
             else:
                 if rule.action is not None:
                     rule.action.fillvalues(objs)
-                for so in sobs:
+                for so in sobjs:
                     if not so.has_value(objs): so.make_value(objs)
                 display(objs)
                 print objs
@@ -109,7 +101,7 @@ def main():
     A -> VAR B NUMBER  ;
     B -> EQUAL ;
     */
-    Stmts ->  Stmts NEWLINE Stmt
+    Stmts -> Stmts NEWLINE Stmt
                 with Action {
                   if (Stmt.decl is None) {
                     Stmts{1}.names = Stmts{2}.names
@@ -128,7 +120,7 @@ def main():
                 with Condition {
                   Stmt.uses is None
                 }
-              ;
+             ;
 
     Stmt -> VAR NAME EQUAL NUMBER
             with Action {
@@ -145,7 +137,7 @@ def main():
     strings = fuzz(grammar)
     print strings
     print ' '.join(strings)
-    dot('test', tree.dotty())
+    #dot('test', tree.dotty())
     #print tree.dotty()
     #print repr(tree)
     #print grammar

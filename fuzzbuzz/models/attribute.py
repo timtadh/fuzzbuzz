@@ -135,6 +135,7 @@ class SymbolObject(Value):
         return issubclass(type, self.type(None))
 
     def make_value(self, objs):
+        assert self.__type == String
         value = self.stringifiers[self.name]()
         self.set_value(objs, value)
         return value
