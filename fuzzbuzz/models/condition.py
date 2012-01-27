@@ -13,9 +13,28 @@ class Condition(object):
     def __init__(self, constraint):
         self.constraint = constraint
 
-    def execute(self, objs):
-        self.constraint.execute(objs)
+    def flow(self, objs):
+        self.constraint.flow(objs)
 
+class Any(Condition):
+
+    def __init__(self, *options):
+        self.options = options
+
+    def flow(self, objs):
+        choices = [opt.flow(dict(objs)) for opt in self.options]
+        return choices
+
+class All(Condition):
+
+    def __init__(self, *requirements):
+        self.requirements = requirements
+
+    def flow(self, objs):
+        for opt in self.requirements:
+            opt.flow(objs)
+        return [objs]
+        
 class Constraint(Condition):
 
     def __init__(self, a, b):
