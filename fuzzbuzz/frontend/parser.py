@@ -205,7 +205,6 @@ class Parser(object):
 
     def p_ActionStmt3(self, t):
         'ActionStmt : IF LPAREN OrExpr RPAREN LCURLY ActionStmts RCURLY ELSE LCURLY ActionStmts RCURLY'
-        #t[0] = Node('If').addkid(t[3]).addkid(t[10])
         t[0] = action.If(t[3]['obj'], action.Action(t[6]), action.Action(t[10]))
 
     def p_Expr(self, t):
@@ -214,12 +213,10 @@ class Parser(object):
 
     def p_SetOps1(self, t):
         'SetOps : SetOps PIPE AddSub'
-        #t[0] = Node('|').addkid(t[1]).addkid(t[3])
         t[0] = binop.Union(t[1], t[3])
     
     def p_SetOps2(self, t):
         'SetOps : SetOps AMPERSTAND AddSub'
-        #t[0] = Node('&').addkid(t[1]).addkid(t[3])
         t[0] = binop.Intersection(t[1], t[3])
     
     def p_SetOps3(self, t):
@@ -228,11 +225,11 @@ class Parser(object):
     
     def p_AddSub1(self, t):
         'AddSub : AddSub PLUS MulDiv'
-        t[0] = Node('+').addkid(t[1]).addkid(t[3])
+        t[0] = binop.Add(t[1], t[3])
 
     def p_AddSub2(self, t):
         'AddSub : AddSub DASH MulDiv'
-        t[0] = Node('-').addkid(t[1]).addkid(t[3])
+        t[0] = binop.Sub(t[1], t[3])
 
     def p_AddSub3(self, t):
         'AddSub : MulDiv'
@@ -240,11 +237,11 @@ class Parser(object):
 
     def p_MulDiv1(self, t):
         'MulDiv : MulDiv STAR Atomic'
-        t[0] = Node('*').addkid(t[1]).addkid(t[3])
+        t[0] = binop.Mul(t[1], t[3])
 
     def p_MulDiv2(self, t):
         'MulDiv : MulDiv SLASH Atomic'
-        t[0] = Node('/').addkid(t[1]).addkid(t[3])
+        t[0] = binop.Slash(t[1], t[3])
 
     def p_MulDiv3(self, t):
         'MulDiv : Atomic'
