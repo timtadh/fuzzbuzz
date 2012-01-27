@@ -22,7 +22,10 @@ class Any(Condition):
         self.options = options
 
     def flow(self, objs):
-        choices = [opt.flow(dict(objs)) for opt in self.options]
+        choices = list()
+        for opt in self.options:
+            for choice in opt.flow(dict(objs)):
+                choices.append(choice)
         return choices
 
 class All(Condition):
@@ -31,9 +34,11 @@ class All(Condition):
         self.requirements = requirements
 
     def flow(self, objs):
+        choices = list()
         for opt in self.requirements:
-            opt.flow(objs)
-        return [objs]
+            for choice in opt.flow(objs):
+                choices.append(choice)
+        return choices
         
 class Constraint(Condition):
 
@@ -65,6 +70,7 @@ class Is(Constraint):
             #print self.b(objs).value
             #print 'no values'
             pass # nothing should need to be done here
+        return objs
 
 
 class In(Constraint):
@@ -92,3 +98,4 @@ class In(Constraint):
             #print self.b(objs).value
             #print 'no values'
             pass # nothing should need to be done here
+        return objs
