@@ -46,6 +46,12 @@ class Intersection(SetOp):
         a,b = self._get_ab(self, objs)
         return a & b
 
+class Difference(SetOp):
+
+    def value(self, objs):
+        a,b = self._get_ab(self, objs)
+        return a - b
+
 
 class ArithOp(BinOp):
 
@@ -54,3 +60,28 @@ class ArithOp(BinOp):
 
     def type(self, objs):
         return Number
+
+class Add(ArithOp):
+
+    def value(self, objs):
+        a,b = self._get_ab(self, objs)
+        return a + b
+
+
+class Sub(ArithOp):
+
+    def value(self, objs):
+        a,b = self._get_ab(self, objs)
+        return a - b
+
+class Mul(ArithOp):
+
+    def value(self, objs):
+        a,b = self._get_ab(self, objs)
+        return a * b
+
+class Div(ArithOp):
+
+    def value(self, objs):
+        a,b = self._get_ab(self, objs)
+        return a / b
