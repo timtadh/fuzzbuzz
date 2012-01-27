@@ -57,11 +57,12 @@ class Parser(object):
     def p_Production(self, t):
         'Production : Symbol ARROW Bodys SEMI'
         t[1].addkid(1)
-        node = Node('Production').addkid(t[1]).addkid(Node('Bodys', children=t[3]['nodes']))
+        node = Node('Production')
+          .addkid(t[1])
+          .addkid(Node('Bodys', children=t[3]['nodes']))
         for body in t[3]['nodes']:
             names = {t[1].children[0]:2}
             for kid in body.children[0].children:
-                #print kid.children[0], names
                 count = names.get(kid.children[0], 1)
                 kid.addkid(count)
                 names[kid.children[0]] = count + 1
@@ -69,7 +70,10 @@ class Parser(object):
 
     def p_Bodys1(self, t):
         'Bodys : Bodys PIPE Body'
-        t[0] = {'nodes':t[1]['nodes']+[t[3]['node']], 'objs':t[1]['objs']+[t[3]['objs']]}
+        t[0] = {
+          'nodes':t[1]['nodes']+[t[3]['node']],
+          'objs':t[1]['objs']+[t[3]['objs']]
+        }
 
     def p_Bodys2(self, t):
         'Bodys : Body'
