@@ -7,7 +7,6 @@
 from random import choice
 
 from attr_types import Set
-from executable import Executable
 
 class Condition(object):
 

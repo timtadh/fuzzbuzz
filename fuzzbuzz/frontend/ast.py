@@ -48,12 +48,6 @@ class Node(object):
             for c in n.children: queue.append(c)
             yield n
 
-    def __getattr__(self, name):
-        for c in self.children:
-            if name == c.label:
-                return c
-        raise AttributeError
-
     def __contains__(self, b):
         if isinstance(b, str) and self.label == b: return 1
         elif not isinstance(b, str) and self.label == b.label: return 1
