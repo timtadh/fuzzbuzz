@@ -121,6 +121,8 @@ class Object(Value):
 
 class SymbolObject(Value):
 
+    stringifiers = None
+
     def __init__(self, symtype, name, id):
         self.name = name
         self.id = id
@@ -131,6 +133,11 @@ class SymbolObject(Value):
         
     def writable(self, type):
         return issubclass(type, self.type(None))
+
+    def make_value(self, objs):
+        value = self.stringifiers[self.name]()
+        self.set_value(objs, value)
+        return value
 
     def value(self, objs):
         key = (self.name, self.id)

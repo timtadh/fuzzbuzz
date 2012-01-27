@@ -65,35 +65,24 @@ def fuzz(grammar):
         while stack:
             objs, rule, j, sobs = stack.pop()
             if rule.condition is not None:
-                #print nonterm.value
-                rule.condition.flow(objs)
-            nextfuzz = list()
-            #print rule.name, j, objs
+                rule.condition.flow(objs) ## Needs to be reflowed to update
+                                          ## conditions which rely on earlier Nonterminals
             print rule, id(objs), display(objs)
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.__class__ is NonTerminal:
-                    #objs[(sym.name, cnt)] = objs.get[(sym.name, cnt)]
                     crule, cobjs = choose(sym, objs[(sym.name, cnt)])
-                    #print rule.name, cobjs, id(cobjs)
-                    #new_objs[(rule.name, 1)] = objs
                     stack.append((objs, rule, i+1, sobs))
                     stack.append((cobjs, crule, 0, list()))
                     break
                 else:
-                    #if (sym.name, cnt) not in objs:
-                        #objs[(sym.name, cnt)] = sym.mkvalue()
                     so = SymbolObject('Terminal', sym.name, cnt)
-                    sobs.append((so, sym.mkvalue))
-                    #yield objs[(sym.name, cnt)]
+                    sobs.append(so)
                     out.append(functools.partial(so.value, objs))
-                    #terminal = sym.mkvalue()
-                    #yield terminal
-                    #objs[] = terminal
             else:
                 if rule.action is not None:
                     rule.action.fillvalues(objs)
-                for so, mkval in sobs:
-                    if not so.has_value(objs): so.set_value(objs, mkval())
+                for so in sobs:
+                    if not so.has_value(objs): so.make_value(objs)
                 display(objs)
                 print objs
                 if rule.action is not None:
@@ -104,7 +93,7 @@ def fuzz(grammar):
 
 def main():
     init()
-    Terminal.stringifiers = {
+    SymbolObject.stringifiers = {
         'VAR' : (lambda: 'var'),
         'NAME' : (lambda: ''.join(chr(randint(97, 122)) for x in xrange(1, randint(2,10)))),
         'EQUAL' : (lambda: '='),

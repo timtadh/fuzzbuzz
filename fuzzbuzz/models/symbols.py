@@ -8,15 +8,9 @@ from attr_types import String, Namespace
 from value import Value
 
 class Terminal(object):
-
-    stringifiers = None
     
     def __init__(self, name):
-        assert self.stringifiers is not None
         self.name = name
-
-    def mkvalue(self):
-        return self.stringifiers[self.name]()
 
     def __repr__(self): return str(self)
     def __str__(self): return '<Term %s>' % self.name
