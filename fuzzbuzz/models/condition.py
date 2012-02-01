@@ -10,11 +10,14 @@ from attr_types import Set
 
 class Condition(object):
 
-    def __init__(self, constraint):
-        self.constraint = constraint
+    def __init__(self, operation):
+        self.operation = operation
 
     def flow(self, objs):
-        self.constraint.flow(objs)
+        self.operation.flow(objs)
+
+    def generate_constraints(self, objs):
+        return self.operation.generate_constraints(objs)
 
 class Any(Condition):
 
@@ -37,6 +40,13 @@ class Any(Condition):
             for choice in opt.flow(dict(objs)):
                 choices.append(choice)
         return choices
+    
+    def generate_constraints(self, objs):
+        constraints = list()
+        for opt in self.options:
+            for constraint in opt.generate_constraints(objs):
+                choices.append(constraint)
+        return constraints
 
 class All(Condition):
 
@@ -55,6 +65,13 @@ class All(Condition):
             for choice in req.flow(objs):
                 choices.append(choice)
         return choices
+
+    def generate_constraints(self, objs):
+        constraints = list()
+        for req in self.requirements:
+            for constraint in req.generate_constraints(objs):
+                constraints.append(constraint)
+        return constraints
         
 class BooleanOperator(Condition):
 
