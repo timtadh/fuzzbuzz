@@ -158,7 +158,7 @@ class Parser(object):
 
     def p_BooleanExpr3(self, t):
         'BooleanExpr : LPAREN OrExpr RPAREN'
-        t[0] = t[1]
+        t[0] = t[2]
 
     def p_CmpExpr(self, t):
         'CmpExpr : Expr CmpOp Expr'

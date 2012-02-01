@@ -112,7 +112,8 @@ def main():
                   }
                 }
                 with Condition {
-                  Stmt.uses in Stmts{2}.names// || Stmt.uses is None
+                  (Stmt.decl is None && Stmt.uses in Stmts{2}.names)
+                  // || Stmt.uses is None
                 }
              | Stmt
                 with Action {
