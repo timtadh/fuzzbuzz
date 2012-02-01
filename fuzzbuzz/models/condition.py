@@ -175,6 +175,30 @@ class Constraint(object):
     @abc.abstractmethod
     def flow(self, objs): pass
 
+class AndConstraint(Constraint):
+
+    def __init__(self, constraints):
+        self.constraints = constraints
+
+    def satisfiable(self, objs):
+        return all(con.satisfiable(objs) for con in self.constraints)
+
+    def flow(self, objs):
+        for con in self.constraints:
+            con.flow(objs)
+
+class OrConstraint(Constraint):
+
+    def __init__(self, constraints):
+        self.constraints = constraints
+
+    def satisfiable(self, objs):
+        return any(con.satisfiable(objs) for con in self.constraints)
+
+    def flow(self, objs):
+        satisfiable = [con for con in self.constraints if con.satisfiable(objs)]
+        constraint = choice(satisfiable)
+        constraint.flow(objs)
 
 class SingleValueConstraint(Constraint):
 
