@@ -56,13 +56,13 @@ class All(Condition):
                 choices.append(choice)
         return choices
         
-class Constraint(Condition):
+class BooleanOperator(Condition):
 
     def __init__(self, a, b):
         self.a = a
         self.b = b
 
-class Is(Constraint):
+class Is(BooleanOperator):
 
     def applies(self, objs):
         return self.a.has_value(objs) and self.b.has_value(objs)
@@ -89,7 +89,7 @@ class Is(Constraint):
         return [objs]
 
 
-class In(Constraint):
+class In(BooleanOperator):
 
     def applies(self, objs):
         return self.a.has_value(objs) and self.b.has_value(objs)
