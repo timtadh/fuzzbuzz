@@ -21,12 +21,18 @@ class Any(Condition):
     def __init__(self, *options):
         self.options = options
 
+    def applies(self, objs):
+        return all(opt.applies(objs) for opt in self.options)
+
+    def evaluate(self, objs):
+        return any(opt.evaluate(objs) for opt in self.options)
+        
     def flow(self, objs):
         choices = list()
         for opt in self.options:
-            print opt.applies(objs),
-            if opt.applies(objs): print opt.evaluate(objs)
-            else: print
+            #print opt.applies(objs),
+            #if opt.applies(objs): print opt.evaluate(objs)
+            #else: print
             if opt.applies(objs) and not opt.evaluate(objs): continue
             for choice in opt.flow(dict(objs)):
                 choices.append(choice)
@@ -37,10 +43,16 @@ class All(Condition):
     def __init__(self, *requirements):
         self.requirements = requirements
 
+    def applies(self, objs):
+        return all(req.applies(objs) for req in self.requirements)
+    
+    def evaluate(self, objs):
+        return all(req.evaluate(objs) for req in self.requirements)
+
     def flow(self, objs):
         choices = list()
-        for opt in self.requirements:
-            for choice in opt.flow(objs):
+        for req in self.requirements:
+            for choice in req.flow(objs):
                 choices.append(choice)
         return choices
         
