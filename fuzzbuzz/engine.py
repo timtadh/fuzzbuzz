@@ -12,6 +12,7 @@ from random import seed, choice, randint, random
 from frontend import parser
 from models.symbols import Terminal, NonTerminal
 from models.attribute import SymbolObject
+from models.condition import TrueConstraint
 
 def init():
     seed()
@@ -19,18 +20,21 @@ def init():
 def fuzz(grammar):
     out = list()
 
-    def filter(objs, rules):
+    def filter(objs, rules, constraint):
+        print objs
         for rule in rules:
             #print rule.action.unconstrained
+            #print constraint
             if rule.action is None:
                 yield rule
-            elif rule.action.unconstrained(rule.mknamespace(objs)):
+            elif rule.action.unconstrained(constraint, rule.mknamespace(objs)):
                 yield rule
 
-    def choose(nonterm, objs):
-        rules = list(filter(objs, nonterm.rules))
+    def choose(nonterm, objs, constraint):
+        rules = list(filter(objs, nonterm.rules, constraint))
         print 'allowed rules for', nonterm.name, rules
         rule = choice(rules)
+        print 'chose', rule
         cobjs = rule.mknamespace(objs)
         return rule, cobjs
 
@@ -46,25 +50,26 @@ def fuzz(grammar):
   
     def fuzz(start):
         stack = list()
-        trule, tobjs = choose(start, dict())
+        trule, tobjs = choose(start, dict(), TrueConstraint())
         #print cobjs, id(cobjs)
-        stack.append((tobjs, trule, 0, list()))
+        stack.append((tobjs, trule, 0, list(), TrueConstraint()))
         while stack:
-            objs, rule, j, sobjs = stack.pop()
-            print rule, id(objs), rule.condition, display(objs)
+            objs, rule, j, sobjs, constraint = stack.pop()
+            #print rule, id(objs), rule.condition, display(objs)
             if rule.condition is not None:
                 ## TODO: Condtion flows return several canidate object sets
                 ##       based on the Any operator. This needs to be integrated
                 ##       into this engine. Right now it works because the All
                 ##       operator mutates the given object space. Mutation
                 ##       should be considered to deprecated behavior.
-                print '->', rule.condition.flow(objs) ## Needs to be reflowed to update
+                #print '->', rule.condition.flow(objs) ## Needs to be reflowed to update
                                           ## conditions which rely on earlier Nonterminals
+                constraint = rule.condition.generate_constraint(objs)
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.__class__ is NonTerminal:
-                    crule, cobjs = choose(sym, objs[(sym.name, cnt)])
-                    stack.append((objs, rule, i+1, sobjs))
-                    stack.append((cobjs, crule, 0, list()))
+                    crule, cobjs = choose(sym, objs[(sym.name, cnt)], constraint)
+                    stack.append((objs, rule, i+1, sobjs, constraint))
+                    stack.append((cobjs, crule, 0, list(), TrueConstraint()))
                     break
                 else:
                     so = SymbolObject('Terminal', sym.name, cnt)
@@ -75,12 +80,12 @@ def fuzz(grammar):
                     rule.action.fillvalues(objs)
                 for so in sobjs:
                     if not so.has_value(objs): so.make_value(objs)
-                display(objs)
-                print objs
+                #display(objs)
+                #print objs
                 if rule.action is not None:
                     rule.action.execute(objs)
                 #print [sym() for sym in out]
-        print trule.name, display(tobjs)
+        #print trule.name, display(tobjs)
     fuzz(grammar.start)
     return list(sym() for sym in out)
 
@@ -113,7 +118,7 @@ def main():
                 }
                 with Condition {
                   (Stmt.decl is None && Stmt.uses in Stmts{2}.names)
-                  // || Stmt.uses is None
+                  || Stmt.uses is None
                 }
              | Stmt
                 with Action {

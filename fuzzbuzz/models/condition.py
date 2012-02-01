@@ -17,7 +17,7 @@ class Condition(object):
     def flow(self, objs):
         self.operation.flow(objs)
 
-    def generate_constraints(self, objs):
+    def generate_constraint(self, objs):
         return self.operation.generate_constraints(objs)
 
 class Any(Condition):
@@ -42,12 +42,12 @@ class Any(Condition):
                 choices.append(choice)
         return choices
     
-    def generate_constraints(self, objs):
+    def generate_constraint(self, objs):
         constraints = list()
         for opt in self.options:
-            for constraint in opt.generate_constraints(objs):
-                if constraint is None: continue
-                choices.append(constraint)
+            constraint = opt.generate_constraint(objs)
+            if constraint is None: continue
+            constraints.append(constraint)
         return OrConstraint(constraints)
 
 class All(Condition):
@@ -68,12 +68,12 @@ class All(Condition):
                 choices.append(choice)
         return choices
 
-    def generate_constraints(self, objs):
+    def generate_constraint(self, objs):
         constraints = list()
         for req in self.requirements:
-            for constraint in req.generate_constraints(objs):
-                if constraint is None: continue
-                constraints.append(constraint)
+            constraint = req.generate_constraint(objs)
+            if constraint is None: continue
+            constraints.append(constraint)
         return AndConstraint(constraints)
         
 class BooleanOperator(Condition):
@@ -108,17 +108,20 @@ class Is(BooleanOperator):
             pass # nothing should need to be done here
         return [objs]
 
-    def generate_constraints(self, objs):
+    def generate_constraint(self, objs):
         a_hasvalue = self.a.has_value(objs)
         b_hasvalue = self.b.has_value(objs)
         if a_hasvalue and b_hasvalue:
-            return None
+            if self.a.value(objs) == self.b.value(objs):
+                return TrueConstraint()
+            else:
+                return FalseConstraint()
         elif a_hasvalue:
             return SingleValueConstraint(self.b, self.a.value(objs))
         elif b_hasvalue:
             return SingleValueConstraint(self.a, self.b.value(objs))
         else:
-            return None
+            return TrueConstraint()
 
 
 class In(BooleanOperator):
@@ -149,13 +152,16 @@ class In(BooleanOperator):
             pass # nothing should need to be done here
         return [objs]
     
-    def generate_constraints(self, objs):
+    def generate_constraint(self, objs):
         a_hasvalue = self.a.has_value(objs)
         b_hasvalue = self.b.has_value(objs)
         if a_hasvalue and b_hasvalue:
             assert self.b.type(objs) == Set
-            assert self.a.value(objs) in self.b.value(objs)
-            return None
+            print self.a.value(objs), self.b.value(objs)
+            if self.a.value(objs) in self.b.value(objs):
+                return TrueConstraint()
+            else:
+                return FalseConstraint()
         elif a_hasvalue:
             raise Exception, 'Need to think about how to do this correctly'
             return None
@@ -163,7 +169,7 @@ class In(BooleanOperator):
             assert self.b.type(objs) == Set
             return MultiValueConstraint(self.a, tuple(self.b.value(objs)))
         else:
-            return None
+            return TrueConstraint()
 
 class Constraint(object):
 
@@ -175,6 +181,18 @@ class Constraint(object):
     @abc.abstractmethod
     def flow(self, objs): pass
 
+class FalseConstraint(Constraint):
+
+    def satisfiable(self, objs): return False
+
+    def flow(self, objs): pass
+
+class TrueConstraint(Constraint):
+
+    def satisfiable(self, objs): return True
+
+    def flow(self, objs): pass
+    
 class AndConstraint(Constraint):
 
     def __init__(self, constraints):
