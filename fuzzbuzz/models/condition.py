@@ -48,7 +48,7 @@ class Any(Condition):
             for constraint in opt.generate_constraints(objs):
                 if constraint is None: continue
                 choices.append(constraint)
-        return constraints
+        return OrConstraint(constraints)
 
 class All(Condition):
 
@@ -74,7 +74,7 @@ class All(Condition):
             for constraint in req.generate_constraints(objs):
                 if constraint is None: continue
                 constraints.append(constraint)
-        return constraints
+        return AndConstraint(constraints)
         
 class BooleanOperator(Condition):
 
