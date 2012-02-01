@@ -45,6 +45,7 @@ class Any(Condition):
         constraints = list()
         for opt in self.options:
             for constraint in opt.generate_constraints(objs):
+                if constraint is None: continue
                 choices.append(constraint)
         return constraints
 
@@ -70,6 +71,7 @@ class All(Condition):
         constraints = list()
         for req in self.requirements:
             for constraint in req.generate_constraints(objs):
+                if constraint is None: continue
                 constraints.append(constraint)
         return constraints
         
@@ -105,6 +107,18 @@ class Is(BooleanOperator):
             pass # nothing should need to be done here
         return [objs]
 
+    def generate_constraints(self, objs):
+        a_hasvalue = self.a.has_value(objs)
+        b_hasvalue = self.b.has_value(objs)
+        if a_hasvalue and b_hasvalue:
+            return None
+        elif a_hasvalue:
+            return SingleValueConstraint(self.b, self.a.value(objs))
+        elif b_hasvalue:
+            return SingleValueConstraint(self.a, self.b.value(objs))
+        else:
+            return None
+
 
 class In(BooleanOperator):
 
@@ -133,3 +147,55 @@ class In(BooleanOperator):
             #print 'no values'
             pass # nothing should need to be done here
         return [objs]
+    
+    def generate_constraints(self, objs):
+        a_hasvalue = self.a.has_value(objs)
+        b_hasvalue = self.b.has_value(objs)
+        if a_hasvalue and b_hasvalue:
+            assert self.b.type(objs) == Set
+            assert self.a.value(objs) in self.b.value(objs)
+            return None
+        elif a_hasvalue:
+            raise Exception, 'Need to think about how to do this correctly'
+            return None
+        elif b_hasvalue:
+            assert self.b.type(objs) == Set
+            return MultiValueConstraint(self.a, tuple(self.b.value(objs)))
+        else:
+            return None
+
+class SingleValueConstraint(object):
+
+    def __init__(self, obj, value):
+        self.obj = obj
+        self.value = value
+
+    def satisfiable(self, objs):
+        if self.obj.has_value(objs):
+            return self.obj.value(objs) == self.value
+        else:
+            return True
+
+    def flow(self, objs):
+        if self.obj.has_value(objs):
+            assert self.obj.value(objs) == self.value
+        else:
+            self.obj.set_value(objs, self.value)
+
+class MultiValueConstraint(object):
+
+    def __init__(self, obj, values):
+        self.obj = obj
+        self.values = values
+
+    def satisfiable(self, objs):
+        if self.obj.has_value(objs):
+            return self.obj.value(objs) in self.values
+        else:
+            return True
+
+    def flow(self, objs):
+        if self.obj.has_value(objs):
+            assert self.obj.value(objs) == self.value
+        else:
+            self.obj.set_value(objs, choice(self.values))
