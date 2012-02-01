@@ -5,6 +5,7 @@
 #For licensing see the LICENSE file in the top level directory.
 
 from random import choice
+import abc
 
 from attr_types import Set
 
@@ -164,7 +165,18 @@ class In(BooleanOperator):
         else:
             return None
 
-class SingleValueConstraint(object):
+class Constraint(object):
+
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
+    def satisfiable(self, objs): pass
+
+    @abc.abstractmethod
+    def flow(self, objs): pass
+
+
+class SingleValueConstraint(Constraint):
 
     def __init__(self, obj, value):
         self.obj = obj
@@ -182,7 +194,7 @@ class SingleValueConstraint(object):
         else:
             self.obj.set_value(objs, self.value)
 
-class MultiValueConstraint(object):
+class MultiValueConstraint(Constraint):
 
     def __init__(self, obj, values):
         self.obj = obj
