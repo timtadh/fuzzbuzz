@@ -1,7 +1,7 @@
 This is a Hard Problem
 ======================
 
-No really. Generating strings of an attribute grammar is at least NP-Complete. I
+No really. Generating strings of an attribute grammar is at least NP-Hard. I
 am still trying to nail down the exact complexity class it belongs to, but it
 is fairly straight forward to show it is NP-Hard.
 
