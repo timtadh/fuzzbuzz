@@ -250,6 +250,6 @@ class MultiValueConstraint(Constraint):
 
     def flow(self, objs):
         if self.obj.has_value(objs):
-            assert self.obj.value(objs) == self.value
+            assert self.obj.value(objs) in self.values
         else:
             self.obj.set_value(objs, choice(self.values))

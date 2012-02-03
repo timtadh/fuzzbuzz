@@ -34,6 +34,8 @@ class AttrChain(Value):
     def set_value(self, objs, value):
         cobjs = objs
         for attr in self.lookup_chain[:-1]:
+            if not attr.has_value(objs, cobjs):
+                attr.set_value(objs, cobjs, dict())
             cobjs = attr.value(objs, cobjs)
         last_attr = self.lookup_chain[-1]
         last_attr.set_value(objs, cobjs, value)
