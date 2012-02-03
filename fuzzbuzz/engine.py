@@ -100,13 +100,6 @@ def main():
         'NEWLINE' : (lambda: '\n'),
     }
     tree, grammar = parser.parse('''
-    /*
-    As -> As NEWLINE A
-        | A
-        ;
-    A -> VAR B NUMBER  ;
-    B -> EQUAL ;
-    */
     Stmts -> Stmts NEWLINE Stmt
                 with Action {
                   if (Stmt.decl is None) {
@@ -142,12 +135,9 @@ def main():
           ;
     ''')
     strings = fuzz(grammar)
-    print strings
-    print ' '.join(strings)
-    #dot('test', tree.dotty())
-    #print tree.dotty()
-    #print repr(tree)
-    #print grammar
+    string = ' '.join(strings)
+    for line in string.split('\n'):
+        print line.strip()
 
 if __name__ =='__main__':
     main()

@@ -144,7 +144,7 @@ class In(BooleanOperator):
         elif b_hasvalue:
             assert self.b.type(objs) == Set
             value = choice(tuple(self.b.value(objs)))
-            print '----->', value
+            #print '----->', value
             self.a.set_value(objs, value)
         else:
             #print self.b(objs).value
@@ -157,7 +157,7 @@ class In(BooleanOperator):
         b_hasvalue = self.b.has_value(objs)
         if a_hasvalue and b_hasvalue:
             assert self.b.type(objs) == Set
-            print self.a.value(objs), self.b.value(objs)
+            #print self.a.value(objs), self.b.value(objs)
             if self.a.value(objs) in self.b.value(objs):
                 return TrueConstraint()
             else:
