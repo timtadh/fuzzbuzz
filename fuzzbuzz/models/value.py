@@ -47,7 +47,3 @@ class SetValue(Value):
     def value(self, objs):
         return set(val.value(objs) for val in self.values)
 
-if __name__ == '__main__':
-    import attribute
-    print attribute.Attribute('a')('b')
-    print SetValue([Value(String, 'a'), Value(String, 'b'), Value(String, 'c')])(None).value
