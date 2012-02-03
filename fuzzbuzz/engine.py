@@ -21,7 +21,7 @@ def fuzz(grammar):
     out = list()
 
     def filter(objs, rules, constraint):
-        print objs
+        #print objs
         for rule in rules:
             #print rule.action.unconstrained
             #print constraint
@@ -32,9 +32,9 @@ def fuzz(grammar):
 
     def choose(nonterm, objs, constraint):
         rules = list(filter(objs, nonterm.rules, constraint))
-        print 'allowed rules for', nonterm.name, rules
+        #print 'allowed rules for', nonterm.name, rules
         rule = choice(rules)
-        print 'chose', rule
+        #print 'chose', rule
         cobjs = rule.mknamespace(objs)
         return rule, cobjs
 
@@ -118,7 +118,7 @@ def main():
                 }
                 with Condition {
                   (Stmt.decl is None && Stmt.uses in Stmts{2}.names)
-                  || Stmt.uses is None
+                  || Stmt.uses is None 
                 }
              | Stmt
                 with Action {

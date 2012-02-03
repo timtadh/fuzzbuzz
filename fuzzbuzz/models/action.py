@@ -47,19 +47,19 @@ class Assign(AbstractAction):
     def unconstrained(self, constraint, objs):
         #print ' '*4, objs
         #print ' '*4, self.left.has_value(objs), '==', self.right.has_value(objs)
-        print constraint.satisfiable(objs), constraint
+        #print constraint.satisfiable(objs), constraint
         nobjs = dict(objs)
-        print ' '*4, 'preflow', nobjs
+        #print ' '*4, 'preflow', nobjs
         constraint.flow(nobjs)
-        print ' '*4, 'postflow', nobjs
-        # print ' '*4, self.left.value(objs)
+        #print ' '*4, 'postflow', nobjs
+        #print ' '*4, self.left.value(objs)
         if not self.left.has_value(nobjs): return True
-        print ' '*4, 'haha'
+        #print ' '*4, 'haha'
         
         if self.right.has_value(nobjs):
             return self.left.value(nobjs) == self.right.value(nobjs)
         else:
-            # print 'yyy', 'hello', self.right.writable(self.left.type(objs)), self.right.lookup_chain[0].obj.name
+            #print 'yyy', 'hello', self.right.writable(self.left.type(objs)), self.right.lookup_chain[0].obj.name
             if self.right.writable(self.left.type(nobjs)):
                 #self.right.set_value(objs, self.left.value(objs))
                 return True
@@ -75,7 +75,7 @@ class Assign(AbstractAction):
         #print self.right.value(objs)
         #print self.left, self.right.lookup_chain[0].obj.id
         if left and right:
-            print self.left.value(objs), self.right.value(objs)
+            #print self.left.value(objs), self.right.value(objs)
             assert self.left.value(objs) == self.right.value(objs)
             return
         else:
@@ -90,7 +90,7 @@ class Assign(AbstractAction):
     def fillvalues(self, objs):
         if self.right.has_value(objs): return
         if self.left.has_value(objs):
-            print self.left.has_value(objs)
+            #print self.left.has_value(objs)
             self.right.set_value(objs, self.left.value(objs))
         
 
