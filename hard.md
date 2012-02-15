@@ -64,12 +64,18 @@ condition which asserts that the whole expression is true.
                 AndsM.names = AndsM.names | AndsM-1.names
              }
              with Condition {
-               (ClauseM.a.name != ClauseM.b.name || ClauseM.a.value == ClauseM.b.value) &&
-               (ClauseM.c.name != ClauseM.b.name || ClauseM.c.value == ClauseM.b.value) &&
-               (ClauseM.a.name != ClauseM.c.name || ClauseM.a.value == ClauseM.c.value) &&
-               (ClauseM.a.name not in AndsM-1.names || ClauseM.a.value == AndsM-1.names[ClauseM.a.name]) &&
-               (ClauseM.b.name not in AndsM-1.names || ClauseM.b.value == AndsM-1.names[ClauseM.b.name]) &&
-               (ClauseM.c.name not in AndsM-1.names || ClauseM.c.value == AndsM-1.names[ClauseM.c.name])
+               (ClauseM.a.name != ClauseM.b.name ||
+                 ClauseM.a.value == ClauseM.b.value) &&
+               (ClauseM.c.name != ClauseM.b.name ||
+                 ClauseM.c.value == ClauseM.b.value) &&
+               (ClauseM.a.name != ClauseM.c.name ||
+                 ClauseM.a.value == ClauseM.c.value) &&
+               (ClauseM.a.name not in AndsM-1.names ||
+                 ClauseM.a.value == AndsM-1.names[ClauseM.a.name]) &&
+               (ClauseM.b.name not in AndsM-1.names ||
+                 ClauseM.b.value == AndsM-1.names[ClauseM.b.name]) &&
+               (ClauseM.c.name not in AndsM-1.names ||
+                 ClauseM.c.value == AndsM-1.names[ClauseM.c.name])
              }
              ;
     ...
@@ -84,12 +90,18 @@ condition which asserts that the whole expression is true.
                 Ands2.names = Ands2.names | Ands1.names
              }
              with Condition {
-               (Clause2.a.name != Clause2.b.name || Clause2.a.value == Clause2.b.value) &&
-               (Clause2.c.name != Clause2.b.name || Clause2.c.value == Clause2.b.value) &&
-               (Clause2.a.name != Clause2.c.name || Clause2.a.value == Clause2.c.value) &&
-               (Clause2.a.name not in Ands1.names || Clause2.a.value == Ands1.names[Clause2.a.name]) &&
-               (Clause2.b.name not in Ands1.names || Clause2.b.value == Ands1.names[Clause2.b.name]) &&
-               (Clause2.c.name not in Ands1.names || Clause2.c.value == Ands1.names[Clause2.c.name])
+               (Clause2.a.name != Clause2.b.name ||
+                 Clause2.a.value == Clause2.b.value) &&
+               (Clause2.c.name != Clause2.b.name ||
+                 Clause2.c.value == Clause2.b.value) &&
+               (Clause2.a.name != Clause2.c.name ||
+                 Clause2.a.value == Clause2.c.value) &&
+               (Clause2.a.name not in Ands1.names ||
+                 Clause2.a.value == Ands1.names[Clause2.a.name]) &&
+               (Clause2.b.name not in Ands1.names ||
+                 Clause2.b.value == Ands1.names[Clause2.b.name]) &&
+               (Clause2.c.name not in Ands1.names ||
+                 Clause2.c.value == Ands1.names[Clause2.c.name])
              }
              ;
     And1 -> Clause1
@@ -102,9 +114,12 @@ condition which asserts that the whole expression is true.
                 }
              }
              with Condition {
-               (Clause1.a.name != Clause1.b.name || Clause1.a.value == Clause1.b.value) &&
-               (Clause1.c.name != Clause1.b.name || Clause1.c.value == Clause1.b.value) &&
-               (Clause1.a.name != Clause1.c.name || Clause1.a.value == Clause1.c.value)
+               (Clause1.a.name != Clause1.b.name ||
+                 Clause1.a.value == Clause1.b.value) &&
+               (Clause1.c.name != Clause1.b.name ||
+                 Clause1.c.value == Clause1.b.value) &&
+               (Clause1.a.name != Clause1.c.name ||
+                 Clause1.a.value == Clause1.c.value)
              }
              ;
 
@@ -224,9 +239,51 @@ True.
 AGSG is in NP
 =============
 
-Proof...
+#### Certificate
 
-Notes
-=====
+A string of terminal symbols.
 
-CNF ensures that the tree hieght is polynomial.
+## Show the Certificate can be Verified in Poly-Time
+
+### The Algorithm for Verification
+
+- Transform the Context-Free grammar into Chomsky Normal Form. This ensures a
+  polynomial tree height with each Non-Terminal symbol having at most 2
+  children.
+
+- Using the Chomsky Normal Form Context-Free version of the grammar parse the
+  string and transform it into a parse tree. 
+
+- Using a Post-Order tree traversal to apply the actions and check the
+  conditions of each grammar rule
+
+### Proof Alg. in Poly-Time
+
+Since the parse tree has a polynomial number of nodes there are only a
+polynomial number of steps. However, how bad can 1 of those steps be in the
+worst case? That is, how much time can it take to check a condition? Is it
+linear with respect to the input (which includes: the attribute grammar, and the
+certificate)?
+
+To examine this we will start with the leaves of the parse tree. Each leaf is a
+Terminal Symbol. A constant number of attributes can be produced by a single
+terminal symbol. We denote this number as $C$. Therefore, there can be at most
+$C$ actions and $C^2 D$ terms in the condition -- where $D$ is the number of
+binary comparison operators in the language.
+
+Most importantly, if the condition actually has $C^2 D$ terms every term has to
+be written down. So checking the truth value of the condition is linear with
+respect to the size of the attribute grammar. If loops or quantifiers such as
+$\exists$ and $\forall$ are allowed this no longer holds. However, since we do not
+allow quantification in the conditions checking a leaf condition (and indeed any
+condition) must be linear with respect to the size of the input.
+
+At internal nodes the number of terms in a condition could be as high as
+$(2^{h-2}C)^2 D$ where $h$ is the height of the subtree rooted at the current
+node. Once again, while this is clearly an exponential number, it is not
+exponential with respect to the input as each term is part of the input.
+
+##### Therefore,
+checking all conditions are satisfied is polynomial time as long as
+quantifiers are disallowed from conditions.
+
