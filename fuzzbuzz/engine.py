@@ -89,8 +89,21 @@ def fuzz(grammar):
     fuzz(grammar.start)
     return list(sym() for sym in out)
 
+
+def read_input_grammar():
+    """Read in the input grammar from a file.
+    If the contents exist, return them as a string.
+
+    TODO: let the user specify what file to load.
+    """
+    contents = open("../example_grammar").read()
+    return contents
+
+
+
 def main():
     init()
+    input_grammar = read_input_grammar()
     SymbolObject.stringifiers = {
         'VAR' : (lambda: 'var'),
         'NAME' : (lambda: ''.join(chr(randint(97, 122)) for x in xrange(1, randint(2,10)))),
@@ -99,41 +112,7 @@ def main():
         'PRINT' : (lambda: 'print'),
         'NEWLINE' : (lambda: '\n'),
     }
-    tree, grammar = parser.parse('''
-    Stmts -> Stmts NEWLINE Stmt
-                with Action {
-                  if (Stmt.decl is None) {
-                    Stmts{1}.names = Stmts{2}.names
-                  }
-                  else {
-                    Stmts{1}.names = Stmts{2}.names | { Stmt.decl }
-                  }
-                }
-                with Condition {
-                  (Stmt.decl is None && Stmt.uses in Stmts{2}.names)
-                  || Stmt.uses is None 
-                }
-             | Stmt
-                with Action {
-                  Stmts{1}.names = { Stmt.decl }
-                }
-                with Condition {
-                  Stmt.uses is None
-                }
-             ;
-
-    Stmt -> VAR NAME EQUAL NUMBER
-            with Action {
-              Stmt.decl = NAME
-              Stmt.uses = None
-            }
-          | PRINT NAME
-            with Action {
-              Stmt.decl = None
-              Stmt.uses = NAME
-            }
-          ;
-    ''')
+    tree, grammar = parser.parse(input_grammar)
     strings = fuzz(grammar)
     string = ' '.join(strings)
     for line in string.split('\n'):
