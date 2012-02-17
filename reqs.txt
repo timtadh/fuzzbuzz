@@ -1,0 +1,5 @@
+coverage==3.5.1
+distribute==0.6.19
+nose==1.1.2
+ply==3.4
+wsgiref==0.1.2
