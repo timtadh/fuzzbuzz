@@ -1,0 +1,3 @@
+source ./env/bin/activate
+export PYTHONPATH=`pwd`:$PYTHONPATH
+export PATH=`pwd`/bin:$PATH
