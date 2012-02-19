@@ -126,7 +126,11 @@ def parse_bool(s):
         usage(error_codes['bad_bool'])
     return bools[s]
 
-def import_module(module):
+def import_module_or_die(module):
+    '''Imports a module as given by a string
+    @param module : "A.x.b" --> from A.x import b
+    @returns : the module requested (dies otherwise)
+    '''
     fromlist = module.split('.')[:-1]
     try:
         return __import__(module, fromlist=fromlist)
@@ -178,7 +182,7 @@ def main(args):
         usage(error_codes['bad_engine'])
     
     grammar = fuzzbuzz.frontend.parse(read_file_or_die(grammar))
-    rlexer = import_module(lexer_module).stringifiers
+    rlexer = import_module_or_die(lexer_module).stringifiers
     strings = fuzzbuzz.engines.fuzzers['attribute_fuzzer'](rlexer, grammar)
     string = ' '.join(strings)
     for line in string.split('\n'):
