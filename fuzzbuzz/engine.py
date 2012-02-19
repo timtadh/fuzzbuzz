@@ -6,6 +6,7 @@
 
 ## Should contain the implementation of the main fuzzing algorithm.
 
+import argparse
 import subprocess, functools
 from random import seed, choice, randint, random
 
@@ -100,9 +101,18 @@ def read_input_grammar():
     return contents
 
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='FuzzBuzz: An attribute grammar fuzzer (Read the README)')
+    parser.add_argument('string', metavar='grammar_input_file', type=str,
+                        help='The grammar for which we will fuzz')
+
+    args = parser.parse_args()
+    return args
+
 
 def main():
     init()
+    args = parse_arguments()
     input_grammar = read_input_grammar()
     SymbolObject.stringifiers = {
         'VAR' : (lambda: 'var'),
