@@ -22,7 +22,7 @@ class Rule(object):
             if isinstance(sym, NonTerminal):
                 objs.update({(sym.name, cnt):  dict()})
         return objs
-        
+
     def __repr__(self): return str(self)
     def __str__(self):
         #print [object.__repr__(x[0]()) if not hasattr(x[0], 'name') else x[0].name for x in self.pattern]
@@ -35,42 +35,3 @@ class Rule(object):
           ' and' if self.action is not None and self.condition is not None else '',
           ' with condition' if self.condition is not None else ''
         )
-
-## Deprecated
-def mkrules(node, objs):
-    def sym_name(node): return node.children[0]
-    def sym_num(node): return node.children[1]
-    rules = list()
-    name = sym_name(node.children[0])
-    bodys = node.children[1]
-    #print name
-    #print bodys
-    for body, bodyobjs in zip(bodys.children, objs):
-        pattern = body.children[0]
-        #print
-        #print
-        #print pattern
-        pattern = [(sym_name(sym), sym_num(sym)) for sym in pattern.children]
-        action = None
-        condition = None
-        #print body
-        for obj in bodyobjs:
-            #print obj, Action, isinstance(obj, Action)
-            if isinstance(obj, Action):
-                if action is not None:
-                    raise SyntaxError, "More than one action for grammar rule."
-                action = obj
-            elif isinstance(obj, Condition):
-                if condition is not None:
-                    raise SyntaxError, "More than one action for grammar rule."
-                condition = obj
-            else:
-                raise Exception, 'Unexpected type %s' % (obj,)
-        rule = Rule(name, pattern, action, condition)
-        #print rule
-        #print rule.action
-        #print rule.condition
-        rules.append(rule)
-    #print productions
-    #print
-    return rules
