@@ -6,7 +6,6 @@
 
 ## Should contain the implementation of the main fuzzing algorithm.
 
-import argparse
 import subprocess, functools
 from random import seed, choice, randint, random
 
@@ -90,30 +89,12 @@ def fuzz(grammar):
     fuzz(grammar.start)
     return list(sym() for sym in out)
 
-
-def read_input_grammar():
-    """Read in the input grammar from a file.
-    If the contents exist, return them as a string.
-
-    TODO: let the user specify what file to load.
-    """
-    contents = open("../example_grammar").read()
-    return contents
-
-
-def parse_arguments():
-    parser = argparse.ArgumentParser(description='FuzzBuzz: An attribute grammar fuzzer (Read the README)')
-    parser.add_argument('string', metavar='grammar_input_file', type=str,
-                        help='The grammar for which we will fuzz')
-
-    args = parser.parse_args()
-    return args
-
-
-def main():
+def generate(conf):
+    '''Generate a language following the rules defined in conf["grammar"]
+    '''
     init()
-    args = parse_arguments()
-    input_grammar = read_input_grammar()
+    input_grammar = conf["grammar"]
+
     SymbolObject.stringifiers = {
         'VAR' : (lambda: 'var'),
         'NAME' : (lambda: ''.join(chr(randint(97, 122)) for x in xrange(1, randint(2,10)))),

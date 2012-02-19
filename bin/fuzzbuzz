@@ -62,7 +62,7 @@ def main():
     grammar = assert_file_exists(args.grammar_file)
 
     if grammar is not None:
-        grammar = lib.parse_grammar(read_file_or_die(grammar))
+        grammar = fuzzbuzz.engine.generate(read_file_or_die(grammar))
 
     conf = {'grammar': grammar,
     }
