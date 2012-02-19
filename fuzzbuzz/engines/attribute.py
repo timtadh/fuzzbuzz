@@ -48,7 +48,7 @@ def fuzz(rlexer, grammar):
             else:
                 print value
         return ''
-  
+
     def fuzz(start):
         stack = list()
         trule, tobjs = choose(start, dict(), TrueConstraint())
@@ -58,13 +58,6 @@ def fuzz(rlexer, grammar):
             objs, rule, j, sobjs, constraint = stack.pop()
             #print rule, id(objs), rule.condition, display(objs)
             if rule.condition is not None:
-                ## TODO: Condtion flows return several canidate object sets
-                ##       based on the Any operator. This needs to be integrated
-                ##       into this engine. Right now it works because the All
-                ##       operator mutates the given object space. Mutation
-                ##       should be considered to deprecated behavior.
-                #print '->', rule.condition.flow(objs) ## Needs to be reflowed to update
-                                          ## conditions which rely on earlier Nonterminals
                 constraint = rule.condition.generate_constraint(objs)
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.__class__ is NonTerminal:
@@ -80,27 +73,13 @@ def fuzz(rlexer, grammar):
                 if rule.action is not None:
                     rule.action.fillvalues(objs)
                 for so in sobjs:
-                    if not so.has_value(objs): so.make_value(objs)
+                    if not so.has_value(objs): so.make_value(objs, rlexer)
                 #display(objs)
                 #print objs
                 if rule.action is not None:
                     rule.action.execute(objs)
                 #print [sym() for sym in out]
         #print trule.name, display(tobjs)
-    SymbolObject.stringifiers = rlexer
     fuzz(grammar.start)
     output = list(sym() for sym in out)
-    SymbolObject.stringifiers = None
     return output
-
-def main():
-    
-    tree, grammar = parser.parse()
-    strings = fuzz(grammar)
-    string = ' '.join(strings)
-    for line in string.split('\n'):
-        print line.strip()
-
-if __name__ =='__main__':
-    main()
-
