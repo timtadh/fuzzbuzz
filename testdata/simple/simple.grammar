@@ -1,24 +1,24 @@
 Stmts -> Stmts NEWLINE Stmt
-            with Action {
-              if (Stmt.decl is None) {
-                Stmts{1}.names = Stmts{2}.names
-              }
-              else {
-                Stmts{1}.names = Stmts{2}.names | { Stmt.decl }
-              }
+          with Action {
+            if (Stmt.decl is None) {
+              Stmts{1}.names = Stmts{2}.names
             }
-            with Condition {
-              (Stmt.decl is None && Stmt.uses in Stmts{2}.names)
-              || Stmt.uses is None
+            else {
+              Stmts{1}.names = Stmts{2}.names | { Stmt.decl }
             }
-         | Stmt
-            with Action {
-              Stmts{1}.names = { Stmt.decl }
-            }
-            with Condition {
-              Stmt.uses is None
-            }
-         ;
+          }
+          with Condition {
+            (Stmt.decl is None && Stmt.uses in Stmts{2}.names)
+            || Stmt.uses is None
+          }
+       | Stmt
+          with Action {
+            Stmts{1}.names = { Stmt.decl }
+          }
+          with Condition {
+            Stmt.uses is None
+          }
+       ;
 Stmt -> VAR NAME EQUAL NUMBER
         with Action {
           Stmt.decl = NAME

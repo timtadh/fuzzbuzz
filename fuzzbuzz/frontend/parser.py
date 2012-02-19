@@ -10,7 +10,7 @@ from lexer import tokens, Lexer
 from ast import Node
 from fuzzbuzz import models
 from fuzzbuzz.models.grammar import Grammar
-from fuzzbuzz.models.rule import mkrules
+from fuzzbuzz.models.rule import mkrules, Rule
 from fuzzbuzz.models import action, attr_types, value, attribute, binop
 
 ## If you are confused about the syntax in this file I recommend reading the
@@ -40,55 +40,48 @@ class Parser(object):
 
     def p_Start(self, t):
         'Start : Productions'
-        t[0] = Grammar(t[1]['rules'])
+        t[0] = Grammar(t[1])
 
     def p_Productions1(self, t):
         'Productions : Productions Production'
-        node = t[1]['node'].addkid(t[2]['node'])
-        rules = t[1]['rules'] + t[2]['rules']
-        t[0] = {'node':node, 'rules':rules}
+        t[0] = t[1] + t[2]
 
 
     def p_Productions2(self, t):
         'Productions : Production'
-        node = Node('Productions').addkid(t[1]['node'])
-        t[0] = {'node':node, 'rules':t[1]['rules']}
+        t[0] = t[1]
 
     def p_Production(self, t):
         'Production : Symbol ARROW Bodys SEMI'
-        t[1].addkid(1)
-        node = (
-          Node('Production')
-            .addkid(t[1])
-            .addkid(Node('Bodys', children=t[3]['nodes']))
-        )
-        for body in t[3]['nodes']:
-            names = {t[1].children[0]:2}
-            for kid in body.children[0].children:
-                count = names.get(kid.children[0], 1)
-                kid.addkid(count)
+        prod_name = t[1].children[0]
+        rules = list()
+        for body in t[3]:
+            names = {prod_name:2}
+            new_pattern = list()
+            for kid in body['pattern'].children:
+                name = kid.children[0]
+                count = names.get(name, 1)
                 names[kid.children[0]] = count + 1
-        t[0] = {'node':node, 'rules':mkrules(node, t[3]['objs'])}
+                new_pattern.append((name, count))
+            body['pattern'] = new_pattern
+            rules.append(Rule(prod_name, **body))
+        t[0] = rules
 
     def p_Bodys1(self, t):
         'Bodys : Bodys PIPE Body'
-        t[0] = {
-          'nodes':t[1]['nodes']+[t[3]['node']],
-          'objs':t[1]['objs']+[t[3]['objs']]
-        }
+        t[0] = t[1] + [t[3]]
 
     def p_Bodys2(self, t):
         'Bodys : Body'
-        t[0] = {'nodes':[t[1]['node']], 'objs':[t[1]['objs']]}
+        t[0] = [t[1]]
 
     def p_Body1(self, t):
         'Body : Symbols'
-        t[0] = {'node':Node('Body').addkid(t[1]), 'objs':None}
+        t[0] = {'pattern':t[1], 'action':None, 'condition':None}
 
     def p_Body2(self, t):
         'Body : Symbols ACStmts'
-        t[0] = {'node':Node('Body').addkid(t[1]),
-                'objs':t[2]}
+        t[0] = {'pattern':t[1], 'action':t[2]['action'], 'condition':t[2]['condition']}
 
     def p_Symbols1(self, t):
         'Symbols : Symbols Symbol'
@@ -107,19 +100,27 @@ class Parser(object):
         t[0] = Node('Terminal').addkid(t[1])
 
     def p_ACStmts1(self, t):
-        'ACStmts : ACStmts ACStmt'
-        t[0] = t[1]+[t[2]]
+        'ACStmts : Action'
+        t[0] = {'action':t[1], 'condition':None}
 
     def p_ACStmts2(self, t):
-        'ACStmts : ACStmt'
-        t[0] = [t[1]]
+        'ACStmts : Condition'
+        t[0] = {'action':None, 'condition':t[1]}
 
-    def p_ACStmt1(self, t):
-        'ACStmt : WITH ACTION LCURLY ActionStmts RCURLY'
+    def p_ACStmts3(self, t):
+        'ACStmts : Action Condition'
+        t[0] = {'action':t[1], 'condition':t[2]}
+
+    def p_ACStmts4(self, t):
+        'ACStmts : Condition Action'
+        t[0] = {'action':t[2], 'condition':t[1]}
+
+    def p_Action(self, t):
+        'Action : WITH ACTION LCURLY ActionStmts RCURLY'
         t[0] = action.Action(t[4])
 
-    def p_ACStmt2(self, t):
-        'ACStmt : WITH CONDITION LCURLY OrExpr RCURLY'
+    def p_Condition(self, t):
+        'Condition : WITH CONDITION LCURLY OrExpr RCURLY'
         t[0] = t[4]
 
     def p_OrExpr1(self, t):
@@ -200,13 +201,10 @@ class Parser(object):
 
     def p_ActionStmt1(self, t):
         'ActionStmt : AttributeValue EQUAL Expr'
-        #t[0] = Node('Assign').addkid(t[1]).addkid(t[3])
-        #print t[1], t[3]
         t[0] = action.Assign(attribute.AttrChain(t[1]), t[3])
 
     def p_ActionStmt2(self, t):
         'ActionStmt : IF LPAREN OrExpr RPAREN LCURLY ActionStmts RCURLY'
-        #t[0] = Node('If').addkid(t[3]).addkid(t[6])
         t[0] = action.If(t[3], action.Action(t[6]))
 
     def p_ActionStmt3(self, t):
@@ -291,7 +289,6 @@ class Parser(object):
 
     def p_AttributeValue_1(self, t):
         'AttributeValue_ : DOT Attr AttributeValue_'
-        #print t[2](dict(), {'james':'james', 'thames':'thames', 'games':'games', 'names':'names', 'decl':'decl', 'uses':'uses', 'value':'value'}).value
         t[0] = [t[2]] + t[3]
 
     def p_AttributeValue_2(self, t):
@@ -306,7 +303,7 @@ class Parser(object):
     def p_SymbolObject2(self, t):
         'SymbolObject : Symbol LCURLY NUMBER RCURLY'
         t[0] = attribute.Attribute(
-          attribute.SymbolObject(t[1].label, t[1].children[0], t[3]))
+                    attribute.SymbolObject(t[1].label, t[1].children[0], t[3]))
 
     def p_Attr1(self, t):
         'Attr : NAME'
@@ -314,7 +311,8 @@ class Parser(object):
 
     def p_Attr2(self, t):
         'Attr : NAME Call'
-        t[0] = attribute.Attribute(attribute.Object(t[1]), attribute.CallChain(t[2].children))
+        t[0] = attribute.Attribute(attribute.Object(t[1]),
+                                      attribute.CallChain(t[2].children))
 
     def p_Call1(self, t):
         'Call : Call Call_'
@@ -327,7 +325,6 @@ class Parser(object):
     def p_Call_1(self, t):
         'Call_ : Fcall'
         t[0] = attribute.FCall(t[1])
-        #t[0] = Node('Fcall', children=t[1])
 
     def p_Fcall1(self, t):
         'Fcall : LPAREN RPAREN'
@@ -335,7 +332,6 @@ class Parser(object):
 
     def p_Fcall2(self, t):
         'Fcall : LPAREN ParameterList RPAREN'
-        #print t[2]
         t[0] = t[2]
 
     def p_ParameterList1(self, t):

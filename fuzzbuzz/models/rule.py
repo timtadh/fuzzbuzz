@@ -36,6 +36,7 @@ class Rule(object):
           ' with condition' if self.condition is not None else ''
         )
 
+## Deprecated
 def mkrules(node, objs):
     def sym_name(node): return node.children[0]
     def sym_num(node): return node.children[1]
