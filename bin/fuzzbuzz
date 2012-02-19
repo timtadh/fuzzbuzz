@@ -21,7 +21,9 @@ error_codes = {
     'no_args':7,
     'requirements':8,
     'bad_module':9,
+    'list_engines':10,
     'file_instead_of_dir':11,
+    'bad_engine':12,
 }
 
 usage_message = \
@@ -37,6 +39,9 @@ Options
     -r, reverse-lexer=<module>          supply the module (on PYTHONPATH) which
                                         contains a reverse lexer for the given
                                         grammar
+    -e, engine=<engine-name>            what engine should be used
+                                        [defaults to "attribute_fuzzer"]
+    -E, list-engines                    list the available engines
 '''
 
 
@@ -66,6 +71,11 @@ def usage(code=None):
         code = error_codes['usage']
     sys.exit(code)
 
+def list_engines():
+    for engine_name in fuzzbuzz.engines.fuzzers.keys():
+        output(engine_name)
+    sys.exit(error_codes['list_engines'])
+    
 def assert_file_exists(path):
     '''checks if the file exists. If it doesn't causes the program to exit.
     @param path : path to file
@@ -129,9 +139,10 @@ def main(args):
     try:
         opts, args = getopt(
             args,
-            'hvg:r:',
+            'hvg:r:e:E',
             [
-              'help', 'version', 'grammar=', 'reverse-lexer='
+              'help', 'version', 'grammar=', 'reverse-lexer=', 'engine=',
+              'list-engines',
             ]
         )
     except GetoptError, err:
@@ -140,6 +151,7 @@ def main(args):
 
     grammar = None
     lexer_module = None
+    engine_name = 'attribute_fuzzer'
     for opt, arg in opts:
         if opt in ('-h', '--help'):
             usage()
@@ -149,10 +161,21 @@ def main(args):
             grammar = assert_file_exists(arg)
         elif opt in ('-r', '--reverse-lexer'):
             lexer_module = arg
+        elif opt in ('-e', '--engine'):
+            engine_name = arg
+        elif opt in ('-E', '--list-engines'):
+            list_engines()
 
+    if engine_name is None:
+        log("Must supply an engine name")
+        usage(error_codes['requirements'])
+    
     if grammar is None or lexer_module is None:
         log("Must supply both a grammar and a reverse lexer")
         usage(error_codes['requirements'])
+    if engine_name not in fuzzbuzz.engines.fuzzers.keys():
+        log("Engine name '%s' not found, use -E to get a list" % engine_name)
+        usage(error_codes['bad_engine'])
     
     grammar = fuzzbuzz.frontend.parse(read_file_or_die(grammar))
     rlexer = import_module(lexer_module).stringifiers
