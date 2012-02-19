@@ -8,10 +8,10 @@ from ply import yacc
 
 from lexer import tokens, Lexer
 from ast import Node
-import models
-from models.grammar import Grammar
-from models.rule import mkrules
-from models import action, attr_types, value, attribute, binop
+from fuzzbuzz import models
+from fuzzbuzz.models.grammar import Grammar
+from fuzzbuzz.models.rule import mkrules
+from fuzzbuzz.models import action, attr_types, value, attribute, binop
 
 ## If you are confused about the syntax in this file I recommend reading the
 ## documentation on the PLY website to see how this compiler compiler's syntax

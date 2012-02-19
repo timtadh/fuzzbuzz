@@ -19,11 +19,13 @@ error_codes = {
     'version':5,
     'bad_bool':6,
     'no_args':7,
+    'requirements':8,
+    'bad_module':9,
     'file_instead_of_dir':11,
 }
 
 usage_message = \
-'''usage: fuzzbuzz [Options]'''
+'''usage: fuzzbuzz -g <file> -r <module> [Extra Options]'''
 
 extended_message = \
 '''
@@ -31,7 +33,10 @@ Options
 
     -h, help                            print this message
     -v, version                         print the version
-    -g, grammar=<file>                  supply a known grammar to annotate
+    -g, grammar=<file>                  supply an attribute grammar to fuzz
+    -r, reverse-lexer=<module>          supply the module (on PYTHONPATH) which
+                                        contains a reverse lexer for the given
+                                        grammar
 '''
 
 
@@ -111,14 +116,22 @@ def parse_bool(s):
         usage(error_codes['bad_bool'])
     return bools[s]
 
+def import_module(module):
+    fromlist = module.split('.')[:-1]
+    try:
+        return __import__(module, fromlist=fromlist)
+    except ImportError:
+        log("Could not import", module)
+        usage(error_codes['bad_module'])
+    
 def main(args):
 
     try:
         opts, args = getopt(
             args,
-            'hvg:',
+            'hvg:r:',
             [
-              'help', 'version', 'grammar='
+              'help', 'version', 'grammar=', 'reverse-lexer='
             ]
         )
     except GetoptError, err:
@@ -126,6 +139,7 @@ def main(args):
         usage(error_codes['option'])
 
     grammar = None
+    lexer_module = None
     for opt, arg in opts:
         if opt in ('-h', '--help'):
             usage()
@@ -133,11 +147,20 @@ def main(args):
             version()
         elif opt in ('-g', '--grammar'):
             grammar = assert_file_exists(arg)
+        elif opt in ('-r', '--reverse-lexer'):
+            lexer_module = arg
 
-    if grammar is not None:
-        grammar = fuzzbuzz.frontend.parse(read_file_or_die(grammar))
-        
-    output(grammar)
+    if grammar is None or lexer_module is None:
+        log("Must supply both a grammar and a reverse lexer")
+        usage(error_codes['requirements'])
+    
+    grammar = fuzzbuzz.frontend.parse(read_file_or_die(grammar))
+    rlexer = import_module(lexer_module).stringifiers
+    strings = fuzzbuzz.engines.fuzzers['attribute_fuzzer'](rlexer, grammar)
+    string = ' '.join(strings)
+    for line in string.split('\n'):
+        print line.strip()
 
+    
 if __name__ == '__main__':
     main(sys.argv[1:])

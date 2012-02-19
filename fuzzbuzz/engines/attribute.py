@@ -17,7 +17,7 @@ from fuzzbuzz.models.condition import TrueConstraint
 def init():
     seed()
 
-def fuzz(grammar):
+def fuzz(rlexer, grammar):
     init()
     out = list()
 
@@ -87,8 +87,11 @@ def fuzz(grammar):
                     rule.action.execute(objs)
                 #print [sym() for sym in out]
         #print trule.name, display(tobjs)
+    SymbolObject.stringifiers = rlexer
     fuzz(grammar.start)
-    return list(sym() for sym in out)
+    output = list(sym() for sym in out)
+    SymbolObject.stringifiers = None
+    return output
 
 def main():
     
