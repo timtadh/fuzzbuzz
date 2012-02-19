@@ -35,11 +35,6 @@ class Node(object):
         else:   self.children.append(node)
         return self
 
-    def get(self, label):
-        if self.label == label: return self
-        for c in self.children:
-            if label in c: return c.get(label)
-
     def iter(self):
         queue = collections.deque()
         queue.append(self)
@@ -47,37 +42,6 @@ class Node(object):
             n = queue.popleft()
             for c in n.children: queue.append(c)
             yield n
-
-    def __contains__(self, b):
-        if isinstance(b, str) and self.label == b: return 1
-        elif not isinstance(b, str) and self.label == b.label: return 1
-        elif (isinstance(b, str) and self.label != b) or self.label != b.label:
-            return sum(b in c for c in self.children)
-        raise TypeError, "Object %s is not of type str or Node" % repr(b)
-
-    def __eq__(self, b, tolerance=6):
-        if b is None: return False
-        if not isinstance(b, Node):
-            raise TypeError, "Must compare against type Node"
-        mylabels = [n.label for n in self.iter()]
-        theirlabels = [n.label for n in b.iter()]
-        if len(mylabels) != len(theirlabels):
-            return False
-        for a, b in zip(mylabels, theirlabels):
-            if isinstance(a, float) and isinstance(b, float):
-                af, ae = math.frexp(a)
-                bf, be = math.frexp(b)
-                af = round(af, tolerance)
-                bf = round(bf, tolerance)
-                #print af, ae, '\t', bf, be
-                if af != bf or ae != be:
-                    return False
-            elif a != b:
-                return False
-        return True
-
-    def __ne__(self, b):
-        return not self.__eq__(b)
 
     def __repr__(self):
         return super(Node, self).__repr__()[:-1] + " %s>" % str(self.label)
