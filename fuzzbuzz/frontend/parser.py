@@ -10,7 +10,7 @@ from lexer import tokens, Lexer
 from ast import Node
 from fuzzbuzz import models
 from fuzzbuzz.models.grammar import Grammar
-from fuzzbuzz.models.rule import mkrules, Rule
+from fuzzbuzz.models.rule import Rule
 from fuzzbuzz.models import action, attr_types, value, attribute, binop
 
 ## If you are confused about the syntax in this file I recommend reading the
@@ -27,7 +27,7 @@ class Parser(object):
     def __new__(cls, **kwargs):
         ## Does magic to allow PLY to do its thing.
         self = super(Parser, cls).__new__(cls, **kwargs)
-        self.yacc = yacc.yacc(module=self,  tabmodule="sl_parser_tab", **kwargs)
+        self.yacc = yacc.yacc(module=self,  tabmodule="attrgram_parser_tab", **kwargs)
         return self.yacc
 
     def p_Start(self, t):
