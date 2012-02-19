@@ -4,11 +4,8 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
-from attr_types import String, Namespace
-from value import Value
-
 class Terminal(object):
-    
+
     def __init__(self, name):
         self.name = name
 
@@ -16,7 +13,7 @@ class Terminal(object):
     def __str__(self): return '<Term %s>' % self.name
 
 class NonTerminal(object):
-    
+
     def __init__(self, name, rules):
         self.name = name
         self.rules = rules 
