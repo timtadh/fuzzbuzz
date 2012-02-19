@@ -9,15 +9,16 @@
 import subprocess, functools
 from random import seed, choice, randint, random
 
-from frontend import parser
-from models.symbols import Terminal, NonTerminal
-from models.attribute import SymbolObject
-from models.condition import TrueConstraint
+from fuzzbuzz.frontend import parser
+from fuzzbuzz.models.symbols import Terminal, NonTerminal
+from fuzzbuzz.models.attribute import SymbolObject
+from fuzzbuzz.models.condition import TrueConstraint
 
 def init():
     seed()
 
 def fuzz(grammar):
+    init()
     out = list()
 
     def filter(objs, rules, constraint):
@@ -90,50 +91,8 @@ def fuzz(grammar):
     return list(sym() for sym in out)
 
 def main():
-    init()
-    SymbolObject.stringifiers = {
-        'VAR' : (lambda: 'var'),
-        'NAME' : (lambda: ''.join(chr(randint(97, 122)) for x in xrange(1, randint(2,10)))),
-        'EQUAL' : (lambda: '='),
-        'NUMBER' : (lambda: str(randint(1, 1000))),
-        'PRINT' : (lambda: 'print'),
-        'NEWLINE' : (lambda: '\n'),
-    }
-    tree, grammar = parser.parse('''
-    Stmts -> Stmts NEWLINE Stmt
-                with Action {
-                  if (Stmt.decl is None) {
-                    Stmts{1}.names = Stmts{2}.names
-                  }
-                  else {
-                    Stmts{1}.names = Stmts{2}.names | { Stmt.decl }
-                  }
-                }
-                with Condition {
-                  (Stmt.decl is None && Stmt.uses in Stmts{2}.names)
-                  || Stmt.uses is None 
-                }
-             | Stmt
-                with Action {
-                  Stmts{1}.names = { Stmt.decl }
-                }
-                with Condition {
-                  Stmt.uses is None
-                }
-             ;
-
-    Stmt -> VAR NAME EQUAL NUMBER
-            with Action {
-              Stmt.decl = NAME
-              Stmt.uses = None
-            }
-          | PRINT NAME
-            with Action {
-              Stmt.decl = None
-              Stmt.uses = NAME
-            }
-          ;
-    ''')
+    
+    tree, grammar = parser.parse()
     strings = fuzz(grammar)
     string = ' '.join(strings)
     for line in string.split('\n'):

@@ -135,12 +135,9 @@ def main(args):
             grammar = assert_file_exists(arg)
 
     if grammar is not None:
-        grammar = lib.parse_grammar(read_file_or_die(grammar))
-
-    conf = {'grammar': grammar,
-    }
-
-    output(conf)
+        grammar = fuzzbuzz.frontend.parse(read_file_or_die(grammar))
+        
+    output(grammar)
 
 if __name__ == '__main__':
     main(sys.argv[1:])

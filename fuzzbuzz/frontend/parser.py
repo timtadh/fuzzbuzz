@@ -40,7 +40,7 @@ class Parser(object):
 
     def p_Start(self, t):
         'Start : Productions'
-        t[0] = (t[1]['node'], Grammar(t[1]['rules']))
+        t[0] = Grammar(t[1]['rules'])
 
     def p_Productions1(self, t):
         'Productions : Productions Production'
