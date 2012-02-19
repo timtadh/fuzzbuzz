@@ -47,8 +47,8 @@ class Parser(object):
         node = t[1]['node'].addkid(t[2]['node'])
         rules = t[1]['rules'] + t[2]['rules']
         t[0] = {'node':node, 'rules':rules}
-        
-    
+
+
     def p_Productions2(self, t):
         'Productions : Production'
         node = Node('Productions').addkid(t[1]['node'])
@@ -84,7 +84,7 @@ class Parser(object):
     def p_Body1(self, t):
         'Body : Symbols'
         t[0] = {'node':Node('Body').addkid(t[1]), 'objs':None}
-        
+
     def p_Body2(self, t):
         'Body : Symbols ACStmts'
         t[0] = {'node':Node('Body').addkid(t[1]),
@@ -93,7 +93,7 @@ class Parser(object):
     def p_Symbols1(self, t):
         'Symbols : Symbols Symbol'
         t[0] = t[1].addkid(t[2])
-        
+
     def p_Symbols2(self, t):
         'Symbols : Symbol'
         t[0] = Node('Symbols').addkid(t[1])
@@ -220,15 +220,19 @@ class Parser(object):
     def p_SetOps1(self, t):
         'SetOps : SetOps PIPE AddSub'
         t[0] = binop.Union(t[1], t[3])
-    
+
     def p_SetOps2(self, t):
         'SetOps : SetOps AMPERSTAND AddSub'
         t[0] = binop.Intersection(t[1], t[3])
-    
+
+    def p_SetOps2(self, t):
+        'SetOps : SetOps TILDE AddSub'
+        t[0] = binop.Difference(t[1], t[3])
+
     def p_SetOps3(self, t):
         'SetOps : AddSub'
         t[0] = t[1]
-    
+
     def p_AddSub1(self, t):
         'AddSub : AddSub PLUS MulDiv'
         t[0] = binop.Add(t[1], t[3])
@@ -276,7 +280,7 @@ class Parser(object):
     def p_Value4(self, t):
         'Value : SetLiteral'
         t[0] = value.SetValue(t[1].children)
-    
+
     def p_Value5(self, t):
         'Value : AttributeValue'
         t[0] = attribute.AttrChain(t[1])
@@ -298,7 +302,7 @@ class Parser(object):
         'SymbolObject : Symbol'
         t[0] = attribute.Attribute(
           attribute.SymbolObject(t[1].label, t[1].children[0], 1))
-        
+
     def p_SymbolObject2(self, t):
         'SymbolObject : Symbol LCURLY NUMBER RCURLY'
         t[0] = attribute.Attribute(
@@ -311,7 +315,7 @@ class Parser(object):
     def p_Attr2(self, t):
         'Attr : NAME Call'
         t[0] = attribute.Attribute(attribute.Object(t[1]), attribute.CallChain(t[2].children))
-    
+
     def p_Call1(self, t):
         'Call : Call Call_'
         t[0] = t[1].addkid(t[2])
@@ -345,7 +349,7 @@ class Parser(object):
     def p_SetLiteral1(self, t):
         'SetLiteral : LCURLY ParameterList RCURLY'
         t[0] = Node('SetLiteral', children=t[2])
-    
+
     def p_SetLiteral2(self, t):
         'SetLiteral : LCURLY RCURLY'
         t[0] = Node('SetLiteral')

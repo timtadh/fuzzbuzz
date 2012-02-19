@@ -18,7 +18,7 @@ tokens = reserved.values() + [
     'ARROW', 'AND', 'COMMA', 'DASH', 'DOT', 'EQEQ', 'EQUAL', 'GE',
     'LANGLE', 'LCURLY', 'LE', 'LPAREN', 'LSQUARE', 'NQ', 'OR', 'PIPE', 'PLUS',
     'RANGLE', 'RCURLY', 'RPAREN', 'RSQUARE', 'SEMI', 'SLASH', 'STAR', 'STRING',
-    'NAME', 'NUMBER', 'AMPERSTAND', 'BANG', 'TERMINAL'
+    'NAME', 'NUMBER', 'AMPERSTAND', 'BANG', 'TERMINAL', 'TILDE',
 ]
 
 # Common Regex Parts
@@ -69,6 +69,7 @@ class Lexer(object):
     t_SLASH = r'/'
     t_STAR = r'\*'
     t_STRING = r'"([^"\\]|\\.)*"'
+    t_TILDE = r'~'
 
     name = '(' + L + ')((' + L + ')|(' + D + '))*(\')*'
     @Token(name)
