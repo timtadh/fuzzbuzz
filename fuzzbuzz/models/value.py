@@ -11,7 +11,7 @@ from attr_types import Set, String
 class UnboundValueError(RuntimeError): pass
 class BoundValueError(RuntimeError): pass
 class Unwritable(RuntimeError): pass
-    
+
 class Value(object):
 
     def __init__(self, type, value):
@@ -19,7 +19,7 @@ class Value(object):
         self.__value = value
 
     def writable(self, type): return False
-    
+
     def type(self, objs):
         return getattr(self, '_%s__type' % self.__class__.__name__)
 
@@ -33,11 +33,11 @@ class Value(object):
         except UnboundValueError:
             return False
         return value is not None
-    
+
     def set_value(self, value, objs):
         raise Unwritable, \
         "%s does not support setting the value" % (self.__class__.__name__)
-          
+
 class SetValue(Value):
 
     def __init__(self, values):

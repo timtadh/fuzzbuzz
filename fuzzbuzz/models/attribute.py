@@ -22,7 +22,7 @@ class AttrChain(Value):
             cobjs = attr.value(objs, cobjs)
         last_attr = self.lookup_chain[-1]
         return last_attr.type(objs, cobjs)
-        
+
     def value(self, objs):
         cobjs = objs
         cvalue = None
@@ -30,7 +30,7 @@ class AttrChain(Value):
             cvalue = attr.value(objs, cobjs)
             cobjs = cvalue
         return cvalue
-    
+
     def set_value(self, objs, value):
         cobjs = objs
         for attr in self.lookup_chain[:-1]:
@@ -59,7 +59,7 @@ class Attribute(Value):
                 #assert hasattr(obj, '__call__')
                 #obj = obj.__call__(*params)
         return otype
-    
+
     def value(self, gobjs, cobjs):
         obj = self.obj.value(cobjs)
         if self.call_chain is not None:
@@ -72,7 +72,7 @@ class Attribute(Value):
         if self.call_chain is not None:
             raise Unwritable, 'Can not write to a function call'
         self.obj.set_value(cobjs, value)
-        
+
 class FCall(Value):
 
     def __init__(self, parameters):
@@ -130,7 +130,7 @@ class SymbolObject(Value):
             self.__type = String
         else:
             self.__type = Namespace
-        
+
     def writable(self, type):
         return issubclass(type, self.type(None))
 

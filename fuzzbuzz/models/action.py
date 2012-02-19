@@ -15,7 +15,7 @@ class AbstractAction(object):
 
     @abc.abstractmethod
     def execute(self, objs): pass
-    
+
 
 class Action(AbstractAction):
 
@@ -48,7 +48,7 @@ class Assign(AbstractAction):
         nobjs = dict(objs)
         constraint.flow(nobjs)
         if not self.left.has_value(nobjs): return True
-        
+
         if self.right.has_value(nobjs):
             return self.left.value(nobjs) == self.right.value(nobjs)
         else:
@@ -71,7 +71,7 @@ class Assign(AbstractAction):
         if self.right.has_value(objs): return
         if self.left.has_value(objs):
             self.right.set_value(objs, self.left.value(objs))
-        
+
 
 class If(AbstractAction):
 
@@ -106,7 +106,7 @@ class If(AbstractAction):
             self.then.execute(objs)
         elif self.otherwise is not None:
             self.otherwise.execute(objs)
-    
+
     def fillvalues(self, objs):
         if self.condition.evaluate(objs):
             self.then.fillvalues(objs)

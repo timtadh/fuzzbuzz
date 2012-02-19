@@ -47,6 +47,10 @@ class Parser(object):
         'Production : Symbol ARROW Bodys SEMI'
         prod_name = t[1].children[0]
         rules = list()
+        ## This magic:
+        ## The each symbol in the rule is annotated with the count of how many
+        ## times that symbol has been seen in this production. This allows us to
+        ## disambiguate references to particular symbols later
         for body in t[3]:
             names = {prod_name:2}
             new_pattern = list()
@@ -56,7 +60,7 @@ class Parser(object):
                 names[kid.children[0]] = count + 1
                 new_pattern.append((name, count))
             body['pattern'] = new_pattern
-            rules.append(Rule(prod_name, **body))
+            rules.append(Rule(prod_name, **body)) # construct the rule object
         t[0] = rules
 
     def p_Bodys1(self, t):

@@ -33,6 +33,3 @@ class NoneType(Type):
 
     def __ne__(self, b):
         return not isinstance(b, NoneType)
-        
-        
-

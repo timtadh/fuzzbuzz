@@ -9,8 +9,18 @@ from action import Action
 from condition import Condition
 
 class Rule(object):
+    '''Represents a grammar rule.'''
 
     def __init__(self, name, pattern, action, condition):
+        '''Constructs a new rule.
+        @param name (string) : the name of the rule
+        @param pattern (list) : a list of (string, int) pares reprenting the
+                                grammar pattern. ex.
+                                  A -> B c A d
+                                  [('B', 1), ('c', 1), ('A', 2), ('d', 1)]
+        @param action (action.Action) : an action or (None)
+        @param condition (condition.Condition) : a condition or (None)
+        '''
         self.name = name
         self.pattern = pattern
         self.action = action
@@ -25,7 +35,6 @@ class Rule(object):
 
     def __repr__(self): return str(self)
     def __str__(self):
-        #print [object.__repr__(x[0]()) if not hasattr(x[0], 'name') else x[0].name for x in self.pattern]
         return (
             '<Rule "%s -> %s"%s%s%s>'
         ) % (
