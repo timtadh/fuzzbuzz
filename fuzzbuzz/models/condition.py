@@ -16,10 +16,16 @@ class Condition(object):
         self.operation = operation
 
     def flow(self, objs):
-        self.operation.flow(objs)
+        return self.operation.flow(objs)
 
-    def generate_constraint(self, objs):
-        return self.operation.generate_constraints(objs)
+    def generate_constraint(self, objs, prior=None):
+        new = self.operation.generate_constraint(objs)
+        #print '->', prior, new
+        if prior is None or isinstance(prior, TrueConstraint):
+            #print '->', 'chose new'
+            return new
+        else:
+            return AndConstraint([prior, new])
 
 class Any(Condition):
 
@@ -163,6 +169,49 @@ class In(BooleanOperator):
         elif b_hasvalue:
             assert self.b.type(objs) == Set
             return MultiValueConstraint(self.a, tuple(self.b.value(objs)))
+        else:
+            return TrueConstraint()
+
+class Subset(BooleanOperator):
+
+    def applies(self, objs):
+        return self.a.has_value(objs) and self.b.has_value(objs)
+
+    def evaluate(self, objs):
+        return self.a.value(objs).issubset(self.b.value(objs))
+
+    def flow(self, objs):
+        a_hasvalue = self.a.has_value(objs)
+        b_hasvalue = self.b.has_value(objs)
+        if a_hasvalue and b_hasvalue:
+            assert self.b.type(objs) == Set
+            assert self.a.type(objs) == Set
+            assert self.a.value(objs).issubset(self.b.value(objs))
+        elif a_hasvalue:
+            raise Exception, 'Need to think about how to do this correctly'
+        elif b_hasvalue:
+            assert self.b.type(objs) == Set
+            value = set(self.b.value(objs))
+            self.a.set_value(objs, value)
+        else:
+            pass # nothing should need to be done here
+        return [objs]
+
+    def generate_constraint(self, objs):
+        a_hasvalue = self.a.has_value(objs)
+        b_hasvalue = self.b.has_value(objs)
+        if a_hasvalue and b_hasvalue:
+            assert self.b.type(objs) == Set
+            if self.a.value(objs).issubset(self.b.value(objs)):
+                return TrueConstraint()
+            else:
+                return FalseConstraint()
+        elif a_hasvalue:
+            raise Exception, 'Need to think about how to do this correctly'
+            return None
+        elif b_hasvalue:
+            assert self.b.type(objs) == Set
+            return SubsetConstraint(self.a, tuple(self.b.value(objs)))
         else:
             return TrueConstraint()
 

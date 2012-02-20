@@ -117,7 +117,7 @@ class Parser(object):
 
     def p_Condition(self, t):
         'Condition : WITH CONDITION LCURLY OrExpr RCURLY'
-        t[0] = t[4]
+        t[0] = models.condition.Condition(t[4])
 
     def p_OrExpr1(self, t):
         'OrExpr : OrExpr OR AndExpr'
@@ -162,7 +162,8 @@ class Parser(object):
         t[0] = (
           {
             'is':models.condition.Is,
-            'in':models.condition.In
+            'in':models.condition.In,
+            'subset':models.condition.Subset
           }
           .get(t[2].label, lambda x,y: None)
         )(t[1], t[3])

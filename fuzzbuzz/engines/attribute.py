@@ -12,7 +12,7 @@ from random import seed, choice, randint, random
 from fuzzbuzz.frontend import parser
 from fuzzbuzz.models.symbols import Terminal, NonTerminal
 from fuzzbuzz.models.attribute import SymbolObject
-from fuzzbuzz.models.condition import TrueConstraint
+from fuzzbuzz.models.constraints import TrueConstraint, SubsetConstraint
 
 def init():
     seed()
@@ -26,16 +26,19 @@ def fuzz(rlexer, grammar):
         for rule in rules:
             #print rule.action.unconstrained
             #print constraint
+            print rule.action
             if rule.action is None:
                 yield rule
             elif rule.action.unconstrained(constraint, rule.mknamespace(objs)):
                 yield rule
 
     def choose(nonterm, objs, constraint):
+        print 'choosing ->', nonterm, constraint
+        print constraint.values if isinstance(constraint, SubsetConstraint) else constraint
         rules = list(filter(objs, nonterm.rules, constraint))
         #print 'allowed rules for', nonterm.name, rules
         rule = choice(rules)
-        #print 'chose', rule
+        print 'chose', rule
         cobjs = rule.mknamespace(objs)
         return rule, cobjs
 
@@ -56,12 +59,14 @@ def fuzz(rlexer, grammar):
         stack.append((tobjs, trule, 0, list(), TrueConstraint()))
         while stack:
             objs, rule, j, sobjs, constraint = stack.pop()
-            #print rule, id(objs), rule.condition, display(objs)
+            print rule, id(objs), rule.condition, display(objs)
             if rule.condition is not None:
                 constraint = rule.condition.generate_constraint(objs)
+                print 'xx', 'new constraint', constraint
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.__class__ is NonTerminal:
                     crule, cobjs = choose(sym, objs[(sym.name, cnt)], constraint)
+                    #print cobjs, constraint
                     stack.append((objs, rule, i+1, sobjs, constraint))
                     stack.append((cobjs, crule, 0, list(), TrueConstraint()))
                     break

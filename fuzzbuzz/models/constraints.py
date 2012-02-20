@@ -30,7 +30,7 @@ class TrueConstraint(Constraint):
     def satisfiable(self, objs): return True
 
     def flow(self, objs): pass
-    
+
 class AndConstraint(Constraint):
 
     def __init__(self, constraints):
@@ -92,3 +92,20 @@ class MultiValueConstraint(Constraint):
         else:
             self.obj.set_value(objs, choice(self.values))
 
+class SubsetConstraint(Constraint):
+
+    def __init__(self, obj, values):
+        self.obj = obj
+        self.values = values
+
+    def satisfiable(self, objs):
+        if self.obj.has_value(objs):
+            return self.obj.value(objs).issubset(self.values)
+        else:
+            return True
+
+    def flow(self, objs):
+        if self.obj.has_value(objs):
+            assert self.obj.value(objs).issubset(self.values)
+        else:
+            self.obj.set_value(objs, set(self.values))

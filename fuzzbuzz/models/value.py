@@ -44,6 +44,11 @@ class SetValue(Value):
         self.values = values
         self.__type = Set
 
+    def writable(self, type):
+        return True
+
     def value(self, objs):
         return set(val.value(objs) for val in self.values)
 
+    def set_value(self, objs, value):
+        self.values = value

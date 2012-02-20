@@ -16,6 +16,15 @@ class AbstractAction(object):
     @abc.abstractmethod
     def execute(self, objs): pass
 
+    @abc.abstractmethod
+    def fillvalues(self, objs): pass
+
+    def __repr__(self):
+        return str(self)
+ 
+    def __str__(self):
+        return '<AbstractAction>'
+
 
 class Action(AbstractAction):
 
@@ -32,6 +41,9 @@ class Action(AbstractAction):
     def fillvalues(self, objs):
         for stmt in self.stmts:
             stmt.fillvalues(objs)
+
+    def __str__(self):
+        return '<Action %s>' % str(self.stmts)
 
 ## There are two types of action statements
 ##  1) Assign statements
@@ -52,6 +64,8 @@ class Assign(AbstractAction):
         if self.right.has_value(nobjs):
             return self.left.value(nobjs) == self.right.value(nobjs)
         else:
+            #print '------>', self.left.type(nobjs), self.right.writable(self.left.type(nobjs))
+            #print self.right
             if self.right.writable(self.left.type(nobjs)):
                 return True
             else:
@@ -72,6 +86,8 @@ class Assign(AbstractAction):
         if self.left.has_value(objs):
             self.right.set_value(objs, self.left.value(objs))
 
+    def __str__(self):
+        return '<Assign %s = %s>' % (self.left, self.right)
 
 class If(AbstractAction):
 
@@ -112,3 +128,7 @@ class If(AbstractAction):
             self.then.fillvalues(objs)
         elif self.otherwise is not None:
             self.otherwise.fillvalues(objs)
+
+    def __str__(self):
+        return '<If (%s) then %s else %s>' \
+            % (self.condition, self.then, self.otherwise)
