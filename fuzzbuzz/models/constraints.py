@@ -43,6 +43,9 @@ class AndConstraint(Constraint):
         for con in self.constraints:
             con.flow(objs)
 
+    def __str__(self):
+        return "<AndConstraint %s>" % str(self.constraints)
+
 class OrConstraint(Constraint):
 
     def __init__(self, constraints):

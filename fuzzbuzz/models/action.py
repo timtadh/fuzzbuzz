@@ -6,12 +6,19 @@
 
 import abc
 
+import attr_types
+import value
+from constraints import *
+
 class AbstractAction(object):
 
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
-    def unconstrained(self, objs): pass
+    def unconstrained(self, objs, constraint): pass
+    
+    @abc.abstractmethod
+    def flow_constraints(self, objs, prior_constraint): pass
 
     @abc.abstractmethod
     def execute(self, objs): pass
@@ -31,8 +38,22 @@ class Action(AbstractAction):
     def __init__(self, stmts):
         self.stmts = stmts
 
-    def unconstrained(self, constraint, objs):
-        return all(stmt.unconstrained(constraint, objs) for stmt in self.stmts)
+    def unconstrained(self, objs, constraint):
+        return all(stmt.unconstrained(objs, constraint) for stmt in self.stmts)
+
+    def flow_constraints(self, objs, prior):
+        constraints = [stmt.flow_constraints(objs, prior)
+                        for stmt in self.stmts]
+        constraints = [c for c in constraints
+                        if not isinstance(c, TrueConstraint)]
+        if any(isinstance(c, FalseConstraint) for c in constraints):
+            return FalseConstraint()
+        elif len(constraints) > 1:
+            return AndConstraint(constraints)
+        elif len(constraints) == 1:
+            return constraints[0]
+        else:
+            return TrueConstraint()
 
     def execute(self, objs):
         for stmt in self.stmts:
@@ -56,7 +77,7 @@ class Assign(AbstractAction):
         self.left = left
         self.right = right
 
-    def unconstrained(self, constraint, objs):
+    def unconstrained(self, objs, constraint):
         nobjs = dict(objs)
         constraint.flow(nobjs)
         if not self.left.has_value(nobjs): return True
@@ -70,6 +91,47 @@ class Assign(AbstractAction):
                 return True
             else:
                 return False
+
+    def flow_constraints(self, objs, prior):
+        def constrain(objs, obj, val, prior):
+            #print obj, value
+            val_value = val.value(objs)
+            val_type = val.type(objs)
+            #obj_type = obj.type(objs)
+            #print val_type, val_value
+            if val_type == attr_types.Set:
+                if isinstance(obj, value.SetValue):
+                    for v in obj.values:
+                        print 'x', v
+                    raise Exception
+                    #return SubsetConstraint(obj, val_value)
+                return MultiValueConstraint(obj, val_value)
+                #raise Exception, NotImplemented
+            elif val_type == attr_types.String:
+                raise Exception, NotImplemented
+            elif val_type == attr_types.Number:
+                raise Exception, NotImplemented
+            elif val_type == attr_types.NoneType:
+                raise Exception, NotImplemented
+            else:
+                raise Exception, "Unsupport type"
+        nobjs = dict(objs)
+        prior.flow(nobjs)
+        print '------>', nobjs, prior.obj if hasattr(prior, 'obj') else prior
+        if not self.left.has_value(nobjs): return TrueConstraint()
+
+        if self.right.has_value(nobjs):
+            if self.left.value(nobjs) == self.right.value(nobjs):
+                return TrueConstraint()
+            else:
+                return FalseConstraint()
+        else:
+            if self.right.writable(self.left.type(nobjs)):
+                print self.right, self.left
+                #raise Exception, "Here it get hard my friends!"
+                return constrain(objs, self.right, self.left, prior)
+            else:
+                return FalseConstraint()
 
     def execute(self, objs):
         left = self.left.has_value(objs)
@@ -96,7 +158,7 @@ class If(AbstractAction):
         self.then = then
         self.otherwise = otherwise
 
-    def unconstrained(self, constraint, objs):
+    def unconstrained(self, objs, constraint):
         #print 'xxx', objs
         #print 'xxx', self.condition
         #print 'xxx', 'condition applies', self.condition.applies(objs)

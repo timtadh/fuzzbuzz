@@ -5,21 +5,21 @@ Stmts -> Decls Uses
          }
        ;
 
-Decls -> Decls Decl
+Decls -> /*Decls Decl
         with Action {
-          Decls{1}.names = Decls{2}.names | { Decl.name}
+          Decls{1}.names = Decls{2}.names | { Decl.name }
         }
-       | Decl
+       | */Decl
         with Action {
           Decls{1}.names = { Decl.name }
         }
        ;
 
-Uses -> Uses Use
+Uses -> /*Uses Use
         with Action {
-          Uses{1}.names = Uses{2}.names | { Use.name}
+          Uses{1}.names = Uses{2}.names | { Use.name }
         }
-      | Use
+      |*/ Use
         with Action {
           Uses{1}.names = { Use.name }
         }

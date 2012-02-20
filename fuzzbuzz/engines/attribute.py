@@ -29,18 +29,23 @@ def fuzz(rlexer, grammar):
             print rule.action
             if rule.action is None:
                 yield rule
-            elif rule.action.unconstrained(constraint, rule.mknamespace(objs)):
+            elif rule.action.unconstrained(rule.mknamespace(objs), constraint):
                 yield rule
 
     def choose(nonterm, objs, constraint):
         print 'choosing ->', nonterm, constraint
-        print constraint.values if isinstance(constraint, SubsetConstraint) else constraint
+        #print constraint.values if isinstance(constraint, SubsetConstraint) else constraint
         rules = list(filter(objs, nonterm.rules, constraint))
         #print 'allowed rules for', nonterm.name, rules
         rule = choice(rules)
-        print 'chose', rule
         cobjs = rule.mknamespace(objs)
-        return rule, cobjs
+        print 'chose', rule
+        if rule.action:
+            new_constraint = rule.action.flow_constraints(cobjs, constraint)
+            print 'xxx', 'new constraint', new_constraint
+        else:
+            new_constraint = TrueConstraint()
+        return rule, cobjs, new_constraint
 
     def display(d, i=0):
         print
@@ -54,21 +59,22 @@ def fuzz(rlexer, grammar):
 
     def fuzz(start):
         stack = list()
-        trule, tobjs = choose(start, dict(), TrueConstraint())
+        trule, tobjs, first_constraint = choose(start, dict(), TrueConstraint())
         #print cobjs, id(cobjs)
-        stack.append((tobjs, trule, 0, list(), TrueConstraint()))
+        stack.append((tobjs, trule, 0, list(), first_constraint))
         while stack:
             objs, rule, j, sobjs, constraint = stack.pop()
             print rule, id(objs), rule.condition, display(objs)
             if rule.condition is not None:
                 constraint = rule.condition.generate_constraint(objs)
-                print 'xx', 'new constraint', constraint
+                #print 'xx', 'new constraint', constraint
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.__class__ is NonTerminal:
-                    crule, cobjs = choose(sym, objs[(sym.name, cnt)], constraint)
+                    crule, cobjs, new_constraint = \
+                                  choose(sym, objs[(sym.name, cnt)], constraint)
                     #print cobjs, constraint
                     stack.append((objs, rule, i+1, sobjs, constraint))
-                    stack.append((cobjs, crule, 0, list(), TrueConstraint()))
+                    stack.append((cobjs, crule, 0, list(), new_constraint))
                     break
                 else:
                     so = SymbolObject('Terminal', sym.name, cnt)

@@ -48,7 +48,8 @@ class SetValue(Value):
         return True
 
     def value(self, objs):
-        return set(val.value(objs) for val in self.values)
+        return set(val.value(objs) if isinstance(val, Value) else val
+                  for val in self.values)
 
     def set_value(self, objs, value):
-        self.values = value
+        self.values = tuple(val for val in value)
