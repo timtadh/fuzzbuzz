@@ -114,6 +114,8 @@ class Assign(AbstractAction):
             return self.right.make_constraint(self.left.value(nobjs), left_type)
         if left_type == attr_types.String:
             return self.right.make_constraint(self.left.value(nobjs), left_type)
+        if left_type == attr_types.NoneType:
+            return self.right.make_constraint(self.left.value(nobjs), left_type)
         else:
             raise Exception, "Unsupport type %s" % left_type
         raise Exception, "Here it get hard my friends!"
@@ -168,10 +170,10 @@ class If(AbstractAction):
         #print 'xxx', 'condition applies', self.condition.applies(objs)
         nobjs = dict()
         constraint.flow(nobjs)
-        then = self.then.unconstrained(constraint, nobjs)
+        then = self.then.unconstrained(nobjs, constraint)
         otherwise = True
         if self.otherwise is not None:
-            otherwise = self.otherwise.unconstrained(constraint, nobjs)
+            otherwise = self.otherwise.unconstrained(nobjs, constraint)
         
         if not self.condition.applies(objs):
             if then and otherwise: return True
