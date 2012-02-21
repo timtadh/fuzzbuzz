@@ -84,7 +84,7 @@ def usage(code=None):
     sys.exit(code)
 
 def list_engines():
-    for name, engine in fuzzbuzz.engines.fuzzers.iteritems():
+    for name, engine in fuzzbuzz.engines.registration:
         output(name, ':', engine['description'])
     sys.exit(error_codes['list_engines'])
 
@@ -195,13 +195,13 @@ def main(args):
     if grammar is None or lexer_module is None:
         log("Must supply both a grammar and a reverse lexer")
         usage(error_codes['requirements'])
-    if engine_name not in fuzzbuzz.engines.fuzzers.keys():
+    if engine_name not in fuzzbuzz.engines.registration:
         log("Engine name '%s' not found, use -E to get a list" % engine_name)
         usage(error_codes['bad_engine'])
     
     grammar = fuzzbuzz.frontend.parse(read_file_or_die(grammar))
     rlexer = import_module_or_die(lexer_module).stringifiers
-    engine = fuzzbuzz.engines.fuzzers[engine_name]
+    engine = fuzzbuzz.engines.registration[engine_name]
     objs = locals()
     kwargs = dict((k, objs[v]) for k, v in engine['requires'].iteritems())
     strings = engine['function'](rlexer, grammar, **kwargs)
