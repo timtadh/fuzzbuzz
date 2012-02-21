@@ -179,6 +179,8 @@ class If(AbstractAction):
         else:
             return otherwise
 
+    def flow_constraints(self, objs, prior): raise Exception, NotImplemented
+
     def execute(self, objs):
         if self.condition.evaluate(objs):
             self.then.execute(objs)
