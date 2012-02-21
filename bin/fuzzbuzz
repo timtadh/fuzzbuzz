@@ -42,6 +42,18 @@ Options
     -e, engine=<engine-name>            what engine should be used
                                         [defaults to "attribute_fuzzer"]
     -E, list-engines                    list the available engines
+    -x, example=<file>                  Supply an example (may be used many
+                                        times)
+    -t, table=<table-spec>              Supply a statistics table (may be used
+                                        times)
+
+Specs
+    <file> = a path to a file
+    <module> = "a.x.b" a fully qualified import path of a module. Must be on the
+               PYTHONPATH. Can be relative to the current working directory
+    <engine-name> = A name of the an engine. Use -E to get a list.
+    <table-spec> = <name>:<file>
+    <name> = a unique string. can be anything. (no spaces allowed)
 '''
 
 
@@ -72,8 +84,8 @@ def usage(code=None):
     sys.exit(code)
 
 def list_engines():
-    for engine_name in fuzzbuzz.engines.fuzzers.keys():
-        output(engine_name)
+    for name, engine in fuzzbuzz.engines.registration:
+        output(name, ':', engine['description'])
     sys.exit(error_codes['list_engines'])
 
 def assert_file_exists(path):
@@ -143,10 +155,10 @@ def main(args):
     try:
         opts, args = getopt(
             args,
-            'hvg:r:e:E',
+            'hvg:r:e:Ex:t:',
             [
               'help', 'version', 'grammar=', 'reverse-lexer=', 'engine=',
-              'list-engines',
+              'list-engines', 'example=', 'table='
             ]
         )
     except GetoptError, err:
@@ -156,6 +168,8 @@ def main(args):
     grammar = None
     lexer_module = None
     engine_name = 'attribute_fuzzer'
+    examples = list()
+    tables = list()
     for opt, arg in opts:
         if opt in ('-h', '--help'):
             usage()
@@ -169,6 +183,10 @@ def main(args):
             engine_name = arg
         elif opt in ('-E', '--list-engines'):
             list_engines()
+        elif opt in ('-x', '--example'):
+            examples.append(arg)
+        elif opt in ('-t', '--table'):
+            tables.append(arg)
 
     if engine_name is None:
         log("Must supply an engine name")
@@ -177,16 +195,19 @@ def main(args):
     if grammar is None or lexer_module is None:
         log("Must supply both a grammar and a reverse lexer")
         usage(error_codes['requirements'])
-    if engine_name not in fuzzbuzz.engines.fuzzers.keys():
+    if engine_name not in fuzzbuzz.engines.registration:
         log("Engine name '%s' not found, use -E to get a list" % engine_name)
         usage(error_codes['bad_engine'])
-
+    
     grammar = fuzzbuzz.frontend.parse(read_file_or_die(grammar))
     rlexer = import_module_or_die(lexer_module).stringifiers
-    strings = fuzzbuzz.engines.fuzzers['attribute_fuzzer'](rlexer, grammar)
+    engine = fuzzbuzz.engines.registration[engine_name]
+    objs = locals()
+    kwargs = dict((k, objs[v]) for k, v in engine['requires'].iteritems())
+    strings = engine['function'](rlexer, grammar, **kwargs)
     string = ' '.join(strings)
     for line in string.split('\n'):
-        print line.strip()
+        output(line.strip())
 
 
 if __name__ == '__main__':

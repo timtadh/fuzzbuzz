@@ -4,8 +4,11 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
-from attribute import fuzz as attr_fuzz
+## We have to import all of our fuzzer modules otherwise they don't get
+## registered. There is no way to work around this because the initialization
+## code doesn't get run unless it is imported.
+import attribute, stub
+del stub, attribute
 
-fuzzers = {
-  'attribute_fuzzer':attr_fuzz,
-}
+## Make registration available at the package level.
+from reg import registration

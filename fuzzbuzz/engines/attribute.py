@@ -9,6 +9,7 @@
 import subprocess, functools
 from random import seed, choice, randint, random
 
+from reg import registration
 from fuzzbuzz.frontend import parser
 from fuzzbuzz.models.symbols import Terminal, NonTerminal
 from fuzzbuzz.models.attribute import SymbolObject
@@ -17,7 +18,10 @@ from fuzzbuzz.models.constraints import TrueConstraint, SubsetConstraint
 def init():
     seed()
 
-def fuzz(rlexer, grammar):
+@registration.register(
+  dict(),
+  'Generates strings from an attribute grammar st. conditions hold')
+def attribute_fuzzer(rlexer, grammar):
     init()
     out = list()
 
