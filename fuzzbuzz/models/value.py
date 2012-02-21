@@ -7,6 +7,7 @@
 import functools
 
 from attr_types import Set, String
+from constraints import *
 
 class UnboundValueError(RuntimeError): pass
 class BoundValueError(RuntimeError): pass
@@ -25,6 +26,11 @@ class Value(object):
 
     def value(self, objs):
         return getattr(self, '_%s__value' % self.__class__.__name__)
+
+    def make_constraint(self, value, type):
+        myval = getattr(self, '_%s__value' % self.__class__.__name__)
+        if value != myval: return FalseConstraint()
+        return TrueConstraint()
 
     def has_value(self, *objs):
         value = None
@@ -46,6 +52,13 @@ class SetValue(Value):
 
     def writable(self, type):
         return True
+
+    def make_constraint(self, values, type):
+        assert type == Set
+        constraints = list()
+        for val in self.values:
+            constraints.append(MultiValueConstraint(val, tuple(values)))
+        return AndConstraint(constraints)
 
     def value(self, objs):
         return set(val.value(objs) if isinstance(val, Value) else val

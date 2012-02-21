@@ -5,6 +5,7 @@
 #For licensing see the LICENSE file in the top level directory.
 
 from attr_types import *
+from constraints import *
 from value import Value, UnboundValueError, BoundValueError, Unwritable
 
 class AttrChain(Value):
@@ -39,6 +40,12 @@ class AttrChain(Value):
             cobjs = attr.value(objs, cobjs)
         last_attr = self.lookup_chain[-1]
         last_attr.set_value(objs, cobjs, value)
+
+    def make_constraint(self, value, type):
+        if type == Set:
+            return MultiValueConstraint(self, value)
+        else:
+            return SingleValueConstraint(self, value)
 
 class Attribute(Value):
 
@@ -120,6 +127,10 @@ class Object(Value):
         if self.name in objs:
             raise BoundValueError
         objs[self.name] = value
+
+    def make_constraint(self, value):
+        raise Exception, NotImplemented
+        pass
 
 class SymbolObject(Value):
 

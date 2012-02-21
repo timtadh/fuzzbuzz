@@ -93,45 +93,43 @@ class Assign(AbstractAction):
                 return False
 
     def flow_constraints(self, objs, prior):
-        def constrain(objs, obj, val, prior):
-            #print obj, value
-            val_value = val.value(objs)
-            val_type = val.type(objs)
-            #obj_type = obj.type(objs)
-            #print val_type, val_value
-            if val_type == attr_types.Set:
-                if isinstance(obj, value.SetValue):
-                    for v in obj.values:
-                        print 'x', v
-                    raise Exception
-                    #return SubsetConstraint(obj, val_value)
-                return MultiValueConstraint(obj, val_value)
+        #def constrain(objs, obj, val, prior):
+            ##print obj, value
+            #val_value = val.value(objs)
+            #val_type = val.type(objs)
+            ##obj_type = obj.type(objs)
+            ##print val_type, val_value
+            #if val_type == attr_types.Set:
+                #if isinstance(obj, value.SetValue):
+                    #for v in obj.values:
+                        #print 'x', v
+                    #raise Exception
+                    ##return SubsetConstraint(obj, val_value)
+                #return MultiValueConstraint(obj, val_value)
+                ##raise Exception, NotImplemented
+            #elif val_type == attr_types.String:
                 #raise Exception, NotImplemented
-            elif val_type == attr_types.String:
-                raise Exception, NotImplemented
-            elif val_type == attr_types.Number:
-                raise Exception, NotImplemented
-            elif val_type == attr_types.NoneType:
-                raise Exception, NotImplemented
-            else:
-                raise Exception, "Unsupport type"
+            #elif val_type == attr_types.Number:
+                #raise Exception, NotImplemented
+            #elif val_type == attr_types.NoneType:
+                #raise Exception, NotImplemented
+            #else:
+                #raise Exception, "Unsupport type"
         nobjs = dict(objs)
         prior.flow(nobjs)
-        print '------>', nobjs, prior.obj if hasattr(prior, 'obj') else prior
         if not self.left.has_value(nobjs): return TrueConstraint()
 
-        if self.right.has_value(nobjs):
-            if self.left.value(nobjs) == self.right.value(nobjs):
-                return TrueConstraint()
-            else:
-                return FalseConstraint()
+        print self.left, self.right
+        print self.left.value(nobjs)
+        left_type = self.left.type(nobjs)
+        print left_type
+        if left_type == attr_types.Set:
+            return self.right.make_constraint(self.left.value(nobjs), left_type)
+        if left_type == attr_types.String:
+            return self.right.make_constraint(self.left.value(nobjs), left_type)
         else:
-            if self.right.writable(self.left.type(nobjs)):
-                print self.right, self.left
-                #raise Exception, "Here it get hard my friends!"
-                return constrain(objs, self.right, self.left, prior)
-            else:
-                return FalseConstraint()
+            raise Exception, "Unsupport type %s" % left_type
+        raise Exception, "Here it get hard my friends!"
 
     def execute(self, objs):
         left = self.left.has_value(objs)
