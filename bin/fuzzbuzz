@@ -42,6 +42,18 @@ Options
     -e, engine=<engine-name>            what engine should be used
                                         [defaults to "attribute_fuzzer"]
     -E, list-engines                    list the available engines
+    -x, example=<file>                  Supply an example (may be used many
+                                        times)
+    -t, table=<table-spec>              Supply a statistics table (may be used
+                                        times)
+
+Specs
+    <file> = a path to a file
+    <module> = "a.x.b" a fully qualified import path of a module. Must be on the
+               PYTHONPATH. Can be relative to the current working directory
+    <engine-name> = A name of the an engine. Use -E to get a list.
+    <table-spec> = <name>:<file>
+    <name> = a unique string. can be anything. (no spaces allowed)
 '''
 
 
@@ -175,8 +187,6 @@ def main(args):
             examples.append(arg)
         elif opt in ('-t', '--table'):
             tables.append(arg)
-
-
 
     if engine_name is None:
         log("Must supply an engine name")
