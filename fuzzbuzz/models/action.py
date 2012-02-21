@@ -4,7 +4,7 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
-import abc
+import abc, copy
 
 import attr_types
 import value
@@ -24,7 +24,7 @@ class AbstractAction(object):
     def execute(self, objs): pass
 
     @abc.abstractmethod
-    def fillvalues(self, objs): pass
+    def fillvalues(self, objs, constraint): pass
 
     def __repr__(self):
         return str(self)
@@ -59,9 +59,9 @@ class Action(AbstractAction):
         for stmt in self.stmts:
             stmt.execute(objs)
 
-    def fillvalues(self, objs):
+    def fillvalues(self, objs, constraint):
         for stmt in self.stmts:
-            stmt.fillvalues(objs)
+            stmt.fillvalues(objs, constraint)
 
     def __str__(self):
         return '<Action %s>' % str(self.stmts)
@@ -78,7 +78,7 @@ class Assign(AbstractAction):
         self.right = right
 
     def unconstrained(self, objs, constraint):
-        nobjs = dict(objs)
+        nobjs = copy.deepcopy(objs)
         constraint.flow(nobjs)
         if not self.left.has_value(nobjs): return True
 
@@ -93,29 +93,7 @@ class Assign(AbstractAction):
                 return False
 
     def flow_constraints(self, objs, prior):
-        #def constrain(objs, obj, val, prior):
-            ##print obj, value
-            #val_value = val.value(objs)
-            #val_type = val.type(objs)
-            ##obj_type = obj.type(objs)
-            ##print val_type, val_value
-            #if val_type == attr_types.Set:
-                #if isinstance(obj, value.SetValue):
-                    #for v in obj.values:
-                        #print 'x', v
-                    #raise Exception
-                    ##return SubsetConstraint(obj, val_value)
-                #return MultiValueConstraint(obj, val_value)
-                ##raise Exception, NotImplemented
-            #elif val_type == attr_types.String:
-                #raise Exception, NotImplemented
-            #elif val_type == attr_types.Number:
-                #raise Exception, NotImplemented
-            #elif val_type == attr_types.NoneType:
-                #raise Exception, NotImplemented
-            #else:
-                #raise Exception, "Unsupport type"
-        nobjs = dict(objs)
+        nobjs = dict()
         prior.flow(nobjs)
         if not self.left.has_value(nobjs): return TrueConstraint()
 
@@ -135,13 +113,32 @@ class Assign(AbstractAction):
         left = self.left.has_value(objs)
         right = self.right.has_value(objs)
         if left and right:
+            print self.left
+            if self.right.type(objs) == attr_types.Set:
+                print self.right.values[0].lookup_chain[0].obj.name
+            print self.left.value(objs), self.right.value(objs)
             assert self.left.value(objs) == self.right.value(objs)
             return
         else:
             assert right
             self.left.set_value(objs, self.right.value(objs))
 
-    def fillvalues(self, objs):
+    def fillvalues(self, objs, constraint):
+        #objs = copy.deepcopy(objs)
+        #print 'filling', objs,
+        #if hasattr(constraint, 'value'):
+            #print constraint.value, constraint.obj.lookup_chain[0].obj.name,
+        #else:
+            #print constraint,
+        #if hasattr(self.left, 'lookup_chain'):
+            #print self.left.lookup_chain[0].obj.name,
+        #else:
+            #print self.left,
+        #if hasattr(self.right, 'lookup_chain'):
+            #print self.right.lookup_chain[0].obj.name
+        #else:
+            #print self.right
+        constraint.flow(objs)
         if self.right.has_value(objs): return
         if self.left.has_value(objs):
             self.right.set_value(objs, self.left.value(objs))
@@ -185,7 +182,8 @@ class If(AbstractAction):
         elif self.otherwise is not None:
             self.otherwise.execute(objs)
 
-    def fillvalues(self, objs):
+    def fillvalues(self, objs, constraint):
+        raise Exception, "Invalid implementation fixme"
         if self.condition.evaluate(objs):
             self.then.fillvalues(objs)
         elif self.otherwise is not None:
