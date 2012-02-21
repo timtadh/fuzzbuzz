@@ -8,6 +8,7 @@ import abc, copy
 
 import attr_types
 import value
+import binop
 from constraints import *
 
 class AbstractAction(object):
@@ -81,12 +82,18 @@ class Assign(AbstractAction):
         nobjs = copy.deepcopy(objs)
         constraint.flow(nobjs)
         if not self.left.has_value(nobjs): return True
-
         if self.right.has_value(nobjs):
             return self.left.value(nobjs) == self.right.value(nobjs)
         else:
-            #print '------>', self.left.type(nobjs), self.right.writable(self.left.type(nobjs))
+            print '-->', 'reached'
+            print self.left, self.right
+            print self.left.value(nobjs)
+            if hasattr(self.right, 'lookup_chain'):
+                print self.right.lookup_chain
+            print '------>', self.left.type(nobjs), self.right.writable(self.left.type(nobjs))
             #print self.right
+            if issubclass(self.right.__class__, binop.BinOp):
+                raise Exception, NotImplemented
             if self.right.writable(self.left.type(nobjs)):
                 return True
             else:
@@ -97,10 +104,12 @@ class Assign(AbstractAction):
         prior.flow(nobjs)
         if not self.left.has_value(nobjs): return TrueConstraint()
 
-        print self.left, self.right
-        print self.left.value(nobjs)
+        #print self.left, self.right
+        #print self.left.value(nobjs)
         left_type = self.left.type(nobjs)
-        print left_type
+        #print left_type
+        if issubclass(self.right.__class__, binop.BinOp):
+            raise Exception, NotImplemented
         if left_type == attr_types.Set:
             return self.right.make_constraint(self.left.value(nobjs), left_type)
         if left_type == attr_types.String:
@@ -113,10 +122,10 @@ class Assign(AbstractAction):
         left = self.left.has_value(objs)
         right = self.right.has_value(objs)
         if left and right:
-            print self.left
-            if self.right.type(objs) == attr_types.Set:
-                print self.right.values[0].lookup_chain[0].obj.name
-            print self.left.value(objs), self.right.value(objs)
+            #print self.left
+            #if self.right.type(objs) == attr_types.Set:
+                #print self.right.values[0].lookup_chain[0].obj.name
+            #print self.left.value(objs), self.right.value(objs)
             assert self.left.value(objs) == self.right.value(objs)
             return
         else:

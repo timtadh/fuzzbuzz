@@ -27,6 +27,7 @@ def attribute_fuzzer(rlexer, grammar):
 
     def filter(objs, rules, constraint):
         #print objs
+        print 'filtering', rules
         for rule in rules:
             #print rule.action.unconstrained
             #print constraint
@@ -37,12 +38,12 @@ def attribute_fuzzer(rlexer, grammar):
                 yield rule
 
     def choose(nonterm, objs, constraint):
-        print 'choosing ->', nonterm, constraint, objs
+        #print 'choosing ->', nonterm, constraint, objs
         #print constraint.values if isinstance(constraint, SubsetConstraint) else constraint
         rules = list(filter(objs, nonterm.rules, constraint))
-        #print 'allowed rules for', nonterm.name, rules
+        print 'allowed rules for', nonterm.name, rules
         rule = choice(rules)
-        print 'chose', rule, objs
+        #print 'chose', rule, objs
         cobjs = rule.mknamespace(objs)
         print 'chose', rule, cobjs
         if rule.action:
