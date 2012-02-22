@@ -3,6 +3,7 @@
 #Author: Rafael Lopez
 #Email: rafael.lopez.u@gmail.com
 #For licensing see the LICENSE file in the top level directory.
+
 from random import seed, choice, randint, random
 
 from reg import registration
@@ -19,13 +20,13 @@ def cfgstats(rlexer, grammar, stat_tables=None):
     
     output = list()
     def fuzz(nonterm):
-      rule = choice(nonterm.rules)
+        rule = choice(nonterm.rules)
       
-      for sym, cnt in rule.pattern:
-          if sym.__class__ is NonTerminal:
-              fuzz(sym)
-          if sym.__class__ is Terminal:
-            output.append(rlexer[sym.name]())
+        for sym, cnt in rule.pattern:
+            if sym.__class__ is NonTerminal:
+                fuzz(sym)
+            if sym.__class__ is Terminal:
+                output.append(rlexer[sym.name]())
     
     fuzz(grammar.start)
     return output
