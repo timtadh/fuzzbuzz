@@ -25,7 +25,7 @@ def cfgstats(rlexer, grammar, stat_tables=None):
           if sym.__class__ is NonTerminal:
               fuzz(sym)
           if sym.__class__ is Terminal:
-            output.append(sym.name)
+            output.append(rlexer[sym.name]())
     
     fuzz(grammar.start)
     return output
