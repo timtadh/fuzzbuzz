@@ -7,8 +7,8 @@
 ## We have to import all of our fuzzer modules otherwise they don't get
 ## registered. There is no way to work around this because the initialization
 ## code doesn't get run unless it is imported.
-import attribute, stub
-del stub, attribute
+import attribute, stub, cfgstats
+del stub, attribute, cfgstats
 
 ## Make registration available at the package level.
 from reg import registration
