@@ -76,7 +76,7 @@ def attribute_fuzzer(rlexer, grammar):
                 #print 'xx', 'new constraint', constraint
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.__class__ is NonTerminal:
-                    print 'about to find rule for', rule, display(objs)
+                    print 'about to find rule for', rule, sym.name, display(objs)
                     crule, cobjs, new_constraint = \
                                   choose(sym, objs[(sym.name, cnt)], constraint)
                     #print cobjs, constraint
@@ -90,6 +90,7 @@ def attribute_fuzzer(rlexer, grammar):
                     out.append(functools.partial(so.value, objs))
             else:
                 if rule.action is not None:
+                    print 'filling ', rule
                     rule.action.fillvalues(objs, constraint)
                 for so in sobjs:
                     if not so.has_value(objs): so.make_value(objs, rlexer)

@@ -5,11 +5,11 @@ Stmts -> Decls Uses
          }
        ;
 
-Decls -> Decls Decl
+Decls ->/* Decls Decl
         with Action {
           Decls{1}.names = Decls{2}.names | { Decl.name }
         }
-       | Decl
+       | */Decl
         with Action {
           Decls{1}.names = { Decl.name }
         }

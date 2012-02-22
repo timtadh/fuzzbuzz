@@ -18,7 +18,6 @@ class Constraint(object):
     @abc.abstractmethod
     def flow(self, objs): pass
 
-
 class FalseConstraint(Constraint):
 
     def satisfiable(self, objs): return False
@@ -43,6 +42,8 @@ class AndConstraint(Constraint):
         for con in self.constraints:
             con.flow(objs)
 
+    def __repr__(self): return str(self)
+
     def __str__(self):
         return "<AndConstraint %s>" % str(self.constraints)
 
@@ -55,9 +56,15 @@ class OrConstraint(Constraint):
         return any(con.satisfiable(objs) for con in self.constraints)
 
     def flow(self, objs):
+        #print '--->', self.constraints
         satisfiable = [con for con in self.constraints if con.satisfiable(objs)]
         constraint = choice(satisfiable)
         constraint.flow(objs)
+
+    def __repr__(self): return str(self)
+
+    def __str__(self):
+        return "<OrConstraint %s>" % str(self.constraints)
 
 class SingleValueConstraint(Constraint):
 
@@ -95,6 +102,11 @@ class MultiValueConstraint(Constraint):
         else:
             self.obj.set_value(objs, choice(self.values))
 
+    def __repr__(self): return str(self)
+
+    def __str__(self):
+        return "<MultiValueConstraint %s, %s>" % (str(self.obj), str(self.values))
+
 class SubsetConstraint(Constraint):
 
     def __init__(self, obj, values):
@@ -103,6 +115,7 @@ class SubsetConstraint(Constraint):
 
     def satisfiable(self, objs):
         if self.obj.has_value(objs):
+            print 'subset satisfiable?', self.obj.value(objs)
             return self.obj.value(objs).issubset(self.values)
         else:
             return True
@@ -112,3 +125,8 @@ class SubsetConstraint(Constraint):
             assert self.obj.value(objs).issubset(self.values)
         else:
             self.obj.set_value(objs, set(self.values))
+
+    def __repr__(self): return str(self)
+
+    def __str__(self):
+        return "<SubsetConstraint %s, %s>" % (str(self.obj), str(self.values))

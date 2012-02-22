@@ -14,6 +14,11 @@ class AttrChain(Value):
         self.lookup_chain = lookup_chain
         self.__type = None                          ## TODO TYPES
 
+    def __repr__(self): return str(self)
+
+    def __str__(self):
+        return "<AttrChain %s>" % str(self.lookup_chain)
+
     def writable(self, type):
         return all(x.writable(type) for x in self.lookup_chain)
 
@@ -41,9 +46,13 @@ class AttrChain(Value):
         last_attr = self.lookup_chain[-1]
         last_attr.set_value(objs, cobjs, value)
 
-    def make_constraint(self, value, type):
+    def make_constraint(self, objs, value, type):
         if type == Set:
-            return MultiValueConstraint(self, value)
+            #print 'making a multi value constraint', self.type(objs)
+            return OrConstraint([
+              MultiValueConstraint(self, tuple(value)),
+              SubsetConstraint(self, tuple(value)),
+            ])
         else:
             return SingleValueConstraint(self, value)
 
@@ -53,6 +62,11 @@ class Attribute(Value):
         self.obj = obj
         self.call_chain = call_chain
         self.__type = None                          ## TODO TYPES
+
+    def __repr__(self): return str(self)
+
+    def __str__(self):
+        return "<Attribute %s>" % str(self.obj)
 
     def writable(self, type):
         return self.call_chain is None and self.obj.writable(type)
@@ -104,6 +118,11 @@ class Object(Value):
         self.name = name
         #self.__type = None                          ## TODO TYPES
 
+    def __repr__(self): return str(self)
+
+    def __str__(self):
+        return "<Object %s>" % str(self.name)
+
     def writable(self, type):
         return True
 
@@ -141,6 +160,11 @@ class SymbolObject(Value):
             self.__type = String
         else:
             self.__type = Namespace
+
+    def __repr__(self): return str(self)
+
+    def __str__(self):
+        return "<SymbolObject (%s, %s)>" % (str(self.name), str(self.id))
 
     def writable(self, type):
         return issubclass(type, self.type(None))

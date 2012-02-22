@@ -27,7 +27,7 @@ class Value(object):
     def value(self, objs):
         return getattr(self, '_%s__value' % self.__class__.__name__)
 
-    def make_constraint(self, value, type):
+    def make_constraint(self, objs, value, type):
         myval = getattr(self, '_%s__value' % self.__class__.__name__)
         if value != myval: return FalseConstraint()
         return TrueConstraint()
@@ -53,7 +53,7 @@ class SetValue(Value):
     def writable(self, type):
         return True
 
-    def make_constraint(self, values, type):
+    def make_constraint(self, objs, values, type):
         assert type == Set
         constraints = list()
         for val in self.values:
