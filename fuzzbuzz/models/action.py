@@ -93,7 +93,7 @@ class Assign(AbstractAction):
             print '------>', self.left.type(nobjs), self.right.writable(self.left.type(nobjs))
             #print self.right
             if issubclass(self.right.__class__, binop.BinOp):
-                raise Exception, NotImplemented
+                return self.right.satisfiable(nobjs, self.left.value(nobjs))
             if self.right.writable(self.left.type(nobjs)):
                 return True
             else:

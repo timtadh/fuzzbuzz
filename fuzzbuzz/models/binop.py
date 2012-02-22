@@ -4,11 +4,15 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
+import abc
+
 from attr_types import Set, Number
 from value import Value
 
 class BinOp(Value):
-  
+
+    __metaclass__ = abc.ABCMeta
+
     def __init__(self, a, b, expected_type):
         self.a = a
         self.b = b
@@ -20,12 +24,18 @@ class BinOp(Value):
         assert isinstance(a, self._expected_type)
         assert isinstance(b, self._expected_type)
         return a,b
-    
-    def type(self, objs):
-        raise Exception
 
-    def value(self, objs):
-        raise Exception
+    @abc.abstractmethod
+    def type(self, objs): pass
+
+    @abc.abstractmethod
+    def value(self, objs): pass
+
+    @abc.abstractmethod
+    def flow_constraints(self, objs, prior_constraint): pass
+
+    @abc.abstractmethod
+    def satisfiable(self, objs, answer): pass
 
 class SetOp(BinOp):
 
@@ -34,6 +44,12 @@ class SetOp(BinOp):
 
     def type(self, objs):
         return Set
+
+    def flow_constraints(self, objs, prior_constraint):
+        raise Exception, NotImplemented
+
+    def satisfiable(self, objs, answer):
+        raise Exception, NotImplemented
 
 class Union(SetOp):
 
@@ -61,6 +77,12 @@ class ArithOp(BinOp):
 
     def type(self, objs):
         return Number
+
+    def flow_constraints(self, objs, prior_constraint):
+        raise Exception, NotImplemented
+
+    def satisfiable(self, objs, answer):
+        raise Exception, NotImplemented
 
 class Add(ArithOp):
 
