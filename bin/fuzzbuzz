@@ -184,7 +184,7 @@ def main(args):
         elif opt in ('-E', '--list-engines'):
             list_engines()
         elif opt in ('-x', '--example'):
-            examples.append(arg)
+            examples.append(assert_file_exists(arg))
         elif opt in ('-t', '--table'):
             tables.append(arg)
 
@@ -198,7 +198,9 @@ def main(args):
     if engine_name not in fuzzbuzz.engines.registration:
         log("Engine name '%s' not found, use -E to get a list" % engine_name)
         usage(error_codes['bad_engine'])
-    
+
+    for x in range(0, len(examples)):
+        examples[x] = read_file_or_die(examples[x])
     grammar = fuzzbuzz.frontend.parse(read_file_or_die(grammar))
     rlexer = import_module_or_die(lexer_module).stringifiers
     engine = fuzzbuzz.engines.registration[engine_name]
