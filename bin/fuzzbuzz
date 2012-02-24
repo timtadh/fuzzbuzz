@@ -24,6 +24,7 @@ error_codes = {
     'list_engines':10,
     'file_instead_of_dir':11,
     'bad_engine':12,
+    'no_example': 13,
 }
 
 usage_message = \
@@ -46,7 +47,7 @@ Options
                                         times)
     -t, table=<table-spec>              Supply a statistics table (may be used
                                         many times)
-    -T, list-table-names                List table names the given engine 
+    -T, list-table-names                List table names the given engine
                                         expects
 
 Specs
@@ -187,7 +188,7 @@ def main(args):
         elif opt in ('-E', '--list-engines'):
             list_engines()
         elif opt in ('-x', '--example'):
-            examples.append(arg)
+            examples.append(read_file_or_die(arg))
         elif opt in ('-T', '--list-table-names'):
             table_names_requested = True
         elif opt in ('-t', '--table'):
@@ -196,7 +197,7 @@ def main(args):
             #    parse the file into a sensible format --> table
             # then update the tables dictionary
             # tables.update({table_name:table})
-            pass 
+            pass
 
     if engine_name is None:
         log("Must supply an engine name")
@@ -208,13 +209,18 @@ def main(args):
     if engine_name not in fuzzbuzz.engines.registration:
         log("Engine name '%s' not found, use -E to get a list" % engine_name)
         usage(error_codes['bad_engine'])
-    
+
     grammar = fuzzbuzz.frontend.parse(read_file_or_die(grammar))
     rlexer = import_module_or_die(lexer_module).stringifiers
     engine = fuzzbuzz.engines.registration[engine_name]
     objs = locals()
     kwargs = dict((k, objs[v]) for k, v in engine['requires'].iteritems())
-    strings = engine['function'](rlexer, grammar, **kwargs)
+
+    try:
+        strings = engine['function'](rlexer, grammar, **kwargs)
+    except NoExampleException:
+        usage(error_codes['no_example'])
+
     string = ' '.join(strings)
     for line in string.split('\n'):
         output(line.strip())
