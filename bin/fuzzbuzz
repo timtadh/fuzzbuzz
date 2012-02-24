@@ -45,7 +45,9 @@ Options
     -x, example=<file>                  Supply an example (may be used many
                                         times)
     -t, table=<table-spec>              Supply a statistics table (may be used
-                                        times)
+                                        many times)
+    -T, list-table-names                List table names the given engine 
+                                        expects
 
 Specs
     <file> = a path to a file
@@ -155,10 +157,10 @@ def main(args):
     try:
         opts, args = getopt(
             args,
-            'hvg:r:e:Ex:t:',
+            'hvg:r:e:Ex:t:T',
             [
               'help', 'version', 'grammar=', 'reverse-lexer=', 'engine=',
-              'list-engines', 'example=', 'table='
+              'list-engines', 'example=', 'table=', 'list-table-names'
             ]
         )
     except GetoptError, err:
@@ -169,7 +171,8 @@ def main(args):
     lexer_module = None
     engine_name = 'attribute_fuzzer'
     examples = list()
-    tables = list()
+    tables = dict()
+    table_names_requested = False
     for opt, arg in opts:
         if opt in ('-h', '--help'):
             usage()
@@ -185,8 +188,15 @@ def main(args):
             list_engines()
         elif opt in ('-x', '--example'):
             examples.append(arg)
+        elif opt in ('-T', '--list-table-names'):
+            table_names_requested = True
         elif opt in ('-t', '--table'):
-            tables.append(arg)
+            # parse the name out of arg --> table_name
+            # parse the filepath, read the file
+            #    parse the file into a sensible format --> table
+            # then update the tables dictionary
+            # tables.update({table_name:table})
+            pass 
 
     if engine_name is None:
         log("Must supply an engine name")

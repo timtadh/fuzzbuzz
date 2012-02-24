@@ -10,13 +10,14 @@ from reg import registration
 from fuzzbuzz.models.symbols import Terminal, NonTerminal
 
 @registration.register(
-  {'stat_tables':'tables'},
+  {'stat_tables':'tables', 'list_tables':'table_names_requested'},
   'A fuzzer to produce output based on statistics provided at input')
-def cfgstats(rlexer, grammar, stat_tables=None):
+def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
     # grammar.start --> start symbol it is a fuzzbuzz.models.symbols.NonTerminal
     # nonterm.rules --> a list of the possible choices.
     # rule -> list of Terminal and NonTerminal symbols
     # getnextrule(nonterm): random.choice(nonterm.rules)
+    print list_tables
     
     output = list()
     def fuzz(start):
