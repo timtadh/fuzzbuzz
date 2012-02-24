@@ -9,6 +9,8 @@ from random import seed, choice, randint, random
 from reg import registration
 from fuzzbuzz.models.symbols import Terminal, NonTerminal
 
+class ListTables(Exception): pass
+
 @registration.register(
   {'stat_tables':'tables', 'list_tables':'table_names_requested'},
   'A fuzzer to produce output based on statistics provided at input')
@@ -18,19 +20,22 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
     # rule -> list of Terminal and NonTerminal symbols
     # getnextrule(nonterm): random.choice(nonterm.rules)
     print list_tables
-    
+    if list_tables:
+        print 'rxl211 list tables here'
+        raise ListTables
+
     output = list()
     def fuzz(start):
         stack = list()
         stack.append((start, None, 0))
-        
+
         while stack:
             nonterm, rule, j = stack.pop()
-            
+
             if rule is None: #otherwise we are continuing from where we left off
                 assert j is 0
                 rule = choice(nonterm.rules)
-            
+
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.__class__ is NonTerminal:
                     stack.append((nonterm, rule, i+1))
@@ -38,6 +43,6 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
                     break
                 if sym.__class__ is Terminal:
                     output.append(rlexer[sym.name]())
-        
+
     fuzz(grammar.start)
     return output
