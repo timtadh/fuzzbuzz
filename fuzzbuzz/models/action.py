@@ -102,9 +102,9 @@ class Assign(AbstractAction):
     def flow_constraints(self, objs, prior):
         nobjs = dict()
         prior.flow(nobjs)
-        print self.left.has_value(nobjs), prior
-        print nobjs
-        print self.left
+        print 'print', nobjs
+        print 'prior constraint', prior
+        print self.left, 'has value?', self.left.has_value(nobjs)
         ## TODO(tim):
         ## Ok the problem is this. The prior constraint is for the parent's
         ## rule. This is ok BUT it means that when we flow the constraint

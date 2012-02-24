@@ -18,17 +18,25 @@ class Constraint(object):
     @abc.abstractmethod
     def flow(self, objs): pass
 
+    @abc.abstractmethod
+    def replace(self, from_sym, to_sym):
+        '''Converts all symbols which match "from_sym" to "to_sym" in the
+        constraint
+        @param from_sym : (name, occurence) -> (string, int)
+        @param to_sym : (name, occurence) -> (string, int)
+        @returns : a new constraint of the same type'''
+
 class FalseConstraint(Constraint):
 
     def satisfiable(self, objs): return False
-
     def flow(self, objs): pass
+    def replace(self, from_sym, to_sym): pass
 
 class TrueConstraint(Constraint):
 
     def satisfiable(self, objs): return True
-
     def flow(self, objs): pass
+    def replace(self, from_sym, to_sym): pass
 
 class AndConstraint(Constraint):
 
@@ -41,6 +49,11 @@ class AndConstraint(Constraint):
     def flow(self, objs):
         for con in self.constraints:
             con.flow(objs)
+
+    def replace(self, from_sym, to_sym):
+        return AndConstraint([
+          con.convert(from_sym, to_sym) for con in self.constraint
+        ])
 
     def __repr__(self): return str(self)
 
@@ -60,6 +73,11 @@ class OrConstraint(Constraint):
         satisfiable = [con for con in self.constraints if con.satisfiable(objs)]
         constraint = choice(satisfiable)
         constraint.flow(objs)
+
+    def replace(self, from_sym, to_sym):
+        return OrConstraint([
+          con.convert(from_sym, to_sym) for con in self.constraint
+        ])
 
     def __repr__(self): return str(self)
 
@@ -84,6 +102,12 @@ class SingleValueConstraint(Constraint):
         else:
             self.obj.set_value(objs, self.value)
 
+    def replace(self, from_sym, to_sym):
+        return SingleValueConstraint(
+          self.obj.replace(from_sym, to_sym),
+          self.value
+        )
+
 class MultiValueConstraint(Constraint):
 
     def __init__(self, obj, values):
@@ -101,6 +125,12 @@ class MultiValueConstraint(Constraint):
             assert self.obj.value(objs) in self.values
         else:
             self.obj.set_value(objs, choice(self.values))
+
+    def replace(self, from_sym, to_sym):
+        return MultiValueConstraint(
+          self.obj.replace(from_sym, to_sym),
+          self.values
+        )
 
     def __repr__(self): return str(self)
 
@@ -125,6 +155,12 @@ class SubsetConstraint(Constraint):
             assert self.obj.value(objs).issubset(self.values)
         else:
             self.obj.set_value(objs, set(self.values))
+
+    def replace(self, from_sym, to_sym):
+        return SubsetConstraint(
+          self.obj.replace(from_sym, to_sym),
+          self.values
+        )
 
     def __repr__(self): return str(self)
 

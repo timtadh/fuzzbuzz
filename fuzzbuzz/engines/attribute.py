@@ -78,7 +78,7 @@ def attribute_fuzzer(rlexer, grammar):
                 if sym.__class__ is NonTerminal:
                     print 'about to find rule for', rule, sym.name, display(objs)
                     crule, cobjs, new_constraint = \
-                                  choose(sym, objs[(sym.name, cnt)], constraint)
+                                  choose((sym, cnt, objs[(sym.name, cnt)], constraint)
                     #print cobjs, constraint
                     print 'found rule for', rule, display(objs)
                     stack.append((objs, rule, i+1, sobjs, constraint))

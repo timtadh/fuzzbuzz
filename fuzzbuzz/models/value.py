@@ -21,6 +21,14 @@ class Value(object):
 
     def writable(self, type): return False
 
+    def replace(self, from_sym, to_sym):
+        '''Converts all symbols which match "from_sym" to "to_sym" in the
+        constraint
+        @param from_sym : (name, occurence) -> (string, int)
+        @param to_sym : (name, occurence) -> (string, int)
+        @returns : a new value of the same type'''
+        return self
+
     def type(self, objs):
         return getattr(self, '_%s__type' % self.__class__.__name__)
 
@@ -52,6 +60,13 @@ class SetValue(Value):
 
     def writable(self, type):
         return True
+
+    def replace(self, from_sym, to_sym):
+        return SetValue([
+          val.replace(from_sym, to_sym) if isinstance(val, Value) else val
+          for val in self.values
+        ])
+
 
     def make_constraint(self, objs, values, type):
         assert type == Set
