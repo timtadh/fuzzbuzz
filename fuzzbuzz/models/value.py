@@ -67,8 +67,8 @@ class SetValue(Value):
           for val in self.values
         ])
 
-
     def make_constraint(self, objs, values, type):
+        print values
         assert type == Set
         constraints = list()
         for val in self.values:

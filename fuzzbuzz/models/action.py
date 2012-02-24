@@ -17,7 +17,7 @@ class AbstractAction(object):
 
     @abc.abstractmethod
     def unconstrained(self, objs, constraint): pass
-    
+
     @abc.abstractmethod
     def flow_constraints(self, objs, prior_constraint): pass
 
@@ -29,7 +29,7 @@ class AbstractAction(object):
 
     def __repr__(self):
         return str(self)
- 
+
     def __str__(self):
         return '<AbstractAction>'
 
@@ -188,7 +188,7 @@ class If(AbstractAction):
         otherwise = True
         if self.otherwise is not None:
             otherwise = self.otherwise.unconstrained(nobjs, constraint)
-        
+
         if not self.condition.applies(objs):
             if then and otherwise: return True
             elif then or otherwise: raise Exception, \

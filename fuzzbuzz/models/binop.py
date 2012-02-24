@@ -73,10 +73,10 @@ class Union(SetOp):
             else:
                 print 'False constraint'
                 return FalseConstraint()
-        elif self.a.has_value(objs):
-            raise Exception, NotImplemented
-        elif self.b.has_value(objs):
-            raise Exception, NotImplemented
+        #elif self.a.has_value(objs):
+            #raise Exception, NotImplemented
+        #elif self.b.has_value(objs):
+            #raise Exception, NotImplemented
         else:
             print 'and constraint', answer,
             print self.a, self.b

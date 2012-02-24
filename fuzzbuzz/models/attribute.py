@@ -78,6 +78,8 @@ class Attribute(Value):
         return Attribute(
           self.obj.replace(from_sym, to_sym),
           self.call_chain.replace(from_sym, to_sym)
+            if self.call_chain is not None
+              else self.call_chain
         )
 
     def type(self, gobjs, cobjs):
@@ -190,7 +192,7 @@ class SymbolObject(Value):
 
     def replace(self, from_sym, to_sym):
         if self.name == from_sym[0] and self.id == self.id:
-            return SymbolObject(self.symtype, *from_sym)
+            return SymbolObject(self.symtype, *to_sym)
         return self
 
     def make_value(self, objs, rlexer):

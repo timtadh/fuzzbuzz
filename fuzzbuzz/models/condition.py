@@ -153,7 +153,7 @@ class In(BooleanOperator):
         else:
             pass # nothing should need to be done here
         return [objs]
-    
+
     def generate_constraint(self, objs):
         a_hasvalue = self.a.has_value(objs)
         b_hasvalue = self.b.has_value(objs)

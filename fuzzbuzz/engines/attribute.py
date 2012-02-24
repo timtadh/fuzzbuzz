@@ -6,6 +6,7 @@
 
 ## Should contain the implementation of the main fuzzing algorithm.
 
+import sys
 import subprocess, functools
 from random import seed, choice, randint, random
 
@@ -77,8 +78,14 @@ def attribute_fuzzer(rlexer, grammar):
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.__class__ is NonTerminal:
                     print 'about to find rule for', rule, sym.name, display(objs)
+                    print '--->', constraint
+                    constraint = constraint.replace(
+                      (sym.name, cnt),
+                      (sym.name, 1)
+                    )
+                    print '--->', constraint
                     crule, cobjs, new_constraint = \
-                                  choose((sym, cnt, objs[(sym.name, cnt)], constraint)
+                                  choose(sym, objs[(sym.name, cnt)], constraint)
                     #print cobjs, constraint
                     print 'found rule for', rule, display(objs)
                     stack.append((objs, rule, i+1, sobjs, constraint))

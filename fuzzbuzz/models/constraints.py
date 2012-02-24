@@ -30,13 +30,13 @@ class FalseConstraint(Constraint):
 
     def satisfiable(self, objs): return False
     def flow(self, objs): pass
-    def replace(self, from_sym, to_sym): pass
+    def replace(self, from_sym, to_sym): return self
 
 class TrueConstraint(Constraint):
 
     def satisfiable(self, objs): return True
     def flow(self, objs): pass
-    def replace(self, from_sym, to_sym): pass
+    def replace(self, from_sym, to_sym): return self
 
 class AndConstraint(Constraint):
 
@@ -52,7 +52,7 @@ class AndConstraint(Constraint):
 
     def replace(self, from_sym, to_sym):
         return AndConstraint([
-          con.convert(from_sym, to_sym) for con in self.constraint
+          con.replace(from_sym, to_sym) for con in self.constraints
         ])
 
     def __repr__(self): return str(self)
@@ -69,14 +69,15 @@ class OrConstraint(Constraint):
         return any(con.satisfiable(objs) for con in self.constraints)
 
     def flow(self, objs):
-        #print '--->', self.constraints
+        print 'statisfiable ? ', self.constraints
         satisfiable = [con for con in self.constraints if con.satisfiable(objs)]
+        print 'those which are satisfiable ', satisfiable
         constraint = choice(satisfiable)
         constraint.flow(objs)
 
     def replace(self, from_sym, to_sym):
         return OrConstraint([
-          con.convert(from_sym, to_sym) for con in self.constraint
+          con.replace(from_sym, to_sym) for con in self.constraints
         ])
 
     def __repr__(self): return str(self)
@@ -145,7 +146,7 @@ class SubsetConstraint(Constraint):
 
     def satisfiable(self, objs):
         if self.obj.has_value(objs):
-            print 'subset satisfiable?', self.obj.value(objs)
+            print 'subset satisfiable?', self.obj.value(objs), self.values ,self.obj.value(objs).issubset(self.values)
             return self.obj.value(objs).issubset(self.values)
         else:
             return True
