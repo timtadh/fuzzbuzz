@@ -25,36 +25,17 @@ def cfgstats(rlexer, grammar, stat_tables=None):
         
         while stack:
             nonterm, rule, j = stack.pop()
-            #print "POP: "
-            #print nonterm
-            #print "\n"
+            
             if rule is None: #otherwise we are continuing from where we left off
                 assert j is 0
                 rule = choice(nonterm.rules)
-            #print "CHOSE: "
-            #print rule
-            #print "\n"
             
-            print "rule pattern:\n"
-            print rule.pattern
-            print "\n"
-            print "listed...: \n"
-            print list(enumerate(rule.pattern))
-            print "\n"
-        
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.__class__ is NonTerminal:
-                    #fuzz(sym)
-                    #print "NONTERMINAL: "
-                    #print sym
-                    #print "\n"
                     stack.append((nonterm, rule, i+1))
                     stack.append((sym, None, 0))
                     break
                 if sym.__class__ is Terminal:
-                    #print "TERMINAL: "
-                    #print sym
-                    #print "\n"
                     output.append(rlexer[sym.name]())
         
     fuzz(grammar.start)
