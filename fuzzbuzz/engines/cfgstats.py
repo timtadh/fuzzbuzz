@@ -19,14 +19,32 @@ def cfgstats(rlexer, grammar, stat_tables=None):
     # getnextrule(nonterm): random.choice(nonterm.rules)
     
     output = list()
-    def fuzz(nonterm):
-        rule = choice(nonterm.rules)
-      
-        for sym, cnt in rule.pattern:
-            if sym.__class__ is NonTerminal:
-                fuzz(sym)
-            if sym.__class__ is Terminal:
-                output.append(rlexer[sym.name]())
-    
+    def fuzz(start):
+        stack = list()
+        stack.append(start)
+        
+        while stack:
+            nonterm = stack.pop()
+            #print "POP: "
+            #print nonterm
+            #print "\n"
+            rule = choice(nonterm.rules)
+            #print "CHOSE: "
+            #print rule
+            #print "\n"
+        
+            for sym, cnt in rule.pattern:
+                if sym.__class__ is NonTerminal:
+                    #fuzz(sym)
+                    #print "NONTERMINAL: "
+                    #print sym
+                    #print "\n"
+                    stack.append(sym)
+                if sym.__class__ is Terminal:
+                    #print "TERMINAL: "
+                    #print sym
+                    #print "\n"
+                    output.append(rlexer[sym.name]())
+        
     fuzz(grammar.start)
     return output
