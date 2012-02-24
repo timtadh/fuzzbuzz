@@ -21,25 +21,36 @@ def cfgstats(rlexer, grammar, stat_tables=None):
     output = list()
     def fuzz(start):
         stack = list()
-        stack.append(start)
+        stack.append((start, None, 0))
         
         while stack:
-            nonterm = stack.pop()
+            nonterm, rule, j = stack.pop()
             #print "POP: "
             #print nonterm
             #print "\n"
-            rule = choice(nonterm.rules)
+            if rule is None: #otherwise we are continuing from where we left off
+                assert j is 0
+                rule = choice(nonterm.rules)
             #print "CHOSE: "
             #print rule
             #print "\n"
+            
+            print "rule pattern:\n"
+            print rule.pattern
+            print "\n"
+            print "listed...: \n"
+            print list(enumerate(rule.pattern))
+            print "\n"
         
-            for sym, cnt in rule.pattern:
+            for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.__class__ is NonTerminal:
                     #fuzz(sym)
                     #print "NONTERMINAL: "
                     #print sym
                     #print "\n"
-                    stack.append(sym)
+                    stack.append((nonterm, rule, i+1))
+                    stack.append((sym, None, 0))
+                    break
                 if sym.__class__ is Terminal:
                     #print "TERMINAL: "
                     #print sym
