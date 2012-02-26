@@ -17,38 +17,46 @@ def mutation_fuzzer(rlexer, grammar, example_list=None):
     if not example_list:
         raise NoExampleException
 
-    def generate_examples_ast():
+    def generate_examples_ast(parser):
         """Generates an AST for each example provided in `example_list`.
         This AST is parsed according to the grammar in `grammar`.
         On completion, this function returns a list of ASTs, corresponding
         to the examples provided.
+
+        Arguments:
+        - `parser`: The parser from which the ASTs will be generated from
         """
         ast_list = list()
 
         for example in example_list:
-            ast_list.append(generate_ast(example))
+            ast_list.append(generate_ast(example, parser))
 
         return ast_list
 
-    def generate_ast(example):
+    def generate_ast(example, parser):
         """Generates and returns an AST for the provided `example`
         AST generated according to the provided grammar
         On completion, returns an AST object.
 
         Arguments:
         - `example`: the text to be parsed into an AST
+        - `parser`:  the parser from which the ASTs will be generated from
         """
         pass
 
-    def generate_parser():
+    def generate_parser(grammar_start):
         """Generate a parser for our `example_list` based on the grammar in
         `grammar`. This is probably going to be very hacky.
         On completion this function returns a `parser` object which can be
         used to generate ASTs for our examples.
+
+        Arguments:
+        - ``grammar_start`: The start symbol for the grammar we are to generate
+        a parser for
         """
         pass
 
     parser = generate_parser(grammar.start)
-    generate_ast(example) # should be generate_ast(example, parser). I'll fix this.
+    ast = generate_ast(example, parser)
     return output
 
