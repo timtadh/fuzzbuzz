@@ -197,10 +197,21 @@ def main(args):
             #    parse the file into a sensible format --> table
             # then update the tables dictionary
             # tables.update({table_name:table})
+            tableinfo = arg.split(":") #table name, table path
+            table_name = tableinfo[0]
+            s = read_file_or_die(tableinfo[1])
 
-            #tableinfo = args.split(":") #table name, table path
-            #table_name = tableinfo[0]
-            #s = read_file_or_die(tableinfo[1])
+            #for line in s
+                #split on "," #arr[0] = nonterm, arr[1] = rule, arr[2] = probability
+                #tables[arr[0]][arr[1]] = arr[2]
+            for line in s.split("\n"):
+                print "I at least got into the for loop!!\n"
+                prodStats = line.split(",")
+                print "I at least split on comma!!!\n"
+                tables[prodStats[0]][prodStats[1]] = prodStats[2]
+                print "I at least added 1!!!\n"
+
+            #print tables
             pass
 
     if engine_name is None:
