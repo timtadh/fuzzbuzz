@@ -205,11 +205,19 @@ def main(args):
                 #split on "," #arr[0] = nonterm, arr[1] = rule, arr[2] = probability
                 #tables[arr[0]][arr[1]] = arr[2]
             for line in s.split("\n"):
-                print "I at least got into the for loop!!\n"
+                #print "I at least got into the for loop!!\n"
+                #print "Line: " + line
                 prodStats = line.split(",")
-                print "I at least split on comma!!!\n"
-                tables[prodStats[0]][prodStats[1]] = prodStats[2]
-                print "I at least added 1!!!\n"
+                #print len(prodStats)
+                if(len(prodStats) is not 1):
+                    assert len(prodStats) is 3
+                    #print "ProdStats: " + prodStats[2]
+                    #print "I at least split on comma!!!\n"
+                    if tables.get(prodStats[0]):
+                        tables[prodStats[0]][prodStats[1]] = prodStats[2]
+                    else:
+                        tables[prodStats[0]] = {prodStats[1] : prodStats[2]}
+                    #print "I at least added 1!!!\n"
 
             #print tables
             pass
