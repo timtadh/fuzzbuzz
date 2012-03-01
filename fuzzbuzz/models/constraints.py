@@ -39,8 +39,8 @@ class Constraint(object):
         and the asserted values of constraint
         @param objs : a namespace
         @param obj : an object in the value heirarchy. (AttrChain?)
-        @returns value, success
-          value : the value (None on failure)
+        @returns values, success
+          values : a list of values (None on failure)
           success : boolean'''
 
 class FalseConstraint(Constraint):
@@ -48,12 +48,14 @@ class FalseConstraint(Constraint):
     def satisfiable(self, objs): return False
     def flow(self, objs): pass
     def replace(self, from_sym, to_sym): return self
+    def produce(self, objs, obj): return None, False
 
 class TrueConstraint(Constraint):
 
     def satisfiable(self, objs): return True
     def flow(self, objs): pass
     def replace(self, from_sym, to_sym): return self
+    def produce(self, objs, obj): return None, False
 
 class AndConstraint(Constraint):
 
@@ -71,6 +73,12 @@ class AndConstraint(Constraint):
         return AndConstraint([
           con.replace(from_sym, to_sym) for con in self.constraints
         ])
+
+    def produce(self, objs, obj):
+        for con in self.constraints:
+            v, ok = con.product(objs, obj)
+            if ok: return [v], ok
+        return None, False
 
     def __repr__(self): return str(self)
 
@@ -96,6 +104,16 @@ class OrConstraint(Constraint):
         return OrConstraint([
           con.replace(from_sym, to_sym) for con in self.constraints
         ])
+
+    def produce(self, objs, obj):
+        values = list()
+        for con in self.constraints:
+            v, ok = con.product(objs, obj)
+            if ok: values += v
+        if values:
+            return values, True
+        else:
+            return None, False
 
     def __repr__(self): return str(self)
 
@@ -126,6 +144,12 @@ class SingleValueConstraint(Constraint):
           self.value
         )
 
+    def produce(self, objs, obj):
+        if self.obj == obj:
+            return [self.value], True
+        else:
+            return None, False
+
 class MultiValueConstraint(Constraint):
 
     def __init__(self, obj, values):
@@ -149,6 +173,12 @@ class MultiValueConstraint(Constraint):
           self.obj.replace(from_sym, to_sym),
           self.values
         )
+
+    def produce(self, objs, obj):
+        if self.obj == obj:
+            return list(self.values), True
+        else:
+            return None, False
 
     def __repr__(self): return str(self)
 
@@ -179,6 +209,12 @@ class SubsetConstraint(Constraint):
           self.obj.replace(from_sym, to_sym),
           self.values
         )
+
+    def produce(self, objs, obj):
+        if self.obj == obj:
+            return list(self.values), True
+        else:
+            return None, False
 
     def __repr__(self): return str(self)
 
