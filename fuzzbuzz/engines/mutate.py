@@ -51,12 +51,35 @@ def mutation_fuzzer(rlexer, grammar, example_list=None):
         used to generate ASTs for our examples.
 
         Arguments:
-        - ``grammar_start`: The start symbol for the grammar we are to generate
+        - `grammar_start`: The start symbol for the grammar we are to generate
         a parser for
         """
         pass
 
+    def mutate(ast):
+        """Mutate a singular AST and return the resultant AST
+
+        Arguments:
+        - `ast`: the AST which we will mutate
+        """
+        pass
+
+
+    def mutate_all(ast_list):
+        """Takes in a list of AST and mutates them, returning a list of each
+        AST in mutated form.
+
+        Arguments:
+        - `ast_list`: a list of ASTs to be mutated. See frontent/ast.py
+        """
+        mutated_list = list()
+        for ast in ast_list:
+            mutated_list.append(mutate(ast))
+        return mutated_list
+
+
     parser = generate_parser(grammar.start)
-    ast = generate_ast(example, parser)
-    return output
+    ast_list = generate_examples_ast(parser)
+    mutated_asts = mutate_all(ast_list)
+    return mutated_asts
 
