@@ -19,6 +19,12 @@ class Value(object):
         self.__type = type
         self.__value = value
 
+    def __eq__(self, o):
+        if not isinstance(o, Value): return False
+        return (
+          self.value(None) == o.value(None) and self.type(None) and o.type(None)
+        )
+
     def writable(self, type): return False
 
     def replace(self, from_sym, to_sym):
