@@ -19,9 +19,12 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
     # nonterm.rules --> a list of the possible choices.
     # rule -> list of Terminal and NonTerminal symbols
     # getnextrule(nonterm): random.choice(nonterm.rules)
-    print list_tables
+
+    #print stat_tables
+
     if list_tables:
-        print 'rxl211 list tables here'
+        print "Table Names CFGStats Accepts:\n"
+        print "pp - production probabilities\n"
         raise ListTables
 
     output = list()

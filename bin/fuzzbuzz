@@ -152,6 +152,27 @@ def import_module_or_die(module):
     except ImportError:
         log("Could not import", module)
         usage(error_codes['bad_module'])
+def parse_csv_or_die(tables, table_name, data):
+    '''Parses string in a gramstats output format, if there is an error it kills the program.
+    @param tables : the table we are storing info inside
+    @param table_name : the name of the table/csv we are parsing
+    @param data : the data we are parsing and storing in the table
+    @returns tables : the table with all the tables inside it
+    '''
+    for line in data.split("\n"):
+        prodStats = line.split(",")
+
+        if(len(prodStats) is not 1):
+            assert len(prodStats) is 3
+
+            if not tables.get(table_name): #this is a new csv
+                tables[table_name] = {prodStats[0] : {prodStats[1] : prodStats[2]}}
+            else:
+                if not tables.get(table_name).get(prodStats[0]): #this is a new production
+                    tables[table_name][prodStats[0]] = {prodStats[1] : prodStats[2]}
+                else: #we're simply adding a new rule to an existing production
+                    tables[table_name][prodStats[0]][prodStats[1]] = prodStats[2]
+    return tables
 
 def main(args):
 
@@ -192,39 +213,10 @@ def main(args):
         elif opt in ('-T', '--list-table-names'):
             table_names_requested = True
         elif opt in ('-t', '--table'):
-            # parse the name out of arg --> table_name
-            # parse the filepath, read the file
-            #    parse the file into a sensible format --> table
-            # then update the tables dictionary
-            # tables.update({table_name:table})
             tableinfo = arg.split(":") #table name, table path
             table_name = tableinfo[0]
             s = read_file_or_die(tableinfo[1])
-
-            #for line in s
-                #split on "," #arr[0] = nonterm, arr[1] = rule, arr[2] = probability
-                #tables[arr[0]][arr[1]] = arr[2]
-            for line in s.split("\n"):
-                #print "I at least got into the for loop!!\n"
-                #print "Line: " + line
-                prodStats = line.split(",")
-                #print len(prodStats)
-                if(len(prodStats) is not 1):
-                    assert len(prodStats) is 3
-                    #print "ProdStats: " + prodStats[2]
-                    #print "I at least split on comma!!!\n"
-                    if not tables.get(table_name): #this is a new csv
-                        tables[table_name] = {prodStats[0] : {prodStats[1] : prodStats[2]}}
-                    else:
-                        if not tables.get(table_name).get(prodStats[0]): #this is a new production
-                            tables[table_name][prodStats[0]] = {prodStats[1] : prodStats[2]}
-                        else:
-                            tables[table_name][prodStats[0]][prodStats[1]] = prodStats[2]
-                    #print "I at least added 1!!!\n"
-
-            print tables
-            print "\n"+table_name+" DONE!\n"
-            pass
+            tables = parse_csv_or_die(tables, table_name, s)
 
     if engine_name is None:
         log("Must supply an engine name")
