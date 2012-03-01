@@ -52,7 +52,6 @@ class AttrChain(Value):
 
     def make_constraint(self, objs, value, type):
         if type == Set:
-            #print 'making a multi value constraint', self.type(objs)
             return OrConstraint([
               MultiValueConstraint(self, tuple(value)),
               SubsetConstraint(self, tuple(value)),
@@ -166,10 +165,6 @@ class Object(Value):
         if self.name in objs:
             raise BoundValueError
         objs[self.name] = value
-
-    def make_constraint(self, value):
-        raise Exception, NotImplemented
-        pass
 
 class SymbolObject(Value):
 
