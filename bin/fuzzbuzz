@@ -213,13 +213,17 @@ def main(args):
                     assert len(prodStats) is 3
                     #print "ProdStats: " + prodStats[2]
                     #print "I at least split on comma!!!\n"
-                    if tables.get(prodStats[0]):
-                        tables[prodStats[0]][prodStats[1]] = prodStats[2]
+                    if not tables.get(table_name): #this is a new csv
+                        tables[table_name] = {prodStats[0] : {prodStats[1] : prodStats[2]}}
                     else:
-                        tables[prodStats[0]] = {prodStats[1] : prodStats[2]}
+                        if not tables.get(table_name).get(prodStats[0]): #this is a new production
+                            tables[table_name][prodStats[0]] = {prodStats[1] : prodStats[2]}
+                        else:
+                            tables[table_name][prodStats[0]][prodStats[1]] = prodStats[2]
                     #print "I at least added 1!!!\n"
 
-            #print tables
+            print tables
+            print "\n"+table_name+" DONE!\n"
             pass
 
     if engine_name is None:
