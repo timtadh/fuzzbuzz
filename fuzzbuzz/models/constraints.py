@@ -13,10 +13,17 @@ class Constraint(object):
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
-    def satisfiable(self, objs): pass
+    def satisfiable(self, objs):
+      '''Computes whether or not the constraint is satisfiable with the
+      current namespace.
+      @param objs : a namespace
+      @returns : boolean'''
 
     @abc.abstractmethod
-    def flow(self, objs): pass
+    def flow(self, objs):
+      '''Solves the constraint equations updating the objs namespace where
+      appropriate.
+      @param objs : a namespace'''
 
     @abc.abstractmethod
     def replace(self, from_sym, to_sym):
@@ -25,6 +32,16 @@ class Constraint(object):
         @param from_sym : (name, occurence) -> (string, int)
         @param to_sym : (name, occurence) -> (string, int)
         @returns : a new constraint of the same type'''
+
+    @abc.abstractmethod
+    def produce(self, objs, obj):
+        '''Produce a value for obj, taking into account the context objs
+        and the asserted values of constraint
+        @param objs : a namespace
+        @param obj : an object in the value heirarchy. (AttrChain?)
+        @returns value, success
+          value : the value (None on failure)
+          success : boolean'''
 
 class FalseConstraint(Constraint):
 
