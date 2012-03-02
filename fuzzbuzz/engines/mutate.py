@@ -20,11 +20,9 @@ def mutation_fuzzer(rlexer, grammar, example_list=None):
     def generate_examples_ast(parser):
         """Generates an AST for each example provided in `example_list`.
         This AST is parsed according to the grammar in `grammar`.
-        On completion, this function returns a list of ASTs, corresponding
-        to the examples provided.
 
-        Arguments:
-        - `parser`: The parser from which the ASTs will be generated from
+        @param parser : The parser from which the ASTs will be generated from
+        @return list of ASTs, corresponding to the examples provided.
         """
         ast_list = list()
 
@@ -38,9 +36,8 @@ def mutation_fuzzer(rlexer, grammar, example_list=None):
         AST generated according to the provided grammar
         On completion, returns an AST object.
 
-        Arguments:
-        - `example`: the text to be parsed into an AST
-        - `parser`:  the parser from which the ASTs will be generated from
+        @param example : the text to be parsed into an AST
+        @param parser  : the parser from which the ASTs will be generated from
         """
         pass
 
@@ -50,17 +47,15 @@ def mutation_fuzzer(rlexer, grammar, example_list=None):
         On completion this function returns a `parser` object which can be
         used to generate ASTs for our examples.
 
-        Arguments:
-        - `grammar_start`: The start symbol for the grammar we are to generate
-        a parser for
+        @param grammar_start : The start symbol for the grammar we are to
+                               generate a parser for
         """
         pass
 
     def mutate(ast):
         """Mutate a singular AST and return the resultant AST
 
-        Arguments:
-        - `ast`: the AST which we will mutate
+        @param ast : the AST which we will mutate
         """
         pass
 
@@ -69,8 +64,7 @@ def mutation_fuzzer(rlexer, grammar, example_list=None):
         """Takes in a list of AST and mutates them, returning a list of each
         AST in mutated form.
 
-        Arguments:
-        - `ast_list`: a list of ASTs to be mutated. See frontent/ast.py
+        @param ast_list : a list of ASTs to be mutated. See frontent/ast.py
         """
         mutated_list = list()
         for ast in ast_list:
