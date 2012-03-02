@@ -5,6 +5,8 @@
 #For licensing see the LICENSE file in the top level directory.
 
 from reg import registration
+from fuzzbuzz.models.symbols import Terminal, NonTerminal
+
 
 class NoExampleException(Exception):
     pass
@@ -50,7 +52,21 @@ def mutation_fuzzer(rlexer, grammar, example_list=None):
         @param grammar_start : The start symbol for the grammar we are to
                                generate a parser for
         """
-        pass
+
+        stack = list()
+        stack.append(grammar_start)
+
+        while stack:
+            nonterm = stack.pop()
+            rules = nonterm.rules
+
+            for rule in rules:
+                for i, (sym, cnt) in list(enumerate(rule.pattern)):
+                    if sym.__class__ is NonTerminal:
+                        #stack.append(nonterm)
+                        #stack.append(sym)
+                        print sym
+
 
     def mutate(ast):
         """Mutate a singular AST and return the resultant AST
