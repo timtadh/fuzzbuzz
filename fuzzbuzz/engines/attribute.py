@@ -28,11 +28,11 @@ def attribute_fuzzer(rlexer, grammar):
 
     def filter(objs, rules, constraint):
         #print objs
-        print 'filtering', rules
+        #print 'filtering', rules
         for rule in rules:
             #print rule.action.unconstrained
             #print constraint
-            print rule.action
+            #print rule.action
             if rule.action is None:
                 yield rule
             elif rule.action.unconstrained(rule.mknamespace(objs), constraint):
@@ -46,7 +46,7 @@ def attribute_fuzzer(rlexer, grammar):
         rule = choice(rules)
         #print 'chose', rule, objs
         cobjs = rule.mknamespace(objs)
-        print 'chose', rule, cobjs
+        #print 'chose', rule, cobjs
         if rule.action:
             new_constraint = rule.action.flow_constraints(cobjs, constraint)
             print 'xxx', 'new constraint', new_constraint
@@ -78,12 +78,12 @@ def attribute_fuzzer(rlexer, grammar):
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.__class__ is NonTerminal:
                     print 'about to find rule for', rule, sym.name, display(objs)
-                    print '--->', constraint
+                    #print '--->', constraint
                     constraint = constraint.replace(
                       (sym.name, cnt),
                       (sym.name, 1)
                     )
-                    print '--->', constraint
+                    #print '--->', constraint
                     crule, cobjs, new_constraint = \
                                   choose(sym, objs[(sym.name, cnt)], constraint)
                     #print cobjs, constraint

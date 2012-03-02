@@ -76,8 +76,8 @@ class AndConstraint(Constraint):
 
     def produce(self, objs, obj):
         for con in self.constraints:
-            v, ok = con.product(objs, obj)
-            if ok: return [v], ok
+            v, ok = con.produce(objs, obj)
+            if ok: return v, ok
         return None, False
 
     def __repr__(self): return str(self)
@@ -94,9 +94,9 @@ class OrConstraint(Constraint):
         return any(con.satisfiable(objs) for con in self.constraints)
 
     def flow(self, objs):
-        print 'statisfiable ? ', self.constraints
+        #print 'statisfiable ? ', self.constraints
         satisfiable = [con for con in self.constraints if con.satisfiable(objs)]
-        print 'those which are satisfiable ', satisfiable
+        #print 'those which are satisfiable ', satisfiable
         constraint = choice(satisfiable)
         constraint.flow(objs)
 
@@ -106,10 +106,10 @@ class OrConstraint(Constraint):
         ])
 
     def produce(self, objs, obj):
-        values = list()
+        values = set()
         for con in self.constraints:
-            v, ok = con.product(objs, obj)
-            if ok: values += v
+            v, ok = con.produce(objs, obj)
+            if ok: values.union(v)
         if values:
             return values, True
         else:
@@ -146,7 +146,7 @@ class SingleValueConstraint(Constraint):
 
     def produce(self, objs, obj):
         if self.obj == obj:
-            return [self.value], True
+            return set([self.value]), True
         else:
             return None, False
 
@@ -176,7 +176,7 @@ class MultiValueConstraint(Constraint):
 
     def produce(self, objs, obj):
         if self.obj == obj:
-            return list(self.values), True
+            return set([self.values]), True
         else:
             return None, False
 
@@ -193,7 +193,7 @@ class SubsetConstraint(Constraint):
 
     def satisfiable(self, objs):
         if self.obj.has_value(objs):
-            print 'subset satisfiable?', self.obj.value(objs), self.values ,self.obj.value(objs).issubset(self.values)
+            #print 'subset satisfiable?', self.obj.value(objs), self.values ,self.obj.value(objs).issubset(self.values)
             return self.obj.value(objs).issubset(self.values)
         else:
             return True
@@ -212,7 +212,7 @@ class SubsetConstraint(Constraint):
 
     def produce(self, objs, obj):
         if self.obj == obj:
-            return list(self.values), True
+            return set([self.values]), True
         else:
             return None, False
 

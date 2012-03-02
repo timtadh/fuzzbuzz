@@ -18,6 +18,13 @@ class AttrChain(Value):
     def __str__(self):
         return "<AttrChain %s>" % str(self.lookup_chain)
 
+    def __eq__(self, o):
+        if not isinstance(o, AttrChain): return False
+        return all(
+          a == b
+          for a,b in zip(self.lookup_chain, o.lookup_chain)
+        )
+
     def writable(self, type):
         return all(x.writable(type) for x in self.lookup_chain)
 
@@ -70,6 +77,10 @@ class Attribute(Value):
     def __str__(self):
         return "<Attribute %s>" % str(self.obj)
 
+    def __eq__(self, o):
+        if not isinstance(o, Attribute): return False
+        return self.obj == o.obj and self.call_chain == o.call_chain
+
     def writable(self, type):
         return self.call_chain is None and self.obj.writable(type)
 
@@ -110,6 +121,9 @@ class FCall(Value):
         self.parameters = parameters
         self.__type = None                          ## TODO TYPES
 
+    def __eq__(self, o):
+        raise Exception, NotImplemented
+
     def replace(self, from_sym, to_sym):
         raise Exception, NotImplemented
 
@@ -121,6 +135,9 @@ class CallChain(Value):
     def __init__(self, calls):
         self.calls = calls
         self.__type = None                          ## TODO TYPES
+
+    def __eq__(self, o):
+        raise Exception, NotImplemented
 
     def replace(self, from_sym, to_sym):
         raise Exception, NotImplemented
@@ -139,6 +156,10 @@ class Object(Value):
     def __str__(self):
         return "<Object %s>" % str(self.name)
 
+    def __eq__(self, o):
+        if not isinstance(o, Object): return False
+        return self.name == o.name
+
     def writable(self, type):
         return True
 
@@ -149,12 +170,7 @@ class Object(Value):
         if self.name not in objs:
             raise UnboundValueError
         obj = objs[self.name]
-        if isinstance(obj, NoneType): return NoneType
-        elif isinstance(obj, set): return Set
-        elif isinstance(obj, int): return Number
-        elif isinstance(obj, str): return String
-        elif isinstance(obj, dict): return Namespace
-        else: raise RuntimeError
+        return Type(obj)
 
     def value(self, objs):
         if self.name not in objs:
@@ -181,6 +197,12 @@ class SymbolObject(Value):
 
     def __str__(self):
         return "<SymbolObject (%s, %s)>" % (str(self.name), str(self.id))
+
+    def __eq__(self, o):
+        if not isinstance(o, SymbolObject): return False
+        return (
+          self.name == o.name and self.id == o.id and self.symtype == o.symtype
+        )
 
     def writable(self, type):
         return issubclass(type, self.type(None))

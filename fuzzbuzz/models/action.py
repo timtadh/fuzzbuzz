@@ -85,12 +85,12 @@ class Assign(AbstractAction):
         if self.right.has_value(nobjs):
             return self.left.value(nobjs) == self.right.value(nobjs)
         else:
-            print '-->', 'reached'
-            print self.left, self.right
-            print self.left.value(nobjs)
-            if hasattr(self.right, 'lookup_chain'):
-                print self.right.lookup_chain
-            print '------>', self.left.type(nobjs), self.right.writable(self.left.type(nobjs))
+            #print '-->', 'reached'
+            #print self.left, self.right
+            #print self.left.value(nobjs)
+            #if hasattr(self.right, 'lookup_chain'):
+                #print self.right.lookup_chain
+            #print '------>', self.left.type(nobjs), self.right.writable(self.left.type(nobjs))
             #print self.right
             if issubclass(self.right.__class__, binop.BinOp):
                 return self.right.satisfiable(nobjs, self.left.value(nobjs))
@@ -100,37 +100,27 @@ class Assign(AbstractAction):
                 return False
 
     def flow_constraints(self, objs, prior):
-        nobjs = dict()
-        prior.flow(nobjs)
-        print 'print', nobjs
-        print 'prior constraint', prior
-        print self.left, 'has value?', self.left.has_value(nobjs)
-        ## TODO(tim):
-        ## Ok the problem is this. The prior constraint is for the parent's
-        ## rule. This is ok BUT it means that when we flow the constraint
-        ## symbol objects refer to the wrong symbols. which is a big problem.
-        if not self.left.has_value(nobjs):
+        values, ok = prior.produce(objs, self.left)
+        if not ok:
             return TrueConstraint()
-
-        #print self.left, self.right
-        #print self.left.value(nobjs)
-        left_type = self.left.type(nobjs)
-        #print left_type
-        if issubclass(self.right.__class__, binop.BinOp):
-            print 'making binop constraint'
-            return self.right.make_constraint(nobjs, self.left.value(nobjs), left_type)
-        elif left_type == attr_types.Set:
-            print 'making set constraint'
-            return self.right.make_constraint(nobjs, self.left.value(nobjs), left_type)
-        elif left_type == attr_types.String:
-            print 'making string constraint'
-            return self.right.make_constraint(nobjs, self.left.value(nobjs), left_type)
-        elif left_type == attr_types.NoneType:
-            print 'making nonetype constraint'
-            return self.right.make_constraint(nobjs, self.left.value(nobjs), left_type)
+        constraints = [
+            self.right.make_constraint(objs, value, attr_types.Type(value))
+            for value in values
+        ]
+        if len(constraints) > 1:
+            c = OrConstraint(constraints)
+        elif len(constraints) == 1:
+            c = constraints[0]
         else:
-            raise Exception, "Unsupport type %s" % left_type
-        raise Exception, "Here it get hard my friends!"
+            c = TrueConstraint()
+        print
+        print '-------------------------------------------'
+        print prior
+        print values
+        print c
+        print '-------------------------------------------'
+        print
+        return c
 
     def execute(self, objs):
         left = self.left.has_value(objs)
@@ -139,7 +129,8 @@ class Assign(AbstractAction):
             #print self.left
             #if self.right.type(objs) == attr_types.Set:
                 #print self.right.values[0].lookup_chain[0].obj.name
-            #print self.left.value(objs), self.right.value(objs)
+            print '----->', self.left.value(objs)
+            print '----->', self.right.value(objs)
             assert self.left.value(objs) == self.right.value(objs)
             return
         else:
@@ -163,7 +154,7 @@ class Assign(AbstractAction):
             #print self.right
         print 'filling objs', constraint, objs
         constraint.flow(objs)
-        print 'filled objs', objs
+        #print 'filled objs', objs
         if self.right.has_value(objs): return
         if self.left.has_value(objs):
             self.right.set_value(objs, self.left.value(objs))

@@ -5,8 +5,14 @@
 #For licensing see the LICENSE file in the top level directory.
 
 class Type(object):
-    def __new__(self):
-        raise RuntimeError, 'Type cannot be instantiated'
+    def __new__(self, obj):
+        if isinstance(obj, str): return String
+        elif isinstance(obj, int): return Number
+        elif isinstance(obj, set): return Set
+        elif isinstance(obj, tuple): return Set
+        elif isinstance(obj, dict): return Dict
+        elif isinstance(obj, NoneType): return NoneType
+        raise RuntimeError, "Obj did not map to any type %s" % str(obj)
 
 class String(Type):
     def __new__(self, value):

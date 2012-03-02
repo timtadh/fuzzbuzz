@@ -41,9 +41,9 @@ class Value(object):
     def value(self, objs):
         return getattr(self, '_%s__value' % self.__class__.__name__)
 
-    def make_constraint(self, objs, value, type):
+    def make_constraint(self, obj, value, type):
         myval = getattr(self, '_%s__value' % self.__class__.__name__)
-        if value != myval: return FalseConstraint()
+        if myval not in values: return FalseConstraint()
         return TrueConstraint()
 
     def has_value(self, *objs):
@@ -73,13 +73,18 @@ class SetValue(Value):
           for val in self.values
         ])
 
-    def make_constraint(self, objs, values, type):
-        print values
+    def make_constraint(self, objs, value, type):
+        #print values
         assert type == Set
         constraints = list()
         for val in self.values:
-            constraints.append(MultiValueConstraint(val, tuple(values)))
-        return AndConstraint(constraints)
+            constraints.append(MultiValueConstraint(val, tuple(value)))
+        if len(constraints) > 1:
+            return AndConstraint(constraints)
+        elif len(constraints) == 1:
+            return constraints[0]
+        else:
+            return TrueConstraint()
 
     def value(self, objs):
         return set(val.value(objs) if isinstance(val, Value) else val

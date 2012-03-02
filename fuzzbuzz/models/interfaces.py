@@ -20,7 +20,7 @@ class Value(object):
     def has_value(self, *objs): pass
 
     @abc.abstractmethod
-    def has_value(self, objs, value): pass
+    def set_value(self, objs, value): pass
 
     @abc.abstractmethod
     def make_constraint(self, objs, value, type): pass

@@ -65,21 +65,21 @@ class Union(SetOp):
             return True
 
     def make_constraint(self, objs, answer, type):
-        print 'making union constraint',
+        #print 'making union constraint',
         if self.a.has_value(objs) and self.b.has_values(objs):
             if self.value(objs) == answer:
-                print 'True constraint'
+                #print 'True constraint'
                 return TrueConstraint()
             else:
-                print 'False constraint'
+                #print 'False constraint'
                 return FalseConstraint()
         #elif self.a.has_value(objs):
             #raise Exception, NotImplemented
         #elif self.b.has_value(objs):
             #raise Exception, NotImplemented
         else:
-            print 'and constraint', answer,
-            print self.a, self.b
+            #print 'and constraint', answer,
+            #print self.a, self.b
             return AndConstraint([
                 self.a.make_constraint(objs, answer, type),
                 self.b.make_constraint(objs, answer, type),
