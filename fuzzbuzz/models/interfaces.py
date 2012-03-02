@@ -10,19 +10,19 @@ class Value(object):
 
     __metaclass__ = abc.ABCMeta
 
-    @abc.abstract
+    @abc.abstractmethod
     def type(self, objs): pass
 
-    @abc.abstract
+    @abc.abstractmethod
     def value(self, objs): pass
 
-    @abc.abstract
+    @abc.abstractmethod
     def has_value(self, *objs): pass
 
-    @abc.abstract
+    @abc.abstractmethod
     def has_value(self, objs, value): pass
 
-    @abc.abstract
+    @abc.abstractmethod
     def make_constraint(self, objs, value, type): pass
 
 
@@ -30,7 +30,7 @@ class Solvable(object):
 
     __metaclass__ = abc.ABCMeta
 
-    @abc.abstract
+    @abc.abstractmethod
     def solvable(self, objs, answer):
         '''Computes whether or not the equation is satisfiable with the
         current namespace.
@@ -42,7 +42,7 @@ class Satisfiable(object):
 
     __metaclass__ = abc.ABCMeta
 
-    @abc.abstract
+    @abc.abstractmethod
     def satisfiable(self, objs):
         '''Computes whether or not the constraint is satisfiable with the
         current namespace.
@@ -54,7 +54,7 @@ class Substitute(object):
 
     __metaclass__ = abc.ABCMeta
 
-    @abc.abstract
+    @abc.abstractmethod
     def substitute(self, from_sym, to_sym):
         '''Converts all symbols which match "from_sym" to "to_sym" in the
         equation.
@@ -67,7 +67,7 @@ class Flow(object):
 
     __metaclass__ = abc.ABCMeta
 
-    @abc.abstract
+    @abc.abstractmethod
     def flow(self, objs):
         '''Updates the namespace (objs) given the rules of the obj.
         @param objs : a namespace'''
@@ -77,7 +77,7 @@ class Produce(object):
 
     __metaclass__ = abc.ABCMeta
 
-    @abc.abstract
+    @abc.abstractmethod
     def produce(self, objs, obj):
         '''Produce a value for obj, taking into account the context objs
         and the asserted values in the equation
