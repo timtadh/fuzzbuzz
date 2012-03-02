@@ -198,7 +198,7 @@ def main(args):
     if engine_name not in fuzzbuzz.engines.registration:
         log("Engine name '%s' not found, use -E to get a list" % engine_name)
         usage(error_codes['bad_engine'])
-    
+
     grammar = fuzzbuzz.frontend.parse(read_file_or_die(grammar))
     rlexer = import_module_or_die(lexer_module).stringifiers
     engine = fuzzbuzz.engines.registration[engine_name]

@@ -130,7 +130,7 @@ class Parser(object):
     def p_AndExpr1(self, t):
         'AndExpr : AndExpr AND NotExpr'
         t[0] = models.condition.All(t[1], t[3])
-    
+
     def p_AndExpr2(self, t):
         'AndExpr : NotExpr'
         t[0] = t[1]

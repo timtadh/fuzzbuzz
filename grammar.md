@@ -66,7 +66,7 @@ Proposed Grammar For Defining Fuzzer
     SetOps -> SetOps PIPE AddSub
             | SetOps AMPERSTAND AddSub
             | AddSub
-    
+
     AddSub -> AddSub PLUS MulDiv
             | AddSub DASH MulDiv
             | MulDiv
@@ -91,7 +91,7 @@ Proposed Grammar For Defining Fuzzer
 
     SymbolObject -> Symbol
                   | Symbol LCURLY NUMBER RCURLY
-    
+
     Attr -> NAME
           | NAME Call
 
@@ -102,7 +102,7 @@ Proposed Grammar For Defining Fuzzer
 
     Fcall -> LPAREN RPAREN
            | LPAREN ParameterList RPAREN
-    
+
     ParameterList -> ParameterList COMMA Value
                    | Value
 
@@ -152,7 +152,7 @@ Tokens
     SEMI = ';'
     SLASH = '/'
     STAR = '*'
-    
+
     NAME = [a-zA-Z_][a-zA-Z0-9_]*'?
     NUMBER = [0-9]+
     STRING = "([^"\\]|\\.)*"

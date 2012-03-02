@@ -26,7 +26,7 @@ eg.
 becomes
 
     SAT -> AndsM ;
-    
+
     AndM -> AndsM-1 AND ClauseM ;
     ...
     And2 -> Ands1 AND Clause2 ;
@@ -256,7 +256,7 @@ A string of terminal symbols.
   children.
 
 - Using the Chomsky Normal Form Context-Free version of the grammar parse the
-  string and transform it into a parse tree. 
+  string and transform it into a parse tree.
 
 - Using a Post-Order tree traversal to apply the actions and check the
   conditions of each grammar rule
