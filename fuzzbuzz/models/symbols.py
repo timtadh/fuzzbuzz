@@ -16,7 +16,7 @@ class NonTerminal(object):
 
     def __init__(self, name, rules):
         self.name = name
-        self.rules = rules 
+        self.rules = rules
 
     def __repr__(self): return str(self)
     def __str__(self):

@@ -31,7 +31,7 @@ class Any(Condition):
 
     def evaluate(self, objs):
         return any(opt.evaluate(objs) for opt in self.options)
-        
+
     def flow(self, objs):
         choices = list()
         for opt in self.options:
@@ -42,7 +42,7 @@ class Any(Condition):
             for choice in opt.flow(dict(objs)):
                 choices.append(choice)
         return choices
-    
+
     def generate_constraint(self, objs):
         constraints = list()
         for opt in self.options:
@@ -58,7 +58,7 @@ class All(Condition):
 
     def applies(self, objs):
         return all(req.applies(objs) for req in self.requirements)
-    
+
     def evaluate(self, objs):
         return all(req.evaluate(objs) for req in self.requirements)
 
@@ -76,7 +76,7 @@ class All(Condition):
             if constraint is None: continue
             constraints.append(constraint)
         return AndConstraint(constraints)
-        
+
 class BooleanOperator(Condition):
 
     def __init__(self, a, b):
@@ -147,7 +147,7 @@ class In(BooleanOperator):
         else:
             pass # nothing should need to be done here
         return [objs]
-    
+
     def generate_constraint(self, objs):
         a_hasvalue = self.a.has_value(objs)
         b_hasvalue = self.b.has_value(objs)

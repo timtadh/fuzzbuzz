@@ -22,4 +22,3 @@ def test_Set_instantiate():
     assert isinstance(v, SetValue)
     assert v.type(objs) == Set
     assert v.value(objs) == {1,2,3}
-    

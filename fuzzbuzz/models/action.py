@@ -90,7 +90,7 @@ class If(AbstractAction):
         otherwise = True
         if self.otherwise is not None:
             otherwise = self.otherwise.unconstrained(constraint, nobjs)
-        
+
         if not self.condition.applies(objs):
             if then and otherwise: return True
             elif then or otherwise: raise Exception, \

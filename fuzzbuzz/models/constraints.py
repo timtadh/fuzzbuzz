@@ -30,7 +30,7 @@ class TrueConstraint(Constraint):
     def satisfiable(self, objs): return True
 
     def flow(self, objs): pass
-    
+
 class AndConstraint(Constraint):
 
     def __init__(self, constraints):

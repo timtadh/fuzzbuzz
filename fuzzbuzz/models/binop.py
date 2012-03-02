@@ -8,7 +8,7 @@ from attr_types import Set, Number
 from value import Value
 
 class BinOp(Value):
-  
+
     def __init__(self, a, b, expected_type):
         self.a = a
         self.b = b
@@ -20,7 +20,7 @@ class BinOp(Value):
         assert isinstance(a, self._expected_type)
         assert isinstance(b, self._expected_type)
         return a,b
-    
+
     def type(self, objs):
         raise Exception
 
