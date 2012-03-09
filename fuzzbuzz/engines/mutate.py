@@ -43,7 +43,7 @@ def mutation_fuzzer(rlexer, grammar, example_list=None):
         """
         pass
 
-    def generate_parser(grammar_start):
+    def generate_parser(grammar):
         """Generate a parser for our `example_list` based on the grammar in
         `grammar`. This is probably going to be very hacky.
         On completion this function returns a `parser` object which can be
@@ -53,20 +53,9 @@ def mutation_fuzzer(rlexer, grammar, example_list=None):
                                generate a parser for
         """
 
-        stack = list()
-        stack.append(grammar_start)
-
-        while stack:
-            nonterm = stack.pop()
-            rules = nonterm.rules
-
-            for rule in rules:
-                for i, (sym, cnt) in list(enumerate(rule.pattern)):
-                    if sym.__class__ is NonTerminal:
-                        #stack.append(nonterm)
-                        #stack.append(sym)
-                        for p in sym.ply():
-                            print p
+        for sym in grammar.nonterminals.itervalues():
+             for p in sym.ply():
+                 print p
 
 
     def mutate(ast):
@@ -89,7 +78,7 @@ def mutation_fuzzer(rlexer, grammar, example_list=None):
         return mutated_list
 
 
-    parser = generate_parser(grammar.start)
+    parser = generate_parser(grammar)
     ast_list = generate_examples_ast(parser)
     mutated_asts = mutate_all(ast_list)
     return mutated_asts
