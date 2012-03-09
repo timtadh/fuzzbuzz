@@ -64,68 +64,65 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
                         tables[tname][gramtuple[0]][gramtuple[1]] = float(gramtuple[2])
 
     def choose(nonterm):
-        #print nonterm.name
         rand = random()
-        #print rand
         probdist = dict()
 
+        #we want to build a quick index of probabilities => rules
         for tname in intersection:
             for rule in tables[tname][nonterm.name]:
                 prob = tables[tname][nonterm.name][rule]
-                #print rule + " with " + prob
                 if not probdist.has_key(prob): #first time we find a rule with this probability
                     probdist[prob] = {rule}
                 else: #we have a key with this probability so we just want to add ourselves to that key's set
                     probdist[prob].add(rule)
 
-        #print probdist
+        '''
+        At this point we want to find out where our random number lies in our probability distribution
 
-        winner = 2
+             1         2    3
+        [-a--|---b-----|-c--|-d--]
 
+        if rand=a, winningKey = 1
+        if rand=b, winningKey = 2
+        if rand=c, winningKey = 3
+        if rand=d, winningKey = 3
+
+
+        thus we set winningKey = current_key (if rand < current_key
+                                           and if current_key < current_winningKey) (because if rand=a, we dont want winningKey to be 2 or 3, for example)
+        '''
+
+        winningKey = 2
         for prob in probdist:
-            #print prob
-            if rand < prob:
-                #print 'we are here'
-                if prob < float(winner):
-                    #print 'we are now here'
-                    winner = prob
+            if rand < prob and prob < float(winningKey):
+                    winningKey = prob
 
-        if winner is 2:
-            winner = max(probdist)
+        if winningKey is 2:
+            winningKey = max(probdist)
 
-        #print winner
-        #pass
-        ruleStr = probdist[winner].pop()
-        #print ruleStr
+        ruleStr = probdist[winningKey].pop()
         #so at this point we have a string representing the rule we want, but we need to actually return a RULE (type)
 
-        #print nonterm.rules
-        #print nonterm.rules[0].pattern
         stringList = list()
         for rule in nonterm.rules:
-            toString = ""
+            toString = str()
             for sym,cnt in rule.pattern:
-                #print "symName: " + sym.name
-                if sym.name == "NEWLINE":
+                if sym.name == "NEWLINE": #temporary workaround for token mismatch between gramstats and fuzzbuzz
                     continue
-                elif sym.name == "NUMBER":
+                elif sym.name == "NUMBER": #temporary workaround for token mismatch between gramstats and fuzzbuzz
                     toString = toString + "INT_VAL"
                 else:
                     toString = toString + sym.name
-                toString = toString + ":"
-            toString = toString[:len(toString)-1] #there is an extra ":" at the end that we don't want
-            #print "Appending " + toString
+                toString = toString + ":" #temporary workaround for token mismatch between gramstats and fuzzbuzz
+            toString = toString[:-1] #there is an extra ":" at the end that we don't want
             stringList.append(toString)
-        #print stringList
 
         if ruleStr not in stringList:
             print "Parsed rule could not be matched with grammar rule"
-            print ruleStr
+            print "(Attempted to parse " + ruleStr + ")"
             raise CouldNotChooseRule
         else:
             return nonterm.rules[[i for i,x in enumerate(stringList) if x == ruleStr][0]]
-
-        pass
 
 
     output = list()
@@ -136,10 +133,8 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
 
         while stack:
             nonterm, rule, j = stack.pop()
-
             if rule is None: #otherwise we are continuing from where we left off
                 assert j is 0
-                #rule = choice(nonterm.rules)
                 rule = choose(nonterm)
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.__class__ is NonTerminal:
