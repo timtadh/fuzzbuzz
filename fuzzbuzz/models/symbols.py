@@ -16,7 +16,7 @@ class NonTerminal(object):
 
     def __init__(self, name, rules):
         self.name = name
-        self.rules = rules 
+        self.rules = rules
 
     def __repr__(self): return str(self)
     def __str__(self):
@@ -27,3 +27,8 @@ class NonTerminal(object):
             for rule in self.rules
           ) + '>'
         )
+
+    def ply(self):
+        return [self.name + " : " + " ".join(sym.name for sym, cnt in rule.pattern)
+                for rule in self.rules]
+

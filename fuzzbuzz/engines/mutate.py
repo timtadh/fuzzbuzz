@@ -65,7 +65,8 @@ def mutation_fuzzer(rlexer, grammar, example_list=None):
                     if sym.__class__ is NonTerminal:
                         #stack.append(nonterm)
                         #stack.append(sym)
-                        print sym
+                        for p in sym.ply():
+                            print p
 
 
     def mutate(ast):
