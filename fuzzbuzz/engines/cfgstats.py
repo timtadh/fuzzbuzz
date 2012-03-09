@@ -11,6 +11,7 @@ from fuzzbuzz.models.symbols import Terminal, NonTerminal
 
 class ListTables(Exception): pass
 class NoValidTable(Exception): pass
+class CouldNotChooseRule(Exception): pass
 
 @registration.register(
   {'stat_tables':'tables', 'list_tables':'table_names_requested'},
@@ -65,7 +66,7 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
     def choose(nonterm):
         #print nonterm.name
         rand = random()
-        print rand
+        #print rand
         probdist = dict()
 
         for tname in intersection:
@@ -82,7 +83,7 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
         winner = 2
 
         for prob in probdist:
-            print prob
+            #print prob
             if rand < prob:
                 #print 'we are here'
                 if prob < float(winner):
@@ -94,7 +95,37 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
 
         #print winner
         #pass
-        return probdist[winner].pop()
+        ruleStr = probdist[winner].pop()
+        #print ruleStr
+        #so at this point we have a string representing the rule we want, but we need to actually return a RULE (type)
+
+        #print nonterm.rules
+        #print nonterm.rules[0].pattern
+        stringList = list()
+        for rule in nonterm.rules:
+            toString = ""
+            for sym,cnt in rule.pattern:
+                #print "symName: " + sym.name
+                if sym.name == "NEWLINE":
+                    continue
+                elif sym.name == "NUMBER":
+                    toString = toString + "INT_VAL"
+                else:
+                    toString = toString + sym.name
+                toString = toString + ":"
+            toString = toString[:len(toString)-1] #there is an extra ":" at the end that we don't want
+            #print "Appending " + toString
+            stringList.append(toString)
+        #print stringList
+
+        if ruleStr not in stringList:
+            print "Parsed rule could not be matched with grammar rule"
+            print ruleStr
+            raise CouldNotChooseRule
+        else:
+            return nonterm.rules[[i for i,x in enumerate(stringList) if x == ruleStr][0]]
+
+        pass
 
 
     output = list()
@@ -110,7 +141,6 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
                 assert j is 0
                 #rule = choice(nonterm.rules)
                 rule = choose(nonterm)
-                return
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.__class__ is NonTerminal:
                     stack.append((nonterm, rule, i+1))
