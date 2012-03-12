@@ -107,13 +107,10 @@ class OrConstraint(Constraint):
 
     def produce(self, objs, obj):
         values = set()
-        print 'Begin OrConstraint.produce', obj
         for con in self.constraints:
             v, ok = con.produce(objs, obj)
             if ok:
-                print v, ok
                 values = values.union(v)
-        print 'End OrConstraint.produce', values
         if values:
             return values, True
         else:

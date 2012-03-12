@@ -15,11 +15,11 @@ Decls ->/* Decls Decl
         }
        ;
 
-Uses -> /*Uses Use
+Uses -> Uses Use
         with Action {
           Uses{1}.names = Uses{2}.names | { Use.name }
         }
-      | */Use
+      | Use
         with Action {
           Uses{1}.names = { Use.name }
         }

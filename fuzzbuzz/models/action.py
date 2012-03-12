@@ -4,7 +4,7 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
-import abc, copy
+import abc, copy, random
 
 import attr_types
 import value
@@ -141,33 +141,33 @@ class Assign(AbstractAction):
             self.left.set_value(objs, self.right.value(objs))
 
     def fillvalues(self, objs, constraint):
-        #objs = copy.deepcopy(objs)
-        #print 'filling', objs,
-        #if hasattr(constraint, 'value'):
-            #print constraint.value, constraint.obj.lookup_chain[0].obj.name,
-        #else:
-            #print constraint,
-        #if hasattr(self.left, 'lookup_chain'):
-            #print self.left.lookup_chain[0].obj.name,
-        #else:
-            #print self.left,
-        #if hasattr(self.right, 'lookup_chain'):
-            #print self.right.lookup_chain[0].obj.name
-        #else:
-            #print self.right
-
         print 'filling objs', constraint
         print 'left', self.left
         print 'right', self.right
         print 'produced value for left', constraint.produce(objs, self.left)
         print 'produced value for right', constraint.produce(objs, self.right)
-        print 'before', objs
-        constraint.flow(objs)
-        print 'flowed values', objs
+        #print 'before', objs
+        #constraint.flow(objs)
+        #print 'flowed values', objs
         #print 'filled objs', objs
-        if self.right.has_value(objs): return
-        if self.left.has_value(objs):
+        #left_values, lok = constraint.produce(objs, self.left)
+        right_values, rok = constraint.produce(objs, self.right)
+
+        if self.right.has_value(objs) and self.left.has_value(objs):
+            return
+        elif self.right.has_value(objs):
+            return ## This is only left to right
+        elif self.left.has_value(objs):
+            print 'left value', self.right.value(objs)
+            print 'right values', right_values
+            assert rok == False
             self.right.set_value(objs, self.left.value(objs))
+        elif rok:
+            print self.right.type(objs)
+            if self.right.type(objs) == attr_types.Set:
+                self.right.set_value(objs, right_values)
+            else:
+                self.right.set_value(objs, random.choice(tuple(right_values)))
 
     def __str__(self):
         return '<Assign %s = %s>' % (self.left, self.right)
