@@ -107,9 +107,13 @@ class OrConstraint(Constraint):
 
     def produce(self, objs, obj):
         values = set()
+        print 'Begin OrConstraint.produce', obj
         for con in self.constraints:
             v, ok = con.produce(objs, obj)
-            if ok: values.union(v)
+            if ok:
+                print v, ok
+                values = values.union(v)
+        print 'End OrConstraint.produce', values
         if values:
             return values, True
         else:
@@ -164,6 +168,7 @@ class MultiValueConstraint(Constraint):
 
     def flow(self, objs):
         if self.obj.has_value(objs):
+            print self.obj.value(objs), self.values
             assert self.obj.value(objs) in self.values
         else:
             self.obj.set_value(objs, choice(self.values))
@@ -176,7 +181,7 @@ class MultiValueConstraint(Constraint):
 
     def produce(self, objs, obj):
         if self.obj == obj:
-            return set([self.values]), True
+            return set(self.values), True
         else:
             return None, False
 
@@ -212,7 +217,7 @@ class SubsetConstraint(Constraint):
 
     def produce(self, objs, obj):
         if self.obj == obj:
-            return set([self.values]), True
+            return set(self.values), True
         else:
             return None, False
 

@@ -168,7 +168,7 @@ class Object(Value):
 
     def type(self, objs):
         if self.name not in objs:
-            raise UnboundValueError
+            return UnknownType
         obj = objs[self.name]
         return Type(obj)
 
@@ -199,6 +199,9 @@ class SymbolObject(Value):
         return "<SymbolObject (%s, %s)>" % (str(self.name), str(self.id))
 
     def __eq__(self, o):
+        #print 'SymbolObject.__eq__', self, o
+        #print self.name, o.name, self.id, o.id, self.symtype, o.symtype
+        #print self.name == o.name and self.id == o.id and self.symtype == o.symtype
         if not isinstance(o, SymbolObject): return False
         return (
           self.name == o.name and self.id == o.id and self.symtype == o.symtype

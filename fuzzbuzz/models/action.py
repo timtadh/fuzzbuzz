@@ -103,24 +103,27 @@ class Assign(AbstractAction):
         values, ok = prior.produce(objs, self.left)
         if not ok:
             return TrueConstraint()
-        constraints = [
-            self.right.make_constraint(objs, value, attr_types.Type(value))
-            for value in values
-        ]
-        if len(constraints) > 1:
-            c = OrConstraint(constraints)
-        elif len(constraints) == 1:
-            c = constraints[0]
+        if self.right.type(objs) == attr_types.Set:
+            constraints = [self.right.make_constraint(objs, values, attr_types.Set)]
         else:
-            c = TrueConstraint()
+            constraints = [
+                self.right.make_constraint(objs, value, attr_types.Type(value))
+                for value in values
+            ]
+        if len(constraints) > 1:
+            constraint = OrConstraint(constraints)
+        elif len(constraints) == 1:
+            constraint = constraints[0]
+        else:
+            constraint = TrueConstraint()
         print
         print '-------------------------------------------'
         print prior
         print values
-        print c
+        print constraint
         print '-------------------------------------------'
         print
-        return c
+        return constraint
 
     def execute(self, objs):
         left = self.left.has_value(objs)
@@ -152,8 +155,15 @@ class Assign(AbstractAction):
             #print self.right.lookup_chain[0].obj.name
         #else:
             #print self.right
-        print 'filling objs', constraint, objs
+
+        print 'filling objs', constraint
+        print 'left', self.left
+        print 'right', self.right
+        print 'produced value for left', constraint.produce(objs, self.left)
+        print 'produced value for right', constraint.produce(objs, self.right)
+        print 'before', objs
         constraint.flow(objs)
+        print 'flowed values', objs
         #print 'filled objs', objs
         if self.right.has_value(objs): return
         if self.left.has_value(objs):

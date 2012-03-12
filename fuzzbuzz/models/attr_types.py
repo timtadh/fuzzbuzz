@@ -14,6 +14,10 @@ class Type(object):
         elif isinstance(obj, NoneType): return NoneType
         raise RuntimeError, "Obj did not map to any type %s" % str(obj)
 
+class UnknownType(Type):
+    def __new__(self):
+        raise RuntimeError, 'Set cannot be instantiated'
+
 class String(Type):
     def __new__(self, value):
         return str(value)

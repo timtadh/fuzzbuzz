@@ -4,6 +4,7 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
+
 class Terminal(object):
 
     def __init__(self, name):
@@ -11,6 +12,7 @@ class Terminal(object):
 
     def __repr__(self): return str(self)
     def __str__(self): return '<Term %s>' % self.name
+
 
 class NonTerminal(object):
 
