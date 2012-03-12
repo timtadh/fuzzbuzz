@@ -32,6 +32,7 @@ def attribute_fuzzer(rlexer, grammar):
         for rule in rules:
             #print rule.action.unconstrained
             #print constraint
+            print 'is rule unconstrainted?', rule
             #print rule.action
             if rule.action is None:
                 yield rule

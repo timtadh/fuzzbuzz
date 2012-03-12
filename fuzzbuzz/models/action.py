@@ -79,25 +79,32 @@ class Assign(AbstractAction):
         self.right = right
 
     def unconstrained(self, objs, constraint):
+        print objs
         nobjs = copy.deepcopy(objs)
         constraint.flow(nobjs)
         if not self.left.has_value(nobjs): return True
         if self.right.has_value(nobjs):
+            print constraint
+            print self.left, self.right
+            print self.left.value(nobjs), '==', self.right.value(nobjs)
+            if (self.left.type(nobjs) == attr_types.Set and
+              self.right.type(nobjs) == attr_types.Set
+            ):
+                return self.right.value(nobjs).issubset(self.left.value(nobjs))
             return self.left.value(nobjs) == self.right.value(nobjs)
         else:
-            #print '-->', 'reached'
-            #print self.left, self.right
-            #print self.left.value(nobjs)
-            #if hasattr(self.right, 'lookup_chain'):
-                #print self.right.lookup_chain
-            #print '------>', self.left.type(nobjs), self.right.writable(self.left.type(nobjs))
-            #print self.right
+            print '-->', 'reached'
+            print constraint
+            print self.left, self.right
+            print self.left.value(nobjs)
+            if hasattr(self.right, 'lookup_chain'):
+                print self.right.lookup_chain
+            print '------>', self.left.type(nobjs), self.right.writable(self.left.type(nobjs))
+            print self.right
+            print issubclass(self.right.__class__, binop.BinOp)
             if issubclass(self.right.__class__, binop.BinOp):
                 return self.right.satisfiable(nobjs, self.left.value(nobjs))
-            if self.right.writable(self.left.type(nobjs)):
-                return True
-            else:
-                return False
+            return self.right.writable(self.left.type(nobjs))
 
     def flow_constraints(self, objs, prior):
         values, ok = prior.produce(objs, self.left)
