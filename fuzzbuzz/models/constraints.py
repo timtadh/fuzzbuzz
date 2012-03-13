@@ -151,6 +151,11 @@ class SingleValueConstraint(Constraint):
         else:
             return None, False
 
+    def __repr__(self): return str(self)
+
+    def __str__(self):
+        return "<SingleValueConstraint %s, %s>" % (str(self.obj), str(self.value))
+
 class MultiValueConstraint(Constraint):
 
     def __init__(self, obj, values):

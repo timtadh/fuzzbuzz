@@ -43,7 +43,7 @@ class Value(object):
 
     def make_constraint(self, obj, value, type):
         myval = getattr(self, '_%s__value' % self.__class__.__name__)
-        if myval not in values: return FalseConstraint()
+        if myval != value: return FalseConstraint()
         return TrueConstraint()
 
     def has_value(self, *objs):

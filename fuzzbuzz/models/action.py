@@ -207,7 +207,14 @@ class If(AbstractAction):
         else:
             return otherwise
 
-    def flow_constraints(self, objs, prior): raise Exception, NotImplemented
+    def flow_constraints(self, objs, prior):
+        constraints = list()
+        constraints.append(self.then.flow_constraints(objs, prior))
+        if self.otherwise is not None:
+            constraints.append(self.otherwise.flow_constraints(objs, prior))
+        if len(constraints) > 1:
+            return OrConstraint(constraints)
+        return constraints[0]
 
     def execute(self, objs):
         if self.condition.evaluate(objs):
@@ -216,11 +223,11 @@ class If(AbstractAction):
             self.otherwise.execute(objs)
 
     def fillvalues(self, objs, constraint):
-        raise Exception, "Invalid implementation fixme"
+        #raise Exception, "Invalid implementation fixme"
         if self.condition.evaluate(objs):
-            self.then.fillvalues(objs)
+            self.then.fillvalues(objs, constraint)
         elif self.otherwise is not None:
-            self.otherwise.fillvalues(objs)
+            self.otherwise.fillvalues(objs, constraint)
 
     def __str__(self):
         return '<If (%s) then %s else %s>' \
