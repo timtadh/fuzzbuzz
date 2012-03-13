@@ -164,8 +164,7 @@ class In(BooleanOperator):
             else:
                 return FalseConstraint()
         elif a_hasvalue:
-            raise Exception, 'Need to think about how to do this correctly'
-            return None
+            return ConstainsConstraint(self.b, self.a.value(objs))
         elif b_hasvalue:
             assert self.b.type(objs) == Set
             return MultiValueConstraint(self.a, tuple(self.b.value(objs)))
@@ -207,8 +206,7 @@ class Subset(BooleanOperator):
             else:
                 return FalseConstraint()
         elif a_hasvalue:
-            raise Exception, 'Need to think about how to do this correctly'
-            return None
+            return SupersetConstraint(self.b, tuple(self.a.value(objs)))
         elif b_hasvalue:
             assert self.b.type(objs) == Set
             return SubsetConstraint(self.a, tuple(self.b.value(objs)))

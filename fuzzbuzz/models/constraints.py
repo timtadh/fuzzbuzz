@@ -200,7 +200,6 @@ class SubsetConstraint(Constraint):
 
     def satisfiable(self, objs):
         if self.obj.has_value(objs):
-            #print 'subset satisfiable?', self.obj.value(objs), self.values ,self.obj.value(objs).issubset(self.values)
             return self.obj.value(objs).issubset(self.values)
         else:
             return True
@@ -227,3 +226,74 @@ class SubsetConstraint(Constraint):
 
     def __str__(self):
         return "<SubsetConstraint %s, %s>" % (str(self.obj), str(self.values))
+
+class ContainsConstraint(Constraint):
+
+    def __init__(self, obj, value):
+        self.obj = obj
+        self.value = value
+
+    def satisfiable(self, objs):
+        if self.obj.has_value(objs):
+            return self.value in self.obj.value(objs)
+        else:
+            return True
+
+    def flow(self, objs):
+        if self.obj.has_value(objs):
+            assert self.value in self.obj.value(objs)
+        else:
+            self.obj.set_value(objs, set([self.value]))
+
+    def replace(self, from_sym, to_sym):
+        return ContainsConstraint(
+          self.obj.replace(from_sym, to_sym),
+          self.value
+        )
+
+    def produce(self, objs, obj):
+        if self.obj == obj:
+            return set([self.value]), True
+        else:
+            return None, False
+
+    def __repr__(self): return str(self)
+
+    def __str__(self):
+        return "<ContainsConstraint %s, %s>" % (str(self.obj), str(self.value))
+
+
+class SupersetConstraint(Constraint):
+
+    def __init__(self, obj, values):
+        self.obj = obj
+        self.values = values
+
+    def satisfiable(self, objs):
+        if self.obj.has_value(objs):
+            return self.obj.value(objs).issuperset(self.values)
+        else:
+            return True
+
+    def flow(self, objs):
+        if self.obj.has_value(objs):
+            assert self.obj.value(objs).issuperset(self.values)
+        else:
+            self.obj.set_value(objs, set(self.values))
+
+    def replace(self, from_sym, to_sym):
+        return SupersetConstraint(
+          self.obj.replace(from_sym, to_sym),
+          self.values
+        )
+
+    def produce(self, objs, obj):
+        if self.obj == obj:
+            return set(self.values), True
+        else:
+            return None, False
+
+    def __repr__(self): return str(self)
+
+    def __str__(self):
+        return "<SupersetConstraint %s, %s>" % (str(self.obj), str(self.values))

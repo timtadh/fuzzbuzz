@@ -25,9 +25,6 @@ class AttrChain(Value):
           for a,b in zip(self.lookup_chain, o.lookup_chain)
         )
 
-    def writable(self, type):
-        return all(x.writable(type) for x in self.lookup_chain)
-
     def replace(self, from_sym, to_sym):
         return AttrChain([
             attr.replace(from_sym, to_sym) for attr in self.lookup_chain
@@ -118,6 +115,10 @@ class Attribute(Value):
 class FCall(Value):
 
     def __init__(self, parameters):
+        raise Exception, 'Not allowing FCalls at the moment'
+        ## Reasons, a lot of stuff is not implemented
+        ## right now I assume the object is "writable if it is not a instance
+        ## of the base class.
         self.parameters = parameters
         self.__type = None                          ## TODO TYPES
 
@@ -133,6 +134,10 @@ class FCall(Value):
 class CallChain(Value):
 
     def __init__(self, calls):
+        raise Exception, 'Not allowing call chains at the moment'
+        ## Reasons, a lot of stuff is not implemented
+        ## right now I assume the object is "writable if it is not a instance
+        ## of the base class.
         self.calls = calls
         self.__type = None                          ## TODO TYPES
 
@@ -206,9 +211,6 @@ class SymbolObject(Value):
         return (
           self.name == o.name and self.id == o.id and self.symtype == o.symtype
         )
-
-    def writable(self, type):
-        return issubclass(type, self.type(None))
 
     def replace(self, from_sym, to_sym):
         if self.name == from_sym[0] and self.id == self.id:

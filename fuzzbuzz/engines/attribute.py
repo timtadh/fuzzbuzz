@@ -36,7 +36,7 @@ def attribute_fuzzer(rlexer, grammar):
             #print rule.action
             if rule.action is None:
                 yield rule
-            elif rule.action.unconstrained(rule.mknamespace(objs), constraint):
+            elif rule.action.unconstrained(constraint):
                 yield rule
 
     def choose(nonterm, objs, constraint):
@@ -110,4 +110,5 @@ def attribute_fuzzer(rlexer, grammar):
         #print trule.name, display(tobjs)
     fuzz(grammar.start)
     output = list(sym() for sym in out)
+    print output
     return output

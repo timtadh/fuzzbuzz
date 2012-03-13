@@ -16,7 +16,7 @@ class AbstractAction(object):
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
-    def unconstrained(self, objs, constraint): pass
+    def unconstrained(self, constraint): pass
 
     @abc.abstractmethod
     def flow_constraints(self, objs, prior_constraint): pass
@@ -39,8 +39,8 @@ class Action(AbstractAction):
     def __init__(self, stmts):
         self.stmts = stmts
 
-    def unconstrained(self, objs, constraint):
-        return all(stmt.unconstrained(objs, constraint) for stmt in self.stmts)
+    def unconstrained(self, constraint):
+        return all(stmt.unconstrained(constraint) for stmt in self.stmts)
 
     def flow_constraints(self, objs, prior):
         constraints = [stmt.flow_constraints(objs, prior)
@@ -78,33 +78,23 @@ class Assign(AbstractAction):
         self.left = left
         self.right = right
 
-    def unconstrained(self, objs, constraint):
-        print objs
-        nobjs = copy.deepcopy(objs)
-        constraint.flow(nobjs)
-        if not self.left.has_value(nobjs): return True
-        if self.right.has_value(nobjs):
-            print constraint
-            print self.left, self.right
-            print self.left.value(nobjs), '==', self.right.value(nobjs)
-            if (self.left.type(nobjs) == attr_types.Set and
-              self.right.type(nobjs) == attr_types.Set
-            ):
-                return self.right.value(nobjs).issubset(self.left.value(nobjs))
-            return self.left.value(nobjs) == self.right.value(nobjs)
+    def unconstrained(self, constraint):
+        left_values, has_left = constraint.produce(dict(), self.left)
+        right_values, has_right = constraint.produce(dict(), self.right)
+        if not has_left: return True
+        if has_right:
+            return left_values & right_values
         else:
-            print '-->', 'reached'
-            print constraint
-            print self.left, self.right
-            print self.left.value(nobjs)
-            if hasattr(self.right, 'lookup_chain'):
-                print self.right.lookup_chain
-            print '------>', self.left.type(nobjs), self.right.writable(self.left.type(nobjs))
-            print self.right
-            print issubclass(self.right.__class__, binop.BinOp)
+            #print '-->', 'reached'
+            #print constraint
+            #print self.left, self.right
+            #print left_values
+            #print '------>', self.left.type(dict()), self.right.writable(self.left.type(dict()))
+            #print issubclass(self.right.__class__, binop.BinOp)
             if issubclass(self.right.__class__, binop.BinOp):
-                return self.right.satisfiable(nobjs, self.left.value(nobjs))
-            return self.right.writable(self.left.type(nobjs))
+                return any(self.right.satisfiable(dict(), lv) for lv in left_values)
+            #print self.right.__class__ != value.Value
+            return self.right.__class__ != value.Value
 
     def flow_constraints(self, objs, prior):
         values, ok = prior.produce(objs, self.left)
@@ -143,9 +133,13 @@ class Assign(AbstractAction):
             print '----->', self.right.value(objs)
             assert self.left.value(objs) == self.right.value(objs)
             return
-        else:
+        elif right:
             assert right
             self.left.set_value(objs, self.right.value(objs))
+        elif left:
+            self.right.set_value(objs, self.left.value(objs))
+        else:
+            raise Exception, 'wat'
 
     def fillvalues(self, objs, constraint):
         print 'filling objs', constraint
@@ -182,11 +176,13 @@ class Assign(AbstractAction):
 class If(AbstractAction):
 
     def __init__(self, condition, then, otherwise=None):
+        raise Exception, "needs to be re-written"
         self.condition = condition
         self.then = then
         self.otherwise = otherwise
 
-    def unconstrained(self, objs, constraint):
+    def unconstrained(self, constraint):
+        raise Exception, "needs to be re-written without objs"
         #print 'xxx', objs
         #print 'xxx', self.condition
         #print 'xxx', 'condition applies', self.condition.applies(objs)
@@ -208,6 +204,7 @@ class If(AbstractAction):
             return otherwise
 
     def flow_constraints(self, objs, prior):
+        raise Exception, "These should be conditioned constraints"
         constraints = list()
         constraints.append(self.then.flow_constraints(objs, prior))
         if self.otherwise is not None:

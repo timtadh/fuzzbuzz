@@ -25,8 +25,6 @@ class Value(object):
           self.value(None) == o.value(None) and self.type(None) and o.type(None)
         )
 
-    def writable(self, type): return False
-
     def replace(self, from_sym, to_sym):
         '''Converts all symbols which match "from_sym" to "to_sym" in the
         constraint
@@ -63,9 +61,6 @@ class SetValue(Value):
     def __init__(self, values):
         self.values = values
         self.__type = Set
-
-    def writable(self, type):
-        return True
 
     def replace(self, from_sym, to_sym):
         return SetValue([
