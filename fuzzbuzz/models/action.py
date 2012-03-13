@@ -79,27 +79,24 @@ class Assign(AbstractAction):
         self.right = right
 
     def unconstrained(self, constraint):
+        ## Attempt to discern if the constraints are in conflict with the
+        ## action.
         left_values, has_left = constraint.produce(dict(), self.left)
         right_values, has_right = constraint.produce(dict(), self.right)
         if not has_left: return True
         if has_right:
             return left_values & right_values
         else:
-            #print '-->', 'reached'
-            #print constraint
-            #print self.left, self.right
-            #print left_values
-            #print '------>', self.left.type(dict()), self.right.writable(self.left.type(dict()))
-            #print issubclass(self.right.__class__, binop.BinOp)
             if issubclass(self.right.__class__, binop.BinOp):
                 return any(self.right.satisfiable(dict(), lv) for lv in left_values)
-            #print self.right.__class__ != value.Value
             return self.right.__class__ != value.Value
 
     def flow_constraints(self, objs, prior):
-        values, ok = prior.produce(objs, self.left)
-        if not ok:
+        ## Transform applicable prior constraint into a new constraint.
+        values, has = prior.produce(objs, self.left)
+        if not has: ## If there is no values for left, it is unconstrained
             return TrueConstraint()
+        ## If right is known to be a set give it all the values.
         if self.right.type(objs) == attr_types.Set:
             constraints = [self.right.make_constraint(objs, values, attr_types.Set)]
         else:
@@ -113,54 +110,30 @@ class Assign(AbstractAction):
             constraint = constraints[0]
         else:
             constraint = TrueConstraint()
-        print
-        print '-------------------------------------------'
-        print prior
-        print values
-        print constraint
-        print '-------------------------------------------'
-        print
         return constraint
 
     def execute(self, objs):
+        ## Executes the action
+        ## Eg. it assigns the value in the right to the left
         left = self.left.has_value(objs)
         right = self.right.has_value(objs)
         if left and right:
-            #print self.left
-            #if self.right.type(objs) == attr_types.Set:
-                #print self.right.values[0].lookup_chain[0].obj.name
-            print '----->', self.left.value(objs)
-            print '----->', self.right.value(objs)
             assert self.left.value(objs) == self.right.value(objs)
             return
-        elif right:
-            assert right
-            self.left.set_value(objs, self.right.value(objs))
-        elif left:
-            self.right.set_value(objs, self.left.value(objs))
-        else:
-            raise Exception, 'wat'
+        ## right should always have a value (this will raise unbound
+        ## value error if it doesn't)
+        self.left.set_value(objs, self.right.value(objs))
 
     def fillvalues(self, objs, constraint):
-        print 'filling objs', constraint
-        print 'left', self.left
-        print 'right', self.right
-        print 'produced value for left', constraint.produce(objs, self.left)
-        print 'produced value for right', constraint.produce(objs, self.right)
-        #print 'before', objs
-        #constraint.flow(objs)
-        #print 'flowed values', objs
-        #print 'filled objs', objs
-        #left_values, lok = constraint.produce(objs, self.left)
+        ## Fill values fills in the the right side of the assignment.
+        ## It fills it from 2 places.
+        ## (1) the left side
+        ## (2) the from values produced by the constraint.
         right_values, rok = constraint.produce(objs, self.right)
-
-        if self.right.has_value(objs) and self.left.has_value(objs):
+        if self.right.has_value(objs):
+            ##
             return
-        elif self.right.has_value(objs):
-            return ## This is only left to right
         elif self.left.has_value(objs):
-            print 'left value', self.right.value(objs)
-            print 'right values', right_values
             assert rok == False
             self.right.set_value(objs, self.left.value(objs))
         elif rok:
