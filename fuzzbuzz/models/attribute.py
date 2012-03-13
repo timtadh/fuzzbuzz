@@ -30,6 +30,10 @@ class AttrChain(Value):
             attr.replace(from_sym, to_sym) for attr in self.lookup_chain
         ])
 
+    def allows(self, type):
+        last_attr = self.lookup_chain[-1]
+        return last_attr.allows(type)
+
     def type(self, objs):
         cobjs = objs
         for attr in self.lookup_chain[:-1]:
@@ -88,6 +92,10 @@ class Attribute(Value):
             if self.call_chain is not None
               else self.call_chain
         )
+
+    def allows(self, type):
+        assert self.call_chain is None
+        return self.obj.allows(type)
 
     def type(self, gobjs, cobjs):
         #obj = self.obj.value(cobjs)
@@ -165,7 +173,7 @@ class Object(Value):
         if not isinstance(o, Object): return False
         return self.name == o.name
 
-    def writable(self, type):
+    def allows(self, type):
         return True
 
     def replace(self, from_sym, to_sym):
@@ -216,6 +224,9 @@ class SymbolObject(Value):
         if self.name == from_sym[0] and self.id == self.id:
             return SymbolObject(self.symtype, *to_sym)
         return self
+
+    def allows(self, type):
+        return not issubclass(type, NoneType)
 
     def make_value(self, objs, rlexer):
         assert self.__type == String

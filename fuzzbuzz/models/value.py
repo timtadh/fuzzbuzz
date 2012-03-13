@@ -33,6 +33,13 @@ class Value(object):
         @returns : a new value of the same type'''
         return self
 
+    def allows(self, type):
+        '''Detirmines whether objects of type are allowed to be the value of
+        this object
+        @param type : a type from models.attr_types
+        @returns : a boolean'''
+        return True
+
     def type(self, objs):
         return getattr(self, '_%s__type' % self.__class__.__name__)
 
@@ -67,6 +74,9 @@ class SetValue(Value):
           val.replace(from_sym, to_sym) if isinstance(val, Value) else val
           for val in self.values
         ])
+
+    def allows(self, type):
+        return True
 
     def make_constraint(self, objs, value, type):
         #print values

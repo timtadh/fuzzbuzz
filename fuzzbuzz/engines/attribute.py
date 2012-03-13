@@ -33,6 +33,7 @@ def attribute_fuzzer(rlexer, grammar):
             #print rule.action.unconstrained
             #print constraint
             print 'is rule unconstrainted?', rule
+            #print True if rule.action is None else rule.action.unconstrained(constraint)
             #print rule.action
             if rule.action is None:
                 yield rule
@@ -45,7 +46,7 @@ def attribute_fuzzer(rlexer, grammar):
         rules = list(filter(objs, nonterm.rules, constraint))
         print 'allowed rules for', nonterm.name, rules
         rule = choice(rules)
-        #print 'chose', rule, objs
+        print 'chose', rule
         cobjs = rule.mknamespace(objs)
         #print 'chose', rule, cobjs
         if rule.action:

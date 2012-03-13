@@ -81,15 +81,32 @@ class Assign(AbstractAction):
     def unconstrained(self, constraint):
         ## Attempt to discern if the constraints are in conflict with the
         ## action.
+        print '->', self
+        print '->', constraint
         left_values, has_left = constraint.produce(dict(), self.left)
         right_values, has_right = constraint.produce(dict(), self.right)
-        if not has_left: return True
+        print left_values, right_values
+        print has_left, has_right
+        if not has_left:
+            print True
+            return True
         if has_right:
+            print left_values & right_value
             return left_values & right_values
         else:
+            print 'issubclass(self.right.__class__, binop.BinOp)', issubclass(self.right.__class__, binop.BinOp)
+            print 'self.right.__class__ != value.Value', self.right.__class__ != value.Value
             if issubclass(self.right.__class__, binop.BinOp):
-                return any(self.right.satisfiable(dict(), lv) for lv in left_values)
-            return self.right.__class__ != value.Value
+                return any(
+                  self.right.satisfiable(dict(), lv) for lv in left_values)
+            if self.right.__class__ != value.Value:
+                print '(self.right.allows(attr_types.Type(lv)) for lv in left_values)', any(
+                  self.right.allows(attr_types.Type(lv)) for lv in left_values)
+                return any(
+                  self.right.allows(attr_types.Type(lv)) for lv in left_values)
+            else:
+                print self.right.value(dict()), left_values, self.right.value(dict()) in left_values
+                return self.right.value(dict()) in left_values
 
     def flow_constraints(self, objs, prior):
         ## Transform applicable prior constraint into a new constraint.
@@ -149,35 +166,20 @@ class Assign(AbstractAction):
 class If(AbstractAction):
 
     def __init__(self, condition, then, otherwise=None):
-        raise Exception, "needs to be re-written"
+        #raise Exception, "needs to be re-written"
         self.condition = condition
         self.then = then
         self.otherwise = otherwise
 
     def unconstrained(self, constraint):
-        raise Exception, "needs to be re-written without objs"
-        #print 'xxx', objs
-        #print 'xxx', self.condition
-        #print 'xxx', 'condition applies', self.condition.applies(objs)
-        nobjs = dict()
-        constraint.flow(nobjs)
-        then = self.then.unconstrained(nobjs, constraint)
+        then = self.then.unconstrained(constraint)
         otherwise = True
         if self.otherwise is not None:
-            otherwise = self.otherwise.unconstrained(nobjs, constraint)
-
-        if not self.condition.applies(objs):
-            if then and otherwise: return True
-            elif then or otherwise: raise Exception, \
-                'Need to pass the condition on as a checked constraint'
-            else: return False
-        elif self.condition.evaluate(objs):
-            return then
-        else:
-            return otherwise
+            otherwise = self.otherwise.unconstrained(constraint)
+        return then or otherwise
 
     def flow_constraints(self, objs, prior):
-        raise Exception, "These should be conditioned constraints"
+        #raise Exception, "These should be conditioned constraints"
         constraints = list()
         constraints.append(self.then.flow_constraints(objs, prior))
         if self.otherwise is not None:
@@ -193,7 +195,6 @@ class If(AbstractAction):
             self.otherwise.execute(objs)
 
     def fillvalues(self, objs, constraint):
-        #raise Exception, "Invalid implementation fixme"
         if self.condition.evaluate(objs):
             self.then.fillvalues(objs, constraint)
         elif self.otherwise is not None:

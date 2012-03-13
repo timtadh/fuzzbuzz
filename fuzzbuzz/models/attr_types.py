@@ -38,8 +38,16 @@ class NoneType(Type):
     def __new__(self):
         return object.__new__(NoneType)
 
+    def __hash__(self):
+        return hash(None) + 1
+
     def __eq__(self, b):
+        print 'NoneType.__eq__'
         return isinstance(b, NoneType)
 
     def __ne__(self, b):
         return not isinstance(b, NoneType)
+
+    def __repr__(self): return str(self)
+
+    def __str__(self): return '<NoneType>'
