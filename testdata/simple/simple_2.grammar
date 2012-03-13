@@ -1,3 +1,7 @@
+/*
+The second reformulation of the grammar. All declarations come before usage.
+There is no if-statement.
+*/
 
 Stmts -> Decls Uses
          with Condition {

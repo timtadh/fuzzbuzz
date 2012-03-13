@@ -1,0 +1,32 @@
+/*
+The 3rd reformulation of this grammar.
+*/
+
+Stmts -> Stmts Decl
+         with Action {
+           Stmts{1}.names = Stmts{2}.names | { Decl.name }
+         }
+       | Stmts Use
+         with Action {
+           Stmts{1}.names = Stmts{2}.names
+         }
+         with Condition {
+           Use.name in Stmts{2}.names
+         }
+       | Decl
+         with Action {
+           Stmts.names = { Decl.name }
+         }
+       ;
+
+Decl -> VAR NAME EQUAL NUMBER NEWLINE
+        with Action {
+          Decl.name = NAME
+        }
+      ;
+
+Use -> PRINT NAME NEWLINE
+       with Action {
+         Use.name = NAME
+       }
+     ;

@@ -1,4 +1,8 @@
-Stmts -> Stmts NEWLINE Stmt
+/*
+The first example grammar. Has an if-statment
+*/
+
+Stmts ->  Stmts NEWLINE Stmt
           with Action {
             if (Stmt.decl is None) {
               Stmts{1}.names = Stmts{2}.names
