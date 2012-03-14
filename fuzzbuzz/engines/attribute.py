@@ -50,6 +50,7 @@ def attribute_fuzzer(rlexer, grammar):
         cobjs = rule.mknamespace(objs)
         #print 'chose', rule, cobjs
         if rule.action:
+            print 'about to flow constraints'
             new_constraint = rule.action.flow_constraints(cobjs, constraint)
             print 'xxx', 'new constraint', new_constraint
         else:

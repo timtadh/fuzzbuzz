@@ -109,25 +109,39 @@ class Assign(AbstractAction):
                 return self.right.value(dict()) in left_values
 
     def flow_constraints(self, objs, prior):
+        print 'flowing constraints', objs, prior
         ## Transform applicable prior constraint into a new constraint.
         values, has = prior.produce(objs, self.left)
         if not has: ## If there is no values for left, it is unconstrained
+            print 'made true constaint'
             return TrueConstraint()
         ## If right is known to be a set give it all the values.
         if self.right.type(objs) == attr_types.Set:
-            constraints = [self.right.make_constraint(objs, values, attr_types.Set)]
+            return self.right.make_constraint(objs, values, attr_types.Set)
         else:
+            print values
+            ## TODO(tim):
+            ## There seems to be a bug which manifests itself like this:
+            ##  a prior constraint has an Or which causes multiple values to
+            ##  be produced. Only one of those values is valid for this
+            ##  particular action, but produce can't know about the
+            ##  inconsistency. We need to find some way to inform produce
+            ##  by perhaps adding on a further constraint. The constraint
+            ##  of the actual action we are in...
             constraints = [
                 self.right.make_constraint(objs, value, attr_types.Type(value))
                 for value in values
             ]
-        if len(constraints) > 1:
-            constraint = OrConstraint(constraints)
-        elif len(constraints) == 1:
-            constraint = constraints[0]
-        else:
-            constraint = TrueConstraint()
-        return constraint
+            if len(constraints) > 1:
+                print 'we ORed them together, cause it is what we do best'
+                constraint = OrConstraint(constraints)
+            elif len(constraints) == 1:
+                print 'there was only one constraint', constraints[0]
+                constraint = constraints[0]
+            else:
+                print 'made true constaint'
+                constraint = TrueConstraint()
+            return constraint
 
     def execute(self, objs):
         ## Executes the action
