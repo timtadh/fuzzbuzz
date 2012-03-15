@@ -81,21 +81,21 @@ class Assign(AbstractAction):
     def unconstrained(self, constraint):
         ## Attempt to discern if the constraints are in conflict with the
         ## action.
-        print '->', self
-        print '->', constraint
+        #print '->', self
+        #print '->', constraint
         left_values, has_left = constraint.produce(self.left)
         right_values, has_right = constraint.produce(self.right)
-        print left_values, right_values
-        print has_left, has_right
+        #print left_values, right_values
+        #print has_left, has_right
         if not has_left:
-            print True
+            #print True
             return True
         if has_right:
-            print left_values & right_values
+            #print left_values & right_values
             return left_values & right_values
         else:
-            print 'issubclass(self.right.__class__, binop.BinOp)', issubclass(self.right.__class__, binop.BinOp)
-            print 'self.right.__class__ != value.Value', self.right.__class__ != value.Value
+            #print 'issubclass(self.right.__class__, binop.BinOp)', issubclass(self.right.__class__, binop.BinOp)
+            #print 'self.right.__class__ != value.Value', self.right.__class__ != value.Value
             if issubclass(self.right.__class__, binop.BinOp):
                 return any(
                   self.right.satisfiable(dict(), lv) for lv in left_values)
@@ -107,19 +107,13 @@ class Assign(AbstractAction):
                       ((not constraint.constrains(self.left)) or
                         self.right.allows(attr_types.Type(lv)))
                     )
-                print 'is this any assignment satisfiable?', ret
+                #print 'is this any assignment satisfiable?', ret
                 return ret
             else:
-                print self.right.value(dict()), left_values, self.right.value(dict()) in left_values
+                #print self.right.value(dict()), left_values, self.right.value(dict()) in left_values
                 return self.right.value(dict()) in left_values
 
     def flow_constraints(self, objs, prior):
-        #print 'flowing constraints', objs, prior
-        #prior = AndConstraint([prior,
-        #if self.right.has_value(objs):
-            #prior = AndConstraint([prior, SingleValueConstraint(self.left, self.right.value(objs))])
-        #else:
-            #prior = AndConstraint([prior, EqualConstraint(self.left, self.right)])
         ## Transform applicable prior constraint into a new constraint.
         values, has = prior.produce(self.left)
         if not has: ## If there is no values for left, it is unconstrained
@@ -186,7 +180,7 @@ class Assign(AbstractAction):
             assert rok == False
             self.right.set_value(objs, self.left.value(objs))
         elif rok:
-            print self.right.type(objs)
+            #print self.right.type(objs)
             if self.right.type(objs) == attr_types.Set:
                 self.right.set_value(objs, right_values)
             else:

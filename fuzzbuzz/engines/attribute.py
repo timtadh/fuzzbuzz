@@ -27,14 +27,9 @@ def attribute_fuzzer(rlexer, grammar):
     out = list()
 
     def filter(objs, rules, constraint):
-        #print objs
         #print 'filtering', rules
         for rule in rules:
-            #print rule.action.unconstrained
-            #print constraint
-            print 'is rule unconstrainted?', rule
-            #print True if rule.action is None else rule.action.unconstrained(constraint)
-            #print rule.action
+            #print 'is rule unconstrainted?', rule
             if rule.action is None:
                 yield rule
             elif rule.action.unconstrained(constraint):
@@ -42,17 +37,15 @@ def attribute_fuzzer(rlexer, grammar):
 
     def choose(nonterm, objs, constraint):
         #print 'choosing ->', nonterm, constraint, objs
-        #print constraint.values if isinstance(constraint, SubsetConstraint) else constraint
         rules = list(filter(objs, nonterm.rules, constraint))
-        print 'allowed rules for', nonterm.name, rules
+        #print 'allowed rules for', nonterm.name, rules
         rule = choice(rules)
-        print 'chose', rule
+        #print 'chose', rule
         cobjs = rule.mknamespace(objs)
-        #print 'chose', rule, cobjs
         if rule.action:
-            print 'about to flow constraints'
+            #print 'about to flow constraints'
             new_constraint = rule.action.flow_constraints(cobjs, constraint)
-            print 'xxx', 'new constraint', new_constraint
+            #print 'xxx', 'new constraint', new_constraint
         else:
             new_constraint = TrueConstraint()
         return rule, cobjs, new_constraint
@@ -74,13 +67,13 @@ def attribute_fuzzer(rlexer, grammar):
         stack.append((tobjs, trule, 0, list(), first_constraint))
         while stack:
             objs, rule, j, sobjs, constraint = stack.pop()
-            print rule, id(objs), rule.condition, display(objs)
+            #print rule, id(objs), rule.condition, display(objs)
             if rule.condition is not None:
                 constraint = rule.condition.generate_constraint(objs)
                 #print 'xx', 'new constraint', constraint
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.__class__ is NonTerminal:
-                    print 'about to find rule for', rule, sym.name, display(objs)
+                    #print 'about to find rule for', rule, sym.name, display(objs)
                     #print '--->', constraint
                     constraint = constraint.replace(
                       (sym.name, cnt),
@@ -90,7 +83,7 @@ def attribute_fuzzer(rlexer, grammar):
                     crule, cobjs, new_constraint = \
                                   choose(sym, objs[(sym.name, cnt)], constraint)
                     #print cobjs, constraint
-                    print 'found rule for', rule, display(objs)
+                    #print 'found rule for', rule, display(objs)
                     stack.append((objs, rule, i+1, sobjs, constraint))
                     stack.append((cobjs, crule, 0, list(), new_constraint))
                     break
@@ -100,7 +93,7 @@ def attribute_fuzzer(rlexer, grammar):
                     out.append(functools.partial(so.value, objs))
             else:
                 if rule.action is not None:
-                    print 'filling ', rule
+                    #print 'filling ', rule
                     rule.action.fillvalues(objs, constraint)
                 for so in sobjs:
                     if not so.has_value(objs): so.make_value(objs, rlexer)
@@ -112,5 +105,5 @@ def attribute_fuzzer(rlexer, grammar):
         #print trule.name, display(tobjs)
     fuzz(grammar.start)
     output = list(sym() for sym in out)
-    print output
+    #print output
     return output
