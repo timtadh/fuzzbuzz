@@ -34,10 +34,9 @@ class Constraint(object):
         @returns : a new constraint of the same type'''
 
     @abc.abstractmethod
-    def produce(self, objs, obj):
+    def produce(self, obj):
         '''Produce a value for obj, taking into account the context objs
         and the asserted values of constraint
-        @param objs : a namespace
         @param obj : an object in the value heirarchy. (AttrChain?)
         @returns values, success
           values : a list of values (None on failure)
@@ -48,14 +47,14 @@ class FalseConstraint(Constraint):
     def satisfiable(self, objs): return False
     def flow(self, objs): pass
     def replace(self, from_sym, to_sym): return self
-    def produce(self, objs, obj): return None, False
+    def produce(self, obj): return None, False
 
 class TrueConstraint(Constraint):
 
     def satisfiable(self, objs): return True
     def flow(self, objs): pass
     def replace(self, from_sym, to_sym): return self
-    def produce(self, objs, obj): return None, False
+    def produce(self, obj): return None, False
 
 class AndConstraint(Constraint):
 
@@ -74,9 +73,9 @@ class AndConstraint(Constraint):
           con.replace(from_sym, to_sym) for con in self.constraints
         ])
 
-    def produce(self, objs, obj):
+    def produce(self, obj):
         for con in self.constraints:
-            v, ok = con.produce(objs, obj)
+            v, ok = con.produce(obj)
             if ok: return v, ok
         return None, False
 
@@ -105,10 +104,10 @@ class OrConstraint(Constraint):
           con.replace(from_sym, to_sym) for con in self.constraints
         ])
 
-    def produce(self, objs, obj):
+    def produce(self, obj):
         values = set()
         for con in self.constraints:
-            v, ok = con.produce(objs, obj)
+            v, ok = con.produce(obj)
             if ok:
                 values = values.union(v)
         if values:
@@ -145,7 +144,7 @@ class SingleValueConstraint(Constraint):
           self.value
         )
 
-    def produce(self, objs, obj):
+    def produce(self, obj):
         if self.obj == obj:
             return set([self.value]), True
         else:
@@ -181,7 +180,7 @@ class MultiValueConstraint(Constraint):
           self.values
         )
 
-    def produce(self, objs, obj):
+    def produce(self, obj):
         if self.obj == obj:
             return set(self.values), True
         else:
@@ -216,7 +215,7 @@ class SubsetConstraint(Constraint):
           self.values
         )
 
-    def produce(self, objs, obj):
+    def produce(self, obj):
         if self.obj == obj:
             return set(self.values), True
         else:
@@ -251,7 +250,7 @@ class ContainsConstraint(Constraint):
           self.value
         )
 
-    def produce(self, objs, obj):
+    def produce(self, obj):
         if self.obj == obj:
             return set([self.value]), True
         else:
@@ -287,7 +286,7 @@ class SupersetConstraint(Constraint):
           self.values
         )
 
-    def produce(self, objs, obj):
+    def produce(self, obj):
         if self.obj == obj:
             return set(self.values), True
         else:
@@ -297,3 +296,41 @@ class SupersetConstraint(Constraint):
 
     def __str__(self):
         return "<SupersetConstraint %s, %s>" % (str(self.obj), str(self.values))
+
+class EqualConstraint(Constraint):
+
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+    def satisfiable(self, objs):
+        if self.a.has_value(objs) and self.b.has_value(objs):
+            return self.a.value(objs) == self.b.value(objs)
+        else:
+            return True
+
+    def flow(self, objs):
+        if self.a.has_value(objs) and self.b.has_value(objs):
+            assert self.a.value(objs) == self.b.value(objs)
+        elif self.a.has_value(objs):
+            self.b.set_value(objs, self.a.value(objs))
+        elif self.b.has_value(objs):
+            self.a.set_value(objs, self.b.value(objs))
+
+    def replace(self, from_sym, to_sym):
+        return EqualConstraint(
+          self.a.replace(from_sym, to_sym),
+          self.b.replace(from_sym, to_sym)
+        )
+
+    def produce(self, obj):
+        raise Exception, "TODO"
+        if self.obj == obj:
+            return set([self.value]), True
+        else:
+            return None, False
+
+    def __repr__(self): return str(self)
+
+    def __str__(self):
+        return "<EqualConstraint %s == %s>" % (str(self.a), str(self.b))

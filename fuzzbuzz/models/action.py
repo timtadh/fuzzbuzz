@@ -83,8 +83,8 @@ class Assign(AbstractAction):
         ## action.
         print '->', self
         print '->', constraint
-        left_values, has_left = constraint.produce(dict(), self.left)
-        right_values, has_right = constraint.produce(dict(), self.right)
+        left_values, has_left = constraint.produce(self.left)
+        right_values, has_right = constraint.produce(self.right)
         print left_values, right_values
         print has_left, has_right
         if not has_left:
@@ -110,8 +110,13 @@ class Assign(AbstractAction):
 
     def flow_constraints(self, objs, prior):
         print 'flowing constraints', objs, prior
+        #prior = AndConstraint([prior,
+        if self.right.has_value(objs):
+            prior = AndConstraint([prior, SingleValueConstraint(self.left, self.right.value(objs))])
+        else:
+            prior = AndConstraint([prior, EqualConstraint(self.left, self.right)])
         ## Transform applicable prior constraint into a new constraint.
-        values, has = prior.produce(objs, self.left)
+        values, has = prior.produce(self.left)
         if not has: ## If there is no values for left, it is unconstrained
             print 'made true constaint'
             return TrueConstraint()
@@ -160,7 +165,7 @@ class Assign(AbstractAction):
         ## It fills it from 2 places.
         ## (1) the left side
         ## (2) the from values produced by the constraint.
-        right_values, rok = constraint.produce(objs, self.right)
+        right_values, rok = constraint.produce(self.right)
         if self.right.has_value(objs):
             ##
             return
