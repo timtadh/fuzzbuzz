@@ -6,6 +6,7 @@
 
 from reg import registration
 from fuzzbuzz.models.symbols import Terminal, NonTerminal
+from fuzzbuzz.frontend.lexer import tokens, Lexer
 
 
 class NoExampleException(Exception):
@@ -53,11 +54,19 @@ def mutation_fuzzer(rlexer, grammar, example_list=None):
         @param grammar_start : The start symbol for the grammar we are to
                                generate a parser for
         """
-
         for sym in grammar.nonterminals.itervalues():
-             for p in sym.ply():
-                 print p
+            for rule in sym.ply():
+                func = ply_func_for(rule)
 
+    def ply_func_for(docstring):
+        """Returns an anonymous function which has the supplied docstring
+
+        @param docstring : the docstring for the returned anonymous function
+        @return an anonymous function
+        """
+        #TODO: This doesn't actually DO anything yet. That needs to be fixed.
+        f = lambda s, t : t
+        f.__doc__ = docstring
 
     def mutate(ast):
         """Mutate a singular AST and return the resultant AST
