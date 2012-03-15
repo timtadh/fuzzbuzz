@@ -91,7 +91,7 @@ class Assign(AbstractAction):
             print True
             return True
         if has_right:
-            print left_values & right_value
+            print left_values & right_values
             return left_values & right_values
         else:
             print 'issubclass(self.right.__class__, binop.BinOp)', issubclass(self.right.__class__, binop.BinOp)
@@ -100,31 +100,36 @@ class Assign(AbstractAction):
                 return any(
                   self.right.satisfiable(dict(), lv) for lv in left_values)
             if self.right.__class__ != value.Value:
-                print '(self.right.allows(attr_types.Type(lv)) for lv in left_values)', any(
-                  self.right.allows(attr_types.Type(lv)) for lv in left_values)
-                return any(
-                  self.right.allows(attr_types.Type(lv)) for lv in left_values)
+                ret = False
+                for lv in left_values:
+                    ret = (
+                      ret or
+                      ((not constraint.constrains(self.left)) or
+                        self.right.allows(attr_types.Type(lv)))
+                    )
+                print 'is this any assignment satisfiable?', ret
+                return ret
             else:
                 print self.right.value(dict()), left_values, self.right.value(dict()) in left_values
                 return self.right.value(dict()) in left_values
 
     def flow_constraints(self, objs, prior):
-        print 'flowing constraints', objs, prior
+        #print 'flowing constraints', objs, prior
         #prior = AndConstraint([prior,
-        if self.right.has_value(objs):
-            prior = AndConstraint([prior, SingleValueConstraint(self.left, self.right.value(objs))])
-        else:
-            prior = AndConstraint([prior, EqualConstraint(self.left, self.right)])
+        #if self.right.has_value(objs):
+            #prior = AndConstraint([prior, SingleValueConstraint(self.left, self.right.value(objs))])
+        #else:
+            #prior = AndConstraint([prior, EqualConstraint(self.left, self.right)])
         ## Transform applicable prior constraint into a new constraint.
         values, has = prior.produce(self.left)
         if not has: ## If there is no values for left, it is unconstrained
-            print 'made true constaint'
+            #print 'made true constaint'
             return TrueConstraint()
         ## If right is known to be a set give it all the values.
         if self.right.type(objs) == attr_types.Set:
             return self.right.make_constraint(objs, values, attr_types.Set)
         else:
-            print values
+            #print values
             ## TODO(tim):
             ## There seems to be a bug which manifests itself like this:
             ##  a prior constraint has an Or which causes multiple values to
@@ -133,18 +138,26 @@ class Assign(AbstractAction):
             ##  inconsistency. We need to find some way to inform produce
             ##  by perhaps adding on a further constraint. The constraint
             ##  of the actual action we are in...
+            ##
+            ##  for now I have fixed this by adding an allows check to
+            ##  the constraint generation. This is a tricky problem in general
+            ##  what is constraining this is a transitive property of
+            ##  we know Terminal symbols cannot equal NoneType's and one of
+            ##  the values of the left symbol is a NoneType so that value
+            ##  cannot be allowed.
             constraints = [
                 self.right.make_constraint(objs, value, attr_types.Type(value))
                 for value in values
+                if self.right.allows(attr_types.Type(value))
             ]
             if len(constraints) > 1:
-                print 'we ORed them together, cause it is what we do best'
+                #print 'we ORed them together, cause it is what we do best'
                 constraint = OrConstraint(constraints)
             elif len(constraints) == 1:
-                print 'there was only one constraint', constraints[0]
+                #print 'there was only one constraint', constraints[0]
                 constraint = constraints[0]
             else:
-                print 'made true constaint'
+                #print 'made true constaint'
                 constraint = TrueConstraint()
             return constraint
 

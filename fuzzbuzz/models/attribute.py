@@ -59,13 +59,19 @@ class AttrChain(Value):
         last_attr.set_value(objs, cobjs, value)
 
     def make_constraint(self, objs, value, type):
+        constraints = list()
         if type == Set:
-            return OrConstraint([
+            constraints.append(OrConstraint([
               MultiValueConstraint(self, tuple(value)),
               SubsetConstraint(self, tuple(value)),
-            ])
+            ]))
         else:
-            return SingleValueConstraint(self, value)
+            constraints.append(SingleValueConstraint(self, value))
+        if not self.allows(NoneType):
+            constraints.append(IsNotConstraint(self, NoneType()))
+        if len(constraints) > 1:
+            return AndConstraint(constraints)
+        return constraints[0]
 
 class Attribute(Value):
 

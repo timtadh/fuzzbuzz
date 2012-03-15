@@ -25,6 +25,14 @@ class Value(object):
           self.value(None) == o.value(None) and self.type(None) and o.type(None)
         )
 
+    def __repr__(self): return str(self)
+
+    def __str__(self):
+        if self.__class__ == Value:
+            return "<Value (%s, %s)>" % (str(self.value(None)), str(self.type(None)))
+        else:
+            return object.__repr__(self)
+
     def replace(self, from_sym, to_sym):
         '''Converts all symbols which match "from_sym" to "to_sym" in the
         constraint

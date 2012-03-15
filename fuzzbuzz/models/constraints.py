@@ -42,12 +42,20 @@ class Constraint(object):
           values : a list of values (None on failure)
           success : boolean'''
 
+    @abc.abstractmethod
+    def constrains(self, obj):
+        '''Find out whether or not this object is full constrained by this
+        formula
+        @param obj : an object in the value heirarchy. (AttrChain?)
+        @returns boolean'''
+
 class FalseConstraint(Constraint):
 
     def satisfiable(self, objs): return False
     def flow(self, objs): pass
     def replace(self, from_sym, to_sym): return self
     def produce(self, obj): return None, False
+    def constrains(self, obj): return False
 
 class TrueConstraint(Constraint):
 
@@ -55,6 +63,7 @@ class TrueConstraint(Constraint):
     def flow(self, objs): pass
     def replace(self, from_sym, to_sym): return self
     def produce(self, obj): return None, False
+    def constrains(self, obj): return False
 
 class AndConstraint(Constraint):
 
@@ -78,6 +87,10 @@ class AndConstraint(Constraint):
             v, ok = con.produce(obj)
             if ok: return v, ok
         return None, False
+
+    def constrains(self, obj):
+        _, ok = self.produce(obj)
+        return ok
 
     def __repr__(self): return str(self)
 
@@ -115,6 +128,13 @@ class OrConstraint(Constraint):
         else:
             return None, False
 
+    def constrains(self, obj):
+        c = True
+        for con in self.constraints:
+            _, ok = con.produce(obj)
+            c = ok and c
+        return c
+
     def __repr__(self): return str(self)
 
     def __str__(self):
@@ -149,6 +169,10 @@ class SingleValueConstraint(Constraint):
             return set([self.value]), True
         else:
             return None, False
+
+    def constrains(self, obj):
+        _, ok = self.produce(obj)
+        return ok
 
     def __repr__(self): return str(self)
 
@@ -186,6 +210,10 @@ class MultiValueConstraint(Constraint):
         else:
             return None, False
 
+    def constrains(self, obj):
+        _, ok = self.produce(obj)
+        return ok
+
     def __repr__(self): return str(self)
 
     def __str__(self):
@@ -221,6 +249,10 @@ class SubsetConstraint(Constraint):
         else:
             return None, False
 
+    def constrains(self, obj):
+        _, ok = self.produce(obj)
+        return ok
+
     def __repr__(self): return str(self)
 
     def __str__(self):
@@ -255,6 +287,10 @@ class ContainsConstraint(Constraint):
             return set([self.value]), True
         else:
             return None, False
+
+    def constrains(self, obj):
+        _, ok = self.produce(obj)
+        return ok
 
     def __repr__(self): return str(self)
 
@@ -292,45 +328,45 @@ class SupersetConstraint(Constraint):
         else:
             return None, False
 
+    def constrains(self, obj):
+        _, ok = self.produce(obj)
+        return ok
+
     def __repr__(self): return str(self)
 
     def __str__(self):
         return "<SupersetConstraint %s, %s>" % (str(self.obj), str(self.values))
 
-class EqualConstraint(Constraint):
+class IsNotConstraint(Constraint):
 
-    def __init__(self, a, b):
-        self.a = a
-        self.b = b
+    def __init__(self, obj, value):
+        self.obj = obj
+        self.value = value
 
     def satisfiable(self, objs):
-        if self.a.has_value(objs) and self.b.has_value(objs):
-            return self.a.value(objs) == self.b.value(objs)
+        if self.obj.has_value(objs):
+            return self.obj.value(objs) != self.value
         else:
             return True
 
     def flow(self, objs):
-        if self.a.has_value(objs) and self.b.has_value(objs):
-            assert self.a.value(objs) == self.b.value(objs)
-        elif self.a.has_value(objs):
-            self.b.set_value(objs, self.a.value(objs))
-        elif self.b.has_value(objs):
-            self.a.set_value(objs, self.b.value(objs))
+        if self.obj.has_value(objs):
+            assert self.obj.value(objs) != self.value
 
     def replace(self, from_sym, to_sym):
-        return EqualConstraint(
-          self.a.replace(from_sym, to_sym),
-          self.b.replace(from_sym, to_sym)
+        return IsNotConstraint(
+          self.obj.replace(from_sym, to_sym),
+          self.value
         )
 
     def produce(self, obj):
-        raise Exception, "TODO"
-        if self.obj == obj:
-            return set([self.value]), True
-        else:
-            return None, False
+        return None, False
+
+    def constrains(self, obj):
+        _, ok = self.produce(obj)
+        return ok
 
     def __repr__(self): return str(self)
 
     def __str__(self):
-        return "<EqualConstraint %s == %s>" % (str(self.a), str(self.b))
+        return "<IsNotConstraint %s != %s>" % (str(self.obj), str(self.value))
