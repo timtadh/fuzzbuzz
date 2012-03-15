@@ -19,11 +19,12 @@ def mutation_fuzzer(rlexer, grammar, example_list=None):
     if not example_list:
         raise NoExampleException
 
-    def generate_examples_ast(parser):
+    def generate_examples_ast(parser, example_list):
         """Generates an AST for each example provided in `example_list`.
         This AST is parsed according to the grammar in `grammar`.
 
         @param parser : The parser from which the ASTs will be generated from
+        @param example_list : A list of example strings to be mutated
         @return list of ASTs, corresponding to the examples provided.
         """
         ast_list = list()
@@ -36,12 +37,12 @@ def mutation_fuzzer(rlexer, grammar, example_list=None):
     def generate_ast(example, parser):
         """Generates and returns an AST for the provided `example`
         AST generated according to the provided grammar
-        On completion, returns an AST object.
 
         @param example : the text to be parsed into an AST
         @param parser  : the parser from which the ASTs will be generated from
+        @return an AST object
         """
-        pass
+        return example
 
     def generate_parser(grammar):
         """Generate a parser for our `example_list` based on the grammar in
@@ -63,7 +64,7 @@ def mutation_fuzzer(rlexer, grammar, example_list=None):
 
         @param ast : the AST which we will mutate
         """
-        pass
+        return ast
 
 
     def mutate_all(ast_list):
@@ -79,7 +80,6 @@ def mutation_fuzzer(rlexer, grammar, example_list=None):
 
 
     parser = generate_parser(grammar)
-    ast_list = generate_examples_ast(parser)
+    ast_list = generate_examples_ast(parser, example_list)
     mutated_asts = mutate_all(ast_list)
     return mutated_asts
-
