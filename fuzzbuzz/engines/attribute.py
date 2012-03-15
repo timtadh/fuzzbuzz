@@ -6,9 +6,8 @@
 
 ## Should contain the implementation of the main fuzzing algorithm.
 
-import sys
+import sys, random
 import subprocess, functools
-from random import seed, choice, randint, random
 
 from reg import registration
 from fuzzbuzz.frontend import parser
@@ -17,12 +16,12 @@ from fuzzbuzz.models.attribute import SymbolObject
 from fuzzbuzz.models.constraints import TrueConstraint, SubsetConstraint
 
 def init():
-    seed()
+    random.seed()
 
 @registration.register(
   dict(),
   'Generates strings from an attribute grammar st. conditions hold')
-def attribute_fuzzer(rlexer, grammar):
+def attribute_fuzzer(rlexer, grammar, choice=None):
     init()
     out = list()
 
@@ -39,7 +38,7 @@ def attribute_fuzzer(rlexer, grammar):
         #print 'choosing ->', nonterm, constraint, objs
         rules = list(filter(objs, nonterm.rules, constraint))
         #print 'allowed rules for', nonterm.name, rules
-        rule = choice(rules)
+        rule = random.choice(rules)
         #print 'chose', rule
         cobjs = rule.mknamespace(objs)
         if rule.action:
