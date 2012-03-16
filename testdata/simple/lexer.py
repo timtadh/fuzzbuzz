@@ -8,7 +8,7 @@
 
 from random import randint
 
-stringifiers = {
+rlexer = {
     'VAR' : (lambda: 'var'),
     'NAME' : (lambda: ''.join(chr(randint(97, 122)) for x in xrange(1, randint(2,10)))),
     'EQUAL' : (lambda: '='),

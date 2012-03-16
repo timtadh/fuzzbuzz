@@ -22,6 +22,7 @@ def init():
   dict(),
   'Generates strings from an attribute grammar st. conditions hold')
 def attribute_fuzzer(rlexer, grammar, choice=None):
+    if choice is None: choice = random.choice
     init()
     out = list()
 
@@ -38,7 +39,7 @@ def attribute_fuzzer(rlexer, grammar, choice=None):
         #print 'choosing ->', nonterm, constraint, objs
         rules = list(filter(objs, nonterm.rules, constraint))
         #print 'allowed rules for', nonterm.name, rules
-        rule = random.choice(rules)
+        rule = choice(rules)
         #print 'chose', rule
         cobjs = rule.mknamespace(objs)
         if rule.action:
@@ -106,3 +107,46 @@ def attribute_fuzzer(rlexer, grammar, choice=None):
     output = list(sym() for sym in out)
     #print output
     return output
+
+class guided_choice(object):
+
+    def __init__(self, choices):
+        self.choices = choices
+        self.i = 0
+
+    def __call__(self, rules):
+        if self.i >= len(self.choices):
+            raise Exception, "Too many rules expanded."
+        cur = self.choices[self.i]
+        for rule in rules:
+            sig = tuple(s.name for s, n in rule.pattern)
+            if sig == cur: break
+        else:
+            raise Exception, "Expected choice not found."
+        print rule
+        self.i += 1
+        return rule
+
+if __name__ == '__main__':
+    import os
+    import testdata.simple
+    from testdata.simple.lexer import rlexer
+    with open(
+      os.path.join(
+        os.path.dirname(testdata.simple.__file__),
+        'simple_3.grammar'
+      ), 'r') as f:
+        s = f.read()
+    grammar = parser.parse(s)
+    strings = attribute_fuzzer(
+        rlexer, grammar,
+        guided_choice([
+          ('Stmts', 'Use'),
+          ('Decl',),
+          ('VAR', 'NAME', 'EQUAL', 'NUMBER', 'NEWLINE'),
+          ('PRINT', 'NAME', 'NEWLINE'),
+        ])
+    )
+    string = ' '.join(strings)
+    for line in string.split('\n'):
+        print line.strip()

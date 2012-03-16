@@ -200,7 +200,7 @@ def main(args):
         usage(error_codes['bad_engine'])
 
     grammar = fuzzbuzz.frontend.parse(read_file_or_die(grammar))
-    rlexer = import_module_or_die(lexer_module).stringifiers
+    rlexer = import_module_or_die(lexer_module).rlexer
     engine = fuzzbuzz.engines.registration[engine_name]
     objs = locals()
     kwargs = dict((k, objs[v]) for k, v in engine['requires'].iteritems())
