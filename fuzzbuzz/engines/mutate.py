@@ -140,6 +140,21 @@ class ParserGenerator(object):
         raise Exception
 
     def __new__(cls, **kwargs):
+        monkeypatch_lexer(Lexer)
         self = super(ParserGenerator, cls).__new__(cls, **kwargs)
         self.yacc = yacc.yacc(module=self,  tabmodule="mutate_parser_tab", debug=True, **kwargs)
         return self.yacc
+
+
+
+# ULTRAHAX going on here. Hopefully there's a better way.
+def monkeypatch_lexer(cls):
+    t_VAR = r'var'
+    t_PRINT = r'print'
+    t_NEWLINE = r'\n'
+    setattr(cls, 't_VAR', t_VAR)
+    setattr(cls, 't_PRINT', t_PRINT)
+    setattr(cls, 't_NEWLINE', t_NEWLINE)
+    tokens.append('VAR')
+    tokens.append('PRINT')
+    tokens.append('NEWLINE')
