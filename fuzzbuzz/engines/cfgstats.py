@@ -79,7 +79,7 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
             choice_hist[rule] = {mytuple : 1}
         else:
             if not choice_hist.get(rule).has_key(mytuple):
-                choice_hist[rule] = {mytuple : 1}
+                choice_hist[rule][mytuple] = 1
             else:
                 choice_hist[rule][mytuple] = choice_hist[rule][mytuple] + 1
 
@@ -165,5 +165,15 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
                     output.append(rlexer[sym.name]())
 
     fuzz(grammar.start)
-    #print choice_hist
+    '''
+    print choice_hist
+    print "\n"
+    for m in choice_hist:
+        #print "k: " + k + "v: " + v
+        print m
+        for v in choice_hist[m]:
+            print v
+            print choice_hist[m][v]
+        print "\n"
+    '''
     return output
