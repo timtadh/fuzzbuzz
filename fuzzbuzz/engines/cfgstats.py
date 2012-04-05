@@ -31,7 +31,12 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
 
     intersection = []
 
-    tables = dict()
+    tables = dict();
+
+    prev2 = list(); #this can become prevN (i.e. previous n choices) but lets test with 2 for now
+    prev2.append(None)
+    prev2.append(None)
+    choice_hist = dict();
 
     if list_tables:
         print "Table Names CFGStats Accepts:\n"
@@ -62,6 +67,21 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
                         tables[tname][gramtuple[0]] = {gramtuple[1] : float(gramtuple[2])}
                     else: # adding a new rule to a production
                         tables[tname][gramtuple[0]][gramtuple[1]] = float(gramtuple[2])
+
+    def log_as_prev(rule):
+        prev2[0] = prev2[1]
+        prev2[1] = rule
+
+    def log_choice_given_prev(rule):
+        #increase the number of times we've chosen this rule given the prev 2 choices
+        mytuple = tuple(r for r in prev2)
+        if not choice_hist.has_key(rule):
+            choice_hist[rule] = {mytuple : 1}
+        else:
+            if not choice_hist.get(rule).has_key(mytuple):
+                choice_hist[rule] = {mytuple : 1}
+            else:
+                choice_hist[rule][mytuple] = choice_hist[rule][mytuple] + 1
 
     def choose(nonterm):
         rand = random()
@@ -109,8 +129,6 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
             for sym,cnt in rule.pattern:
                 if sym.name == "NEWLINE": #temporary workaround for token mismatch between gramstats and fuzzbuzz
                     continue
-                elif sym.name == "NUMBER": #temporary workaround for token mismatch between gramstats and fuzzbuzz
-                    toString = toString + "INT_VAL"
                 else:
                     toString = toString + sym.name
                 toString = toString + ":" #temporary workaround for token mismatch between gramstats and fuzzbuzz
@@ -136,6 +154,8 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
             if rule is None: #otherwise we are continuing from where we left off
                 assert j is 0
                 rule = choose(nonterm)
+                log_choice_given_prev(rule)
+                log_as_prev(rule) #set myself as the previous rule chosen
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.__class__ is NonTerminal:
                     stack.append((nonterm, rule, i+1))
@@ -145,4 +165,5 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
                     output.append(rlexer[sym.name]())
 
     fuzz(grammar.start)
+    #print choice_hist
     return output
