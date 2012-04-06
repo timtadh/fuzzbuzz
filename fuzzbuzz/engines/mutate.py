@@ -15,12 +15,15 @@ class NoExampleException(Exception):
     pass
 
 @registration.register(
-  {'example_list':'examples'},
+  {'example_list':'examples',
+   'lexer':'lexer_class'},
   'Mutates the AST of the given example files s.t. conditions hold')
-def mutation_fuzzer(rlexer, grammar, example_list=None):
+def mutation_fuzzer(rlexer, grammar, example_list=None, lexer=None):
 
     if not example_list:
         raise NoExampleException
+
+    print lexer
 
     def generate_examples_ast(parser, example_list):
         """Generates an AST for each example provided in `example_list`.
@@ -45,6 +48,8 @@ def mutation_fuzzer(rlexer, grammar, example_list=None):
         @param parser  : the parser from which the ASTs will be generated from
         @return an AST object
         """
+        print example
+        parser.parse(example, lexer=Lexer())
         return example
 
     def generate_parser(grammar):
@@ -137,24 +142,11 @@ class ParserGenerator(object):
 
     def p_error(self, t):
         # TODO: we need a better exception framework
+        print t
         raise Exception
 
     def __new__(cls, **kwargs):
-        monkeypatch_lexer(Lexer)
         self = super(ParserGenerator, cls).__new__(cls, **kwargs)
         self.yacc = yacc.yacc(module=self,  tabmodule="mutate_parser_tab", debug=True, **kwargs)
         return self.yacc
 
-
-
-# ULTRAHAX going on here. Hopefully there's a better way.
-def monkeypatch_lexer(cls):
-    t_VAR = r'var'
-    t_PRINT = r'print'
-    t_NEWLINE = r'\n'
-    setattr(cls, 't_VAR', t_VAR)
-    setattr(cls, 't_PRINT', t_PRINT)
-    setattr(cls, 't_NEWLINE', t_NEWLINE)
-    tokens.append('VAR')
-    tokens.append('PRINT')
-    tokens.append('NEWLINE')

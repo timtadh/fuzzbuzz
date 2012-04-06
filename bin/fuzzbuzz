@@ -25,6 +25,8 @@ error_codes = {
     'file_instead_of_dir':11,
     'bad_engine':12,
     'no_example': 13,
+    'bad_lexer':14,
+    'bad_rlexer':15,
 }
 
 usage_message = \
@@ -173,6 +175,7 @@ def main(args):
 
     grammar = None
     lexer_module = None
+    lexer_class = None
     rlexer_module = None
     engine_name = 'attribute_fuzzer'
     examples = list()
@@ -185,10 +188,9 @@ def main(args):
         elif opt in ('-g', '--grammar'):
             grammar = assert_file_exists(arg)
         elif opt in ('-r', '--reverse-lexer'):
-            rlexer_module = arg
+            rlexer_module = import_module_or_die(arg)
         elif opt in ('-l', '--lexer'):
-            lexer_module = arg
-            raise RuntimeError, NotImplemented
+            lexer_module = import_module_or_die(arg)
         elif opt in ('-e', '--engine'):
             engine_name = arg
         elif opt in ('-E', '--list-engines'):
@@ -205,12 +207,24 @@ def main(args):
     if grammar is None or rlexer_module is None:
         log("Must supply both a grammar and a reverse lexer")
         usage(error_codes['requirements'])
+
     if engine_name not in fuzzbuzz.engines.registration:
         log("Engine name '%s' not found, use -E to get a list" % engine_name)
         usage(error_codes['bad_engine'])
 
+    if not hasattr(rlexer_module, 'rlexer'):
+        log("rlexer module is invalid; must contain a dict 'rlexer'")
+        usage(error_codes['bad_rlexer'])
+
+    if lexer_module is not None:
+        if not hasattr(lexer_module, 'Lexer'):
+            log("Lexer module is invalid; must contain a class 'Lexer'")
+            usage(error_codes['bad_lexer'])
+        else:
+            lexer_class = lexer_module.Lexer
+
     grammar = fuzzbuzz.frontend.parse(read_file_or_die(grammar))
-    rlexer = import_module_or_die(rlexer_module).rlexer
+    rlexer = rlexer_module.rlexer
     engine = fuzzbuzz.engines.registration[engine_name]
     objs = locals()
     kwargs = dict((k, objs[v]) for k, v in engine['requires'].iteritems())
