@@ -65,9 +65,10 @@ class Lexer(object):
         return token
 
     @Token(r'\n+')
-    def t_NEWLINE(self, t):
+    def t_newline(self, t):
         t.type = 'NEWLINE'
         t.lexer.lineno += t.value.count("\n")
+        return t
 
     @Token(r'(/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/)|(//.*)')
     def t_COMMENT(self, token):

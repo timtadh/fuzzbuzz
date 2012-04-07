@@ -49,6 +49,15 @@ def mutation_fuzzer(rlexer, grammar, example_list=None, lexer=None):
         @return an AST object
         """
         print example
+
+        lex.input(example)
+        t = lex.token()
+        while t:
+            print t
+            t = lex.token()
+        print
+
+
         parser.parse(example, lex)
         return example
 
@@ -101,6 +110,9 @@ class ParserGenerator(object):
     # production counter
     pcount = 0
 
+    # hackity hack, parser has to start with 'Stmts' as top rule for this to work
+    start = 'Stmts'
+
     @classmethod
     def add_production(cls, prod_string):
         func = cls.ply_func_for(prod_string)
@@ -137,6 +149,9 @@ class ParserGenerator(object):
 
     def p_error(self, t):
         # TODO: we need a better exception framework
+        if t is None:
+            return
+
         print "Syntax error in input!"
         print t
         raise Exception
