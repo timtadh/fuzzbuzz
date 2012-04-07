@@ -23,8 +23,6 @@ def mutation_fuzzer(rlexer, grammar, example_list=None, lexer=None):
     if not example_list:
         raise NoExampleException
 
-    print lexer
-
     def generate_examples_ast(parser, example_list):
         """Generates an AST for each example provided in `example_list`.
         This AST is parsed according to the grammar in `grammar`.
@@ -49,7 +47,7 @@ def mutation_fuzzer(rlexer, grammar, example_list=None, lexer=None):
         @return an AST object
         """
         print example
-        parser.parse(example, lexer=Lexer())
+        parser.parse(example, lexer)
         return example
 
     def generate_parser(grammar):
@@ -66,7 +64,7 @@ def mutation_fuzzer(rlexer, grammar, example_list=None, lexer=None):
                 print rule
                 ParserGenerator.add_production(rule)
 
-        return ParserGenerator()
+        return ParserGenerator(lexer.tokens)
 
     def mutate(ast):
         """Mutate a singular AST and return the resultant AST
@@ -97,11 +95,6 @@ def mutation_fuzzer(rlexer, grammar, example_list=None, lexer=None):
 class ParserGenerator(object):
     """Generate a yacc (ply) parser for the given input strings
     """
-    tokens = tokens
-    # TODO: This should be more customizable
-    precedence = (
-        ('left', 'RPAREN'),
-    )
 
     # production counter
     pcount = 0
@@ -145,8 +138,10 @@ class ParserGenerator(object):
         print t
         raise Exception
 
-    def __new__(cls, **kwargs):
+    def __new__(cls, tokens,  **kwargs):
+        # get the tokens from the lexer into the scope of our parser.
+        setattr(cls, 'tokens', tokens)
         self = super(ParserGenerator, cls).__new__(cls, **kwargs)
-        self.yacc = yacc.yacc(module=self,  tabmodule="mutate_parser_tab", debug=True, **kwargs)
+        self.yacc = yacc.yacc(module=self,  tabmodule="mutate_parser_tab", **kwargs)
         return self.yacc
 
