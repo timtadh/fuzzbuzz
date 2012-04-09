@@ -24,6 +24,7 @@ error_codes = {
     'list_engines':10,
     'file_instead_of_dir':11,
     'bad_engine':12,
+    'no_example': 13,
 }
 
 usage_message = \
@@ -184,7 +185,7 @@ def main(args):
         elif opt in ('-E', '--list-engines'):
             list_engines()
         elif opt in ('-x', '--example'):
-            examples.append(arg)
+            examples.append(read_file_or_die(arg))
         elif opt in ('-t', '--table'):
             tables.append(arg)
 
@@ -204,7 +205,12 @@ def main(args):
     engine = fuzzbuzz.engines.registration[engine_name]
     objs = locals()
     kwargs = dict((k, objs[v]) for k, v in engine['requires'].iteritems())
-    strings = engine['function'](rlexer, grammar, **kwargs)
+
+    try:
+        strings = engine['function'](rlexer, grammar, **kwargs)
+    except NoExampleException:
+        usage(error_codes['no_example'])
+
     string = ' '.join(strings)
     for line in string.split('\n'):
         output(line.strip())
