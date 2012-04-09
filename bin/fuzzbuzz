@@ -24,7 +24,8 @@ error_codes = {
     'list_engines':10,
     'file_instead_of_dir':11,
     'bad_engine':12,
-    'no_example': 13,
+    'engine_fail': 13,
+    'bad_table_name': 14,
 }
 
 usage_message = \
@@ -46,7 +47,9 @@ Options
     -x, example=<file>                  Supply an example (may be used many
                                         times)
     -t, table=<table-spec>              Supply a statistics table (may be used
-                                        times)
+                                        many times)
+    -T, list-table-names                List table names the given engine
+                                        expects
 
 Specs
     <file> = a path to a file
@@ -117,6 +120,7 @@ def read_file_or_die(path):
     @param path : the path to the file
     @returns string : the contents of the file
     '''
+    path = assert_file_exists(path)
     try:
         f = open(path, 'r')
         s = f.read()
@@ -151,15 +155,31 @@ def import_module_or_die(module):
         log("Could not import", module)
         usage(error_codes['bad_module'])
 
+def parse_csv_or_die(tables, table_name, s):
+    '''Parses string in a gramstats output format, if there is an error it kills the program.
+    @param tables : the table we are storing info inside
+    @param table_name : the name of the table/csv we are parsing
+    @param s : the string we are parsing into a tuple of tuples
+    '''
+
+    if table_name in tables:
+        log("Supplied multiple tables with same name '%s'" % table_name)
+        usage(error_codes['bad_table_name'])
+    table = tuple(
+      tuple(col.strip() for col in row.split(','))
+      for row in s.split('\n') if row
+    )
+    tables[table_name] = table
+
 def main(args):
 
     try:
         opts, args = getopt(
             args,
-            'hvg:r:e:Ex:t:',
+            'hvg:r:e:Ex:t:T',
             [
               'help', 'version', 'grammar=', 'reverse-lexer=', 'engine=',
-              'list-engines', 'example=', 'table='
+              'list-engines', 'example=', 'table=', 'list-table-names'
             ]
         )
     except GetoptError, err:
@@ -170,7 +190,8 @@ def main(args):
     lexer_module = None
     engine_name = 'attribute_fuzzer'
     examples = list()
-    tables = list()
+    tables = dict()
+    table_names_requested = False
     for opt, arg in opts:
         if opt in ('-h', '--help'):
             usage()
@@ -186,8 +207,13 @@ def main(args):
             list_engines()
         elif opt in ('-x', '--example'):
             examples.append(read_file_or_die(arg))
+        elif opt in ('-T', '--list-table-names'):
+            table_names_requested = True
         elif opt in ('-t', '--table'):
-            tables.append(arg)
+            tableinfo = arg.split(":") #table name, table path
+            table_name = tableinfo[0]
+            s = read_file_or_die(tableinfo[1])
+            parse_csv_or_die(tables, table_name, s)
 
     if engine_name is None:
         log("Must supply an engine name")
@@ -208,8 +234,13 @@ def main(args):
 
     try:
         strings = engine['function'](rlexer, grammar, **kwargs)
-    except NoExampleException:
-        usage(error_codes['no_example'])
+    except Exception, e:
+        errname = e.__class__.__name__
+        log(errname, ', '.join(e.args))
+        if errname in error_codes:
+            usage(error_codes[errname])
+        else:
+            usage(error_codes['engine_fail'])
 
     string = ' '.join(strings)
     for line in string.split('\n'):
