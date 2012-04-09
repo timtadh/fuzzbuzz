@@ -102,7 +102,7 @@ of the values of attributes which were assigned by previous actions.
 There is an excellent free book available called [Syntax and Semantics of
 Programming Languages](http://www.divms.uiowa.edu/~slonnegr/plf/Book/).
 Chapter 3
-[Attribute Grammars](http://www.divms.uiowa.edu/~slonnegr/plf/Book/Chapter3.pdf) 
+[Attribute Grammars](http://www.divms.uiowa.edu/~slonnegr/plf/Book/Chapter3.pdf)
 is a great introduction to the subject. Ullman et. all (in the illustrious
 "Dragon Book") provide an overview of the practical use of attribute grammars in
  syntax directed translation. While a good background, does not provide as much
