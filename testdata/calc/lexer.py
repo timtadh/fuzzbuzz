@@ -41,7 +41,7 @@ class Lexer(object):
     'LPAREN', 'RPAREN', 'LSQUARE',
     'RSQUARE', 'LANGLE', 'RANGLE', 'COMMA', 'SEMI', 'EXP'
     t_T = r'T'
-    t_EXP = r'^'
+    t_EXP = r'\^'
     t_PLUS = r'\+'
     t_DASH = r'-'
     t_STAR = r'\*'
@@ -64,7 +64,7 @@ class Lexer(object):
             return token
         return None
 
-    const_float = '(' + D + ')*\.?(' + D + ')+(' + E + ')?'
+    const_float = '(' + D + ')+\.?(' + D + ')*(' + E + ')?'
     @Token(const_float)
     def t_CONST_FLOAT(self, token):
         token.type = 'NUMBER'
