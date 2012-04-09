@@ -26,6 +26,9 @@ error_codes = {
     'bad_engine':12,
     'engine_fail': 13,
     'bad_table_name': 14,
+    'no_example': 15,
+    'bad_lexer':16,
+    'bad_rlexer':17,
 }
 
 usage_message = \
@@ -40,7 +43,12 @@ Options
     -g, grammar=<file>                  supply an attribute grammar to fuzz
     -r, reverse-lexer=<module>          supply the module (on PYTHONPATH) which
                                         contains a reverse lexer for the given
-                                        grammar
+                                        grammar (Note: the dictionary of
+                                        functions must be called 'rlexer')
+    -l, lexer=<module>                  supply the module (on PYTHONPATH) which
+                                        contains a ply-based lexer for the given
+                                        grammar (Note: the lexer class must be
+                                        called 'Lexer')
     -e, engine=<engine-name>            what engine should be used
                                         [defaults to "attribute_fuzzer"]
     -E, list-engines                    list the available engines
@@ -176,10 +184,11 @@ def main(args):
     try:
         opts, args = getopt(
             args,
-            'hvg:r:e:Ex:t:T',
+            'hvg:r:l:e:Ex:t:T',
             [
-              'help', 'version', 'grammar=', 'reverse-lexer=', 'engine=',
-              'list-engines', 'example=', 'table=', 'list-table-names'
+              'help', 'version', 'grammar=', 'reverse-lexer=', 'lexer=',
+              'engine=', 'list-engines', 'example=', 'table=',
+              'list-table-names'
             ]
         )
     except GetoptError, err:
@@ -188,6 +197,8 @@ def main(args):
 
     grammar = None
     lexer_module = None
+    lexer_class = None
+    rlexer_module = None
     engine_name = 'attribute_fuzzer'
     examples = list()
     tables = dict()
@@ -200,7 +211,9 @@ def main(args):
         elif opt in ('-g', '--grammar'):
             grammar = assert_file_exists(arg)
         elif opt in ('-r', '--reverse-lexer'):
-            lexer_module = arg
+            rlexer_module = import_module_or_die(arg)
+        elif opt in ('-l', '--lexer'):
+            lexer_module = import_module_or_die(arg)
         elif opt in ('-e', '--engine'):
             engine_name = arg
         elif opt in ('-E', '--list-engines'):
@@ -219,15 +232,27 @@ def main(args):
         log("Must supply an engine name")
         usage(error_codes['requirements'])
 
-    if grammar is None or lexer_module is None:
+    if grammar is None or rlexer_module is None:
         log("Must supply both a grammar and a reverse lexer")
         usage(error_codes['requirements'])
+
     if engine_name not in fuzzbuzz.engines.registration:
         log("Engine name '%s' not found, use -E to get a list" % engine_name)
         usage(error_codes['bad_engine'])
 
+    if not hasattr(rlexer_module, 'rlexer'):
+        log("rlexer module is invalid; must contain a dict 'rlexer'")
+        usage(error_codes['bad_rlexer'])
+
+    if lexer_module is not None:
+        if not hasattr(lexer_module, 'Lexer'):
+            log("Lexer module is invalid; must contain a class 'Lexer'")
+            usage(error_codes['bad_lexer'])
+        else:
+            lexer_class = lexer_module.Lexer
+
     grammar = fuzzbuzz.frontend.parse(read_file_or_die(grammar))
-    rlexer = import_module_or_die(lexer_module).stringifiers
+    rlexer = rlexer_module.rlexer
     engine = fuzzbuzz.engines.registration[engine_name]
     objs = locals()
     kwargs = dict((k, objs[v]) for k, v in engine['requires'].iteritems())

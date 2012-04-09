@@ -27,3 +27,8 @@ class NonTerminal(object):
             for rule in self.rules
           ) + '>'
         )
+
+    def ply(self):
+        return [self.name + " : " + " ".join(sym.name for sym, cnt in rule.pattern)
+                for rule in self.rules]
+
