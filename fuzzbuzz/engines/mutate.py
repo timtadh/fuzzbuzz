@@ -20,10 +20,12 @@ class NoExampleException(Exception):
   'Mutates the AST of the given example files s.t. conditions hold')
 def mutation_fuzzer(rlexer, grammar, example_list=None, lexer=None):
 
-    lex = lexer()
-
+    if not lexer:
+        return None, 'Mutation Fuzzer requires a lexer'
     if not example_list:
-        raise NoExampleException
+        return None, 'Mutation Fuzzer requires at least one example'
+
+    lex = lexer()
 
     def generate_examples_ast(parser, example_list):
         """Generates an AST for each example provided in `example_list`.
@@ -99,7 +101,7 @@ def mutation_fuzzer(rlexer, grammar, example_list=None, lexer=None):
     parser = generate_parser(grammar)
     ast_list = generate_examples_ast(parser, example_list)
     mutated_asts = mutate_all(ast_list)
-    return mutated_asts
+    return mutated_asts, None
 
 
 class ParserGenerator(object):

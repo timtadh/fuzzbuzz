@@ -34,21 +34,23 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
     tables = dict()
 
     if list_tables:
-        print "Table Names CFGStats Accepts:\n"
+        tables = ["Table Names CFGStats Accepts:"]
         for tname in valid_tables:
-            print tname + " - " + valid_tables[tname]
-        raise ListTables
+            tables.append(tname + " - " + valid_tables[tname])
+        return None, '\n'.join(tables)
 
     if stat_tables:
         for tname in valid_tables:
             if stat_tables.has_key(tname):
                 intersection.append(tname)
         if len(intersection) is 0:
-            print "No table names that CFGStats accepts were provided"
-            print "Run with -T flag for more information"
-            raise NoValidTable
+            err = (
+              "CFGStats Failure: No known table names were provided\n"
+              "Run with -T flag for more information"
+            )
+            return None, err
     else:
-        print "CFGStats Warning: No stats tables provided!"
+        return None, "CFGStats Failure: No stats tables provided!"
 
 
     def keyify():
@@ -145,4 +147,4 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
                     output.append(rlexer[sym.name]())
 
     fuzz(grammar.start)
-    return output
+    return output, None

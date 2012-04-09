@@ -11,4 +11,4 @@ from reg import registration
   'A test fuzzer for the engine decl syntax')
 def stub(rlexer, grammar, stat_tables=None, example_list=None):
     print stat_tables, example_list
-    return list()
+    return list(), None

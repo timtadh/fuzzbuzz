@@ -257,15 +257,10 @@ def main(args):
     objs = locals()
     kwargs = dict((k, objs[v]) for k, v in engine['requires'].iteritems())
 
-    try:
-        strings = engine['function'](rlexer, grammar, **kwargs)
-    except Exception, e:
-        errname = e.__class__.__name__
-        log(errname, ', '.join(e.args))
-        if errname in error_codes:
-            usage(error_codes[errname])
-        else:
-            usage(error_codes['engine_fail'])
+    strings, err = engine['function'](rlexer, grammar, **kwargs)
+    if err:
+        log(err)
+        usage(error_codes['engine_fail'])
 
     string = ' '.join(strings)
     for line in string.split('\n'):
