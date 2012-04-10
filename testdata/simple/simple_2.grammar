@@ -3,13 +3,13 @@ The second reformulation of the grammar. All declarations come before usage.
 There is no if-statement.
 */
 
-Stmts -> Decls NEWLINE Uses
+Stmts -> Decls Uses
          with Condition {
            Uses.names subset Decls.names
          }
        ;
 
-Decls -> Decls NEWLINE Decl
+Decls -> Decls Decl
         with Action {
           Decls{1}.names = Decls{2}.names | { Decl.name }
         }
@@ -19,7 +19,7 @@ Decls -> Decls NEWLINE Decl
         }
        ;
 
-Uses -> Uses NEWLINE Use
+Uses -> Uses Use
         with Action {
           Uses{1}.names = Uses{2}.names | { Use.name }
         }
@@ -29,13 +29,13 @@ Uses -> Uses NEWLINE Use
         }
       ;
 
-Decl -> VAR NAME EQUAL NUMBER
+Decl -> VAR NAME EQUAL NUMBER NEWLINE
         with Action {
           Decl.name = NAME
         }
       ;
 
-Use -> PRINT NAME
+Use -> PRINT NAME NEWLINE
        with Action {
          Use.name = NAME
        }

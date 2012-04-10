@@ -2,11 +2,11 @@
 The 3rd reformulation of this grammar.
 */
 
-Stmts -> Stmts NEWLINE Decl
+Stmts -> Stmts Decl
          with Action {
            Stmts{1}.names = Stmts{2}.names | { Decl.name }
          }
-       | Stmts NEWLINE Use
+       | Stmts Use
          with Action {
            Stmts{1}.names = Stmts{2}.names
          }
@@ -19,13 +19,13 @@ Stmts -> Stmts NEWLINE Decl
          }
        ;
 
-Decl -> VAR NAME EQUAL NUMBER
+Decl -> VAR NAME EQUAL NUMBER NEWLINE
         with Action {
           Decl.name = NAME
         }
       ;
 
-Use -> PRINT NAME
+Use -> PRINT NAME NEWLINE
        with Action {
          Use.name = NAME
        }

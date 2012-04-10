@@ -2,7 +2,7 @@
 The first example grammar. Has an if-statment
 */
 
-Stmts ->  Stmts NEWLINE Stmt
+Stmts ->  Stmts Stmt
           with Action {
             if (Stmt.decl is None) {
               Stmts{1}.names = Stmts{2}.names
@@ -23,12 +23,12 @@ Stmts ->  Stmts NEWLINE Stmt
             Stmt.uses is None
           }
        ;
-Stmt -> VAR NAME EQUAL NUMBER
+Stmt -> VAR NAME EQUAL NUMBER NEWLINE
         with Action {
           Stmt.decl = NAME
           Stmt.uses = None
         }
-      | PRINT NAME
+      | PRINT NAME NEWLINE
         with Action {
           Stmt.decl = None
           Stmt.uses = NAME
