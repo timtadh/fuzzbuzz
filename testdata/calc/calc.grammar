@@ -1,0 +1,39 @@
+/* A grammar for the simple matrix calculator.
+ *
+ */
+
+Expr -> Expr PLUS Term
+      | Expr DASH Term
+      | Term
+      ;
+Term -> Term STAR Exp
+      | Term SLASH Exp
+      | Exp
+      ;
+Exp -> Exp EXP Unary
+     | Unary
+     ;
+Unary -> DASH PostUnary
+       | PostUnary
+       ;
+PostUnary -> Factor T
+           | Factor
+           ;
+Factor -> Value
+        | LPAREN Expr RPAREN
+        ;
+Value -> Atom
+       | Log
+       | LSQUARE Matrix RSQUARE
+       | LANGLE Vector RANGLE
+       ;
+Atom -> NUMBER
+      ;
+Log -> LOG LPAREN Expr COMMA Expr RPAREN
+     ;
+Matrix -> Matrix SEMI Vector
+        | Vector
+        ;
+Vector -> Vector COMMA Expr
+        | Expr
+        ;
