@@ -83,6 +83,26 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
             else:
                 choice_hist[rule][mytuple] = choice_hist[rule][mytuple] + 1
 
+    def getRulefromString(nonterm, ruleStr):
+        stringList = list()
+        for rule in nonterm.rules:
+            toString = str()
+            for sym,cnt in rule.pattern:
+                if sym.name == "NEWLINE": #temporary workaround for token mismatch between gramstats and fuzzbuzz
+                    continue
+                else:
+                    toString = toString + sym.name
+                toString = toString + ":" #temporary workaround for token mismatch between gramstats and fuzzbuzz
+            toString = toString[:-1] #there is an extra ":" at the end that we don't want
+            stringList.append(toString)
+
+        if ruleStr not in stringList:
+            print "Parsed rule could not be matched with grammar rule"
+            print "(Attempted to parse " + ruleStr + ")"
+            raise CouldNotChooseRule
+        else:
+            return nonterm.rules[[i for i,x in enumerate(stringList) if x == ruleStr][0]]
+
     def choose(nonterm):
         rand = random()
         probdist = dict()
@@ -92,7 +112,7 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
             for rule in tables[tname][nonterm.name]:
                 prob = tables[tname][nonterm.name][rule]
                 if not probdist.has_key(prob): #first time we find a rule with this probability
-                    probdist[prob] = {rule}
+                    probdist[prob] = [rule]
                 else: #we have a key with this probability so we just want to add ourselves to that key's set
                     probdist[prob].add(rule)
 
@@ -120,27 +140,11 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
         if winningKey is 2:
             winningKey = max(probdist)
 
+
         ruleStr = probdist[winningKey].pop()
-        #so at this point we have a string representing the rule we want, but we need to actually return a RULE (type)
+        chosen_rule = getRulefromString(nonterm, ruleStr)
 
-        stringList = list()
-        for rule in nonterm.rules:
-            toString = str()
-            for sym,cnt in rule.pattern:
-                if sym.name == "NEWLINE": #temporary workaround for token mismatch between gramstats and fuzzbuzz
-                    continue
-                else:
-                    toString = toString + sym.name
-                toString = toString + ":" #temporary workaround for token mismatch between gramstats and fuzzbuzz
-            toString = toString[:-1] #there is an extra ":" at the end that we don't want
-            stringList.append(toString)
-
-        if ruleStr not in stringList:
-            print "Parsed rule could not be matched with grammar rule"
-            print "(Attempted to parse " + ruleStr + ")"
-            raise CouldNotChooseRule
-        else:
-            return nonterm.rules[[i for i,x in enumerate(stringList) if x == ruleStr][0]]
+        return chosen_rule
 
 
     output = list()
