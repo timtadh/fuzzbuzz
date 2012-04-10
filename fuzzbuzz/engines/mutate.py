@@ -38,7 +38,7 @@ def mutation_fuzzer(rlexer, grammar, example_list=None, lexer=None):
         ast_list = list()
 
         for example in example_list:
-            ast_list.append(generate_ast(example, parser))
+            ast_list.append(str(generate_ast(example, parser)))
 
         return ast_list
 
@@ -50,16 +50,8 @@ def mutation_fuzzer(rlexer, grammar, example_list=None, lexer=None):
         @param parser  : the parser from which the ASTs will be generated from
         @return an AST object
         """
-        print example
-
-        lex.input(example)
-        t = lex.token()
-        while t:
-            print t
-            t = lex.token()
 
         result = parser.parse(example, lex)
-        print result
         return result
 
     def generate_parser(grammar):
@@ -73,7 +65,6 @@ def mutation_fuzzer(rlexer, grammar, example_list=None, lexer=None):
         """
         for sym in grammar.nonterminals.itervalues():
             for rule in sym.ply():
-                print rule
                 ParserGenerator.add_production(rule)
 
         return ParserGenerator(lexer.tokens)
@@ -145,7 +136,7 @@ class ParserGenerator(object):
 
             # this gives us a node with the name of the production
             n = Node(prod[0])
-            print "Production: ", prod
+            #print "Production: ", prod
             for x in range(i, len(prod)):
                 if prod[x] == prod[x].upper:
                     n.addkid(Node(prod[x]))
@@ -153,9 +144,9 @@ class ParserGenerator(object):
                     n.addkid(t[x-1])
 
             t[0] = n
-            print "Node: ", n
-            print "Children: ", n.children
-            print "\n\n"
+            #print "Node: ", n
+            #print "Children: ", n.children
+            #print "\n\n"
 
         f = lambda s, t : ply_make_tree(t, docstring)
         f.__doc__ = docstring
