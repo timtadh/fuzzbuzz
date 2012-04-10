@@ -106,7 +106,7 @@ def attribute_fuzzer(rlexer, grammar, choice=None):
     fuzz(grammar.start)
     output = list(sym() for sym in out)
     #print output
-    return output
+    return output, None
 
 class guided_choice(object):
 
@@ -138,7 +138,7 @@ if __name__ == '__main__':
       ), 'r') as f:
         s = f.read()
     grammar = parser.parse(s)
-    strings = attribute_fuzzer(
+    strings, err = attribute_fuzzer(
         rlexer, grammar,
         guided_choice([
           ('Stmts', 'Use'),
