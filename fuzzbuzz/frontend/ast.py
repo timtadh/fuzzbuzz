@@ -51,6 +51,7 @@ class Node(object):
             if isinstance(s, Node): return str(s)
             return ('0:%s' % str(s)).replace('\n', '\\n')
         s = "%d:%s" % (len(self.children), str(self.label))
+        s = s.replace('\n', '\\n')
         s = '\n'.join([s]+[string(c) for c in self.children])
         return s
 

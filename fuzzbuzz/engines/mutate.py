@@ -138,10 +138,10 @@ class ParserGenerator(object):
             n = Node(prod[0])
             #print "Production: ", prod
             for x in range(i, len(prod)):
-                if prod[x] == prod[x].upper:
-                    n.addkid(Node(prod[x]))
-                else:
+                if isinstance(t[x-1], Node):
                     n.addkid(t[x-1])
+                else:
+                    n.addkid(Node(prod[x] + ':' + str(t[x-1])))
 
             t[0] = n
             #print "Node: ", n
