@@ -124,7 +124,6 @@ class ParserGenerator(object):
 
             # this gives us a node with the name of the production
             n = Node(prod[0])
-            #print "Production: ", prod
             for x in range(i, len(prod)):
                 if isinstance(t[x-1], Node):
                     n.addkid(t[x-1])
@@ -132,9 +131,6 @@ class ParserGenerator(object):
                     n.addkid(Node(prod[x] + ':' + str(t[x-1])))
 
             t[0] = n
-            #print "Node: ", n
-            #print "Children: ", n.children
-            #print "\n\n"
 
         f = lambda s, t : ply_make_tree(t, docstring)
         f.__doc__ = docstring
@@ -145,6 +141,6 @@ class ParserGenerator(object):
         if t is None:
             return
 
-        print "Syntax error in input!"
+        print "Syntax error at the following token:"
         print t
         raise Exception
