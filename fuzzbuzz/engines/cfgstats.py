@@ -123,7 +123,6 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
         #we want to build a quick index of probabilities => rules
         for tname in intersection:
             if tname == "pp":
-                pass
                 for rule in tables[tname][nonterm.name]:
                     prob = tables[tname][nonterm.name][rule]
                     if not probdist.has_key(prob): #first time we find a rule with this probability
@@ -133,12 +132,15 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
             elif tname == "cp":
                 #print nonterm.name
                 #print prevTuple
-                for rule in tables[tname][nonterm.name][prevTuple]:
-                    prob = tables[tname][nonterm.name][prevTuple][rule]
-                    if not probdist.has_key(prob): #first time we find a rule with this probability
-                        probdist[prob] = [rule]
-                    else: #we have a key with this probability so we just want to add ourselves to that key's set
-                        probdist[prob].append(rule)
+                if not tables[tname][nonterm.name].has_key(prevTuple):
+                    return choice(nonterm.rules) # maybe (probably?) do do something smarter in the future
+                else:
+                    for rule in tables[tname][nonterm.name][prevTuple]:
+                        prob = tables[tname][nonterm.name][prevTuple][rule]
+                        if not probdist.has_key(prob): #first time we find a rule with this probability
+                            probdist[prob] = [rule]
+                        else: #we have a key with this probability so we just want to add ourselves to that key's set
+                            probdist[prob].append(rule)
 
         '''
         At this point we want to find out where our random number lies in our probability distribution
