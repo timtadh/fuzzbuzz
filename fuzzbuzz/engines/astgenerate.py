@@ -63,11 +63,12 @@ def ast_generator(rlexer, grammar, example_list=None, lexer=None):
         @param grammar_start : The start symbol for the grammar we are to
                                generate a parser for
         """
+        parser = ParserGenerator(lexer.tokens)
         for sym in grammar.nonterminals.itervalues():
             for rule in sym.ply():
-                ParserGenerator.add_production(rule)
+                parser.add_production(rule)
 
-        return ParserGenerator(lexer.tokens)
+        return parser
 
     parser = generate_parser(grammar)
     ast_list = generate_examples_ast(parser, example_list)
@@ -81,28 +82,30 @@ class ParserGenerator(object):
     # production counter
     pcount = 0
 
+    tokens = [];
+
     # hackity hack, parser has to start with 'Stmts' as top rule for this to work
     start = 'Stmts'
 
-    def __new__(cls, tokens,  **kwargs):
+    def __init__(self, tokens):
         # get the tokens from the lexer into the scope of our parser.
-        setattr(cls, 'tokens', tokens)
-        self = super(ParserGenerator, cls).__new__(cls, **kwargs)
+        self.tokens = tokens
+
+    def add_production(self, prod_string):
+        func = self.ply_func_for(prod_string)
+        prod_name = prod_string.split(' ')[0]
+        func_name = 'p_' + prod_name + str(self.pcount)
+        self.pcount += 1
+        setattr(self, func_name, func)
+
+    def parse(self, text, lexer):
         # TODO: allow us to have multiple generated tab files
         # otherwise we waste extra time re-generating the parser.
-        self.yacc = yacc.yacc(module=self,  tabmodule="generated_parser_tab", **kwargs)
-        return self.yacc
+        self.yacc = yacc.yacc(module=self,  tabmodule="generated_parser_tab")
+        return self.yacc.parse(text, lexer)
 
-    @classmethod
-    def add_production(cls, prod_string):
-        func = cls.ply_func_for(prod_string)
-        prod_name = prod_string.split(' ')[0]
-        func_name = 'p_' + prod_name + str(cls.pcount)
-        cls.pcount += 1
-        setattr(cls, func_name, func)
 
-    @classmethod
-    def ply_func_for(cls, docstring):
+    def ply_func_for(self, docstring):
         """Returns an anonymous function which has the supplied docstring
 
         @param docstring : the docstring for the returned anonymous function
@@ -132,7 +135,8 @@ class ParserGenerator(object):
 
             t[0] = n
 
-        f = lambda s, t : ply_make_tree(t, docstring)
+        # f = lambda s, t : ply_make_tree(t, docstring)
+        f = lambda t : ply_make_tree(t, docstring)
         f.__doc__ = docstring
         return f
 
