@@ -26,17 +26,14 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
 
     valid_tables = {
         'pp' : 'production_probabilities',
+        'cp' : 'conditional_probabilities',
         'test' : 'test description'
     }
 
     intersection = []
 
-    tables = dict();
-
-    prev2 = list(); #this can become prevN (i.e. previous n choices) but lets test with 2 for now
-    prev2.append(None)
-    prev2.append(None)
-    choice_hist = dict();
+    tables = dict()
+    lookBack = int()
 
     if list_tables:
         tables = ["Table Names CFGStats Accepts:"]
@@ -57,33 +54,47 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
     else:
         return None, "CFGStats Failure: No stats tables provided!"
 
+    def getLookback():
+        if stat_tables.has_key("cp"):
+            return int(stat_tables["cp"][0][0])
+        else:
+            return None
 
     def keyify():
         for tname in intersection:
-            for gramtuple in stat_tables[tname]: #these are all of the productions for a specific table
-                assert len(gramtuple) is 3
-                if not tables.has_key(tname): # this is a new table
-                    tables[tname] = {gramtuple[0] : {gramtuple[1] : float(gramtuple[2])}}
-                else:
-                    if not tables.get(tname).has_key(gramtuple[0]): # this is simply a new production for the table
-                        tables[tname][gramtuple[0]] = {gramtuple[1] : float(gramtuple[2])}
-                    else: # adding a new rule to a production
-                        tables[tname][gramtuple[0]][gramtuple[1]] = float(gramtuple[2])
+            if tname == "pp":
+                for gramtuple in stat_tables[tname]: #these are all of the productions for a specific table
+                    assert len(gramtuple) is 3
+                    if not tables.has_key(tname): # this is a new table
+                        tables[tname] = {gramtuple[0] : {gramtuple[1] : float(gramtuple[2])}}
+                    else:
+                        if not tables.get(tname).has_key(gramtuple[0]): # this is simply a new production for the table
+                            tables[tname][gramtuple[0]] = {gramtuple[1] : float(gramtuple[2])}
+                        else: # adding a new rule to a production
+                            tables[tname][gramtuple[0]][gramtuple[1]] = float(gramtuple[2])
+            elif tname == "cp": #tables[tname][nonterminal][prevTuple][rule] = prob
+                for gramtuple in stat_tables[tname]: #these are all of the productions for a specific table
+                    lookBack = int(gramtuple[0])
+                    assert len(gramtuple) is lookBack + 3
+                    production = gramtuple[1]
+                    nonterminal = production.split("=>")[0].strip()
+                    rule = production.split("=>")[1].strip()
+                    prevTuple = tuple(gramtuple[x+2] for x in range(lookBack))
+                    prob = gramtuple[lookBack + 2]
+                    if not tables.has_key(tname): # this is a new table
+                        tables[tname] = {nonterminal : {prevTuple : {rule : float(prob)}}}
+                    else:
+                        if not tables.get(tname).has_key(nonterminal): # this is simply a new nonterminal for the table
+                            tables[tname][nonterminal] = {prevTuple : {rule : float(prob)}}
+                        else:
+                            if not tables.get(tname).get(nonterminal).has_key(prevTuple): #this is a new prevTuple for a nonterminal we have
+                                tables[tname][nonterminal][prevTuple] = {rule : float(prob)}
+                            else:
+                                tables[tname][nonterminal][prevTuple][rule] = float(prob)
 
-    def log_as_prev(rule):
-        prev2[0] = prev2[1]
-        prev2[1] = rule
-
-    def log_choice_given_prev(rule):
-        #increase the number of times we've chosen this rule given the prev 2 choices
-        mytuple = tuple(r for r in prev2)
-        if not choice_hist.has_key(rule):
-            choice_hist[rule] = {mytuple : 1}
-        else:
-            if not choice_hist.get(rule).has_key(mytuple):
-                choice_hist[rule][mytuple] = 1
-            else:
-                choice_hist[rule][mytuple] = choice_hist[rule][mytuple] + 1
+    def log_as_prev(lookBack, prev, label):
+        retVal = tuple(prev[x+1] for x in range(lookBack-1)) + (label,)
+        return retVal
 
     def getRulefromString(nonterm, ruleStr):
         stringList = list()
@@ -105,18 +116,29 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
         else:
             return nonterm.rules[[i for i,x in enumerate(stringList) if x == ruleStr][0]]
 
-    def choose(nonterm):
+    def choose(nonterm, prevTuple=None):
         rand = random()
         probdist = dict()
 
         #we want to build a quick index of probabilities => rules
         for tname in intersection:
-            for rule in tables[tname][nonterm.name]:
-                prob = tables[tname][nonterm.name][rule]
-                if not probdist.has_key(prob): #first time we find a rule with this probability
-                    probdist[prob] = [rule]
-                else: #we have a key with this probability so we just want to add ourselves to that key's set
-                    probdist[prob].add(rule)
+            if tname == "pp":
+                pass
+                for rule in tables[tname][nonterm.name]:
+                    prob = tables[tname][nonterm.name][rule]
+                    if not probdist.has_key(prob): #first time we find a rule with this probability
+                        probdist[prob] = [rule]
+                    else: #we have a key with this probability so we just want to add ourselves to that key's set
+                        probdist[prob].add(rule)
+            elif tname == "cp":
+                #print nonterm.name
+                #print prevTuple
+                for rule in tables[tname][nonterm.name][prevTuple]:
+                    prob = tables[tname][nonterm.name][prevTuple][rule]
+                    if not probdist.has_key(prob): #first time we find a rule with this probability
+                        probdist[prob] = [rule]
+                    else: #we have a key with this probability so we just want to add ourselves to that key's set
+                        probdist[prob].append(rule)
 
         '''
         At this point we want to find out where our random number lies in our probability distribution
@@ -152,16 +174,37 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
     output = list()
     def fuzz(start):
         keyify()
+        lookBack = getLookback()
+        if lookBack:
+            prev = tuple('None' for x in range(lookBack))
+            prevStack = list()
+            initStack = (tuple('None' for x in range(lookBack)), False)
+            prevStack.append(initStack)
         stack = list()
         stack.append((start, None, 0))
 
         while stack:
+            if lookBack:
+                prev = prevStack[len(prevStack)-1][0]
+                requirePop = prevStack[len(prevStack)-1][1]
+                prevAsTuple = tuple(prev[x] for x in range(lookBack))
+
+                if requirePop:
+                    prevStack.pop()
+
             nonterm, rule, j = stack.pop()
             if rule is None: #otherwise we are continuing from where we left off
                 assert j is 0
-                rule = choose(nonterm)
-                log_choice_given_prev(rule)
-                log_as_prev(rule) #set myself as the previous rule chosen
+                if not lookBack:
+                    rule = choose(nonterm)
+                else:
+                    rule = choose(nonterm, prev)
+                    prevAsTuple = log_as_prev(lookBack, prevAsTuple, nonterm.name) #set myself as the last visited nonterm
+                    if len(rule.pattern) > 1:
+                        prevStack.append((prevAsTuple, False))
+                    else:
+                        prevStack.append((prevAsTuple, True))
+
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.__class__ is NonTerminal:
                     stack.append((nonterm, rule, i+1))
@@ -171,15 +214,5 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
                     output.append(rlexer[sym.name]())
 
     fuzz(grammar.start)
-    '''
-    print choice_hist
-    print "\n"
-    for m in choice_hist:
-        #print "k: " + k + "v: " + v
-        print m
-        for v in choice_hist[m]:
-            print v
-            print choice_hist[m][v]
-        print "\n"
-    '''
+
     return output, None
