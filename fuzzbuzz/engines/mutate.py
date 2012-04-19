@@ -4,10 +4,12 @@
 #Email: johngunderman@gmail.com
 #For licensing see the LICENSE file in the top level directory.
 
+import random
 from ply import yacc
 
 from reg import registration
 from astgenerate import ast_generator
+from attribute import attribute_fuzzer
 from fuzzbuzz.models.symbols import Terminal, NonTerminal
 from fuzzbuzz.frontend.lexer import tokens, Lexer
 from fuzzbuzz.frontend.ast   import Node
@@ -32,7 +34,43 @@ def mutation_fuzzer(rlexer, grammar, example_list=None, lexer=None):
 
         @param ast : the AST which we will mutate
         """
+        node = select_mutation_subtree(ast)
+        mutate_subtree(node)
         return ast
+
+    def select_mutation_subtree(ast):
+        """Chooses a subtree from the ast
+
+        @param ast : The ast from which we will choose
+        @return : the root node of the subtree
+        """
+        # There's tons of ways to do this. Current way weights all
+        # nodes equally, instead of giving more precedence to
+        # nonterminals or higher precedence to larger branches of the
+        # tree
+        nodes = []
+        for node in ast:
+            nodes.append(node)
+
+        return random.choice(nodes)
+
+    def mutate_subtree(node):
+        """Takes in an ast node (see ast.py) and manipulates it according to `grammar`
+        We don't return anything here. The node object will be modified, leading to
+        a change in the state of the AST int belongs to
+
+        @param node : the node to be mutated.
+        """
+        print "Node to be mutated: "
+        print node
+        print "*******"
+
+        # As with select_mutation_subtree, this function has many potential
+        # implementations. A simple on is included for now. In the future,
+        # this will become more moduler, and the user will be able to set a
+        # function of their choice as the mutator or selector.
+
+        # TODO: please implement me!
 
 
     def mutate_all(ast_list):
