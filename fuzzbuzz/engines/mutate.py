@@ -98,8 +98,29 @@ def mutation_fuzzer(rlexer, grammar, example_list=None, lexer=None):
         """
         mutated_list = list()
         for ast in ast_list:
-            mutated_list.append(mutate(ast))
+            mutated_list.append(ast_to_str(mutate(ast)))
         return mutated_list
+
+    def ast_to_str(ast):
+        """Takes an AST and returns the string represented by that AST
+
+        @param ast : the root node of the ast to be transformed into a string
+        """
+        # This is currently a bit of a hack. However, it does work.
+        out = ""
+        block = str(ast).split('\n')
+
+        for line in block:
+            chunks = line.split(':')
+            #  we have a leaf node
+            if chunks[0] == '0':
+                if chunks[-1] == "\\n":
+                    out += "\n"
+                else:
+                    out += chunks[-1]
+                    out += " "
+
+        return out
 
 
     ast_list, _ = ast_generator(rlexer, grammar, example_list, lexer);
