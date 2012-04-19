@@ -71,6 +71,23 @@ def mutation_fuzzer(rlexer, grammar, example_list=None, lexer=None):
         # function of their choice as the mutator or selector.
 
         # TODO: please implement me!
+        # g = grammar
+        # import pdb
+        # pdb.set_trace()
+
+        # check if we have a nonterminal or a terminal to mutate
+        if node.label in grammar.nonterminals:
+            nonterm = grammar.nonterminals[node.label]
+
+        else:
+            name = node.label.split(':')
+            if name[0] in rlexer:
+                value = rlexer[name[0]]()
+                name[1] = value
+                node.label = ":".join(name)
+            else:
+                print "Something terrible must have happened!"
+                print name
 
 
     def mutate_all(ast_list):
