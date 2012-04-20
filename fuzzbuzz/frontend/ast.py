@@ -35,7 +35,7 @@ class Node(object):
         else:   self.children.append(node)
         return self
 
-    def iter(self):
+    def __iter__(self):
         queue = collections.deque()
         queue.append(self)
         while len(queue) > 0:

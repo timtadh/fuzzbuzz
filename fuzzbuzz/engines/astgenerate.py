@@ -38,7 +38,7 @@ def ast_generator(rlexer, grammar, example_list=None, lexer=None):
         ast_list = list()
 
         for example in example_list:
-            ast_list.append(str(generate_ast(example, parser)))
+            ast_list.append(generate_ast(example, parser))
 
         return ast_list
 

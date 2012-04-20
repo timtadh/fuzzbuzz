@@ -262,6 +262,7 @@ def main(args):
         log(err)
         usage(error_codes['engine_fail'])
 
+    strings = map(str, strings)
     string = ' '.join(strings)
     for line in string.split('\n'):
         output(line.strip())
