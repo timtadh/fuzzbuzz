@@ -1,2 +1,5 @@
 var thz = 221
+print thz
 var xn = 218
+print xn
+var llala = 9

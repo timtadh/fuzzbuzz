@@ -50,7 +50,8 @@ def mutation_fuzzer(rlexer, grammar, example_list=None, lexer=None):
         # tree
         nodes = []
         for node in ast:
-            nodes.append(node)
+            if node.label in grammar.nonterminals:
+                nodes.append(node)
 
         return random.choice(nodes)
 
@@ -78,7 +79,8 @@ def mutation_fuzzer(rlexer, grammar, example_list=None, lexer=None):
         # check if we have a nonterminal or a terminal to mutate
         if node.label in grammar.nonterminals:
             nonterm = grammar.nonterminals[node.label]
-
+            # clear out our children
+            node.children = []
             # Choose what to generate. This should eventually be made more complicated,
             # perhaps using Rafael's code.
             rule = random.choice(nonterm.rules)
