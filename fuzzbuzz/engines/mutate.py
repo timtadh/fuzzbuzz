@@ -79,15 +79,25 @@ def mutation_fuzzer(rlexer, grammar, example_list=None, lexer=None):
         if node.label in grammar.nonterminals:
             nonterm = grammar.nonterminals[node.label]
 
+            # Choose what to generate. This should eventually be made more complicated,
+            # perhaps using Rafael's code.
+            rule = random.choice(nonterm.rules)
+
+            for sym, cnt in rule.pattern:
+                if hasattr(sym, 'name'):
+                    new_node = Node(sym.name)
+                    mutate_subtree(new_node)
+                    node.addkid(new_node)
+
         else:
-            name = node.label.split(':')
-            if name[0] in rlexer:
-                value = rlexer[name[0]]()
-                name[1] = value
-                node.label = ":".join(name)
+            name = node.label.split(':')[0]
+            if name in rlexer:
+                value = rlexer[name]()
+                new_name = [name, value]
+                node.label = ":".join(new_name)
             else:
                 print "Something terrible must have happened!"
-                print name
+                print new_name
 
 
     def mutate_all(ast_list):
