@@ -51,7 +51,8 @@ def mutation_fuzzer(rlexer, grammar, example_list=None, lexer=None):
 
         @param ast : the root node of the ast to be transformed into a string
         """
-        # This is currently a bit of a hack. However, it does work.
+        # Super hacky, but I'll move it to ast.py / fix it up when I have more time
+        # (aka it may be a while)
         out = ""
         block = str(ast).split('\n')
 
