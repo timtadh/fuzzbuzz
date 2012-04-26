@@ -4,9 +4,12 @@
 #Email: johngunderman@gmail.com
 #For licensing see the LICENSE file in the top level directory.
 
+import random
 from ply import yacc
 
 from reg import registration
+from astgenerate import ast_generator
+from attribute import attribute_fuzzer
 from fuzzbuzz.models.symbols import Terminal, NonTerminal
 from fuzzbuzz.frontend.lexer import tokens, Lexer
 from fuzzbuzz.frontend.ast   import Node
@@ -25,56 +28,78 @@ def mutation_fuzzer(rlexer, grammar, example_list=None, lexer=None):
     if not example_list:
         return None, 'Mutation Fuzzer requires at least one example'
 
-    lex = lexer()
-
-    def generate_examples_ast(parser, example_list):
-        """Generates an AST for each example provided in `example_list`.
-        This AST is parsed according to the grammar in `grammar`.
-
-        @param parser : The parser from which the ASTs will be generated from
-        @param example_list : A list of example strings to be mutated
-        @return list of ASTs, corresponding to the examples provided.
-        """
-        ast_list = list()
-
-        for example in example_list:
-            ast_list.append(str(generate_ast(example, parser)))
-
-        return ast_list
-
-    def generate_ast(example, parser):
-        """Generates and returns an AST for the provided `example`
-        AST generated according to the provided grammar
-
-        @param example : the text to be parsed into an AST
-        @param parser  : the parser from which the ASTs will be generated from
-        @return an AST object
-        """
-
-        result = parser.parse(example, lex)
-        return result
-
-    def generate_parser(grammar):
-        """Generate a parser for our `example_list` based on the grammar in
-        `grammar`. This is probably going to be very hacky.
-        On completion this function returns a `parser` object which can be
-        used to generate ASTs for our examples.
-
-        @param grammar_start : The start symbol for the grammar we are to
-                               generate a parser for
-        """
-        for sym in grammar.nonterminals.itervalues():
-            for rule in sym.ply():
-                ParserGenerator.add_production(rule)
-
-        return ParserGenerator(lexer.tokens)
 
     def mutate(ast):
         """Mutate a singular AST and return the resultant AST
 
         @param ast : the AST which we will mutate
         """
+        node = select_mutation_subtree(ast)
+        mutate_subtree(node)
         return ast
+
+    def select_mutation_subtree(ast):
+        """Chooses a subtree from the ast
+
+        @param ast : The ast from which we will choose
+        @return : the root node of the subtree
+        """
+        # There's tons of ways to do this. Current way weights all
+        # nodes equally, instead of giving more precedence to
+        # nonterminals or higher precedence to larger branches of the
+        # tree
+        nodes = []
+        for node in ast:
+            if node.label in grammar.nonterminals:
+                nodes.append(node)
+
+        return random.choice(nodes)
+
+    def mutate_subtree(node):
+        """Takes in an ast node (see ast.py) and manipulates it according to `grammar`
+        We don't return anything here. The node object will be modified, leading to
+        a change in the state of the AST int belongs to
+
+        @param node : the node to be mutated.
+        """
+        print "Node to be mutated: "
+        print node
+        print "*******"
+
+        # As with select_mutation_subtree, this function has many potential
+        # implementations. A simple on is included for now. In the future,
+        # this will become more moduler, and the user will be able to set a
+        # function of their choice as the mutator or selector.
+
+        # TODO: please implement me!
+        # g = grammar
+        # import pdb
+        # pdb.set_trace()
+
+        # check if we have a nonterminal or a terminal to mutate
+        if node.label in grammar.nonterminals:
+            nonterm = grammar.nonterminals[node.label]
+            # clear out our children
+            node.children = []
+            # Choose what to generate. This should eventually be made more complicated,
+            # perhaps using Rafael's code.
+            rule = random.choice(nonterm.rules)
+
+            for sym, cnt in rule.pattern:
+                if hasattr(sym, 'name'):
+                    new_node = Node(sym.name)
+                    mutate_subtree(new_node)
+                    node.addkid(new_node)
+
+        else:
+            name = node.label.split(':')[0]
+            if name in rlexer:
+                value = rlexer[name]()
+                new_name = [name, value]
+                node.label = ":".join(new_name)
+            else:
+                print "Something terrible must have happened!"
+                print new_name
 
 
     def mutate_all(ast_list):
@@ -85,86 +110,32 @@ def mutation_fuzzer(rlexer, grammar, example_list=None, lexer=None):
         """
         mutated_list = list()
         for ast in ast_list:
-            mutated_list.append(mutate(ast))
+            mutated_list.append(ast_to_str(mutate(ast)))
         return mutated_list
 
+    def ast_to_str(ast):
+        """Takes an AST and returns the string represented by that AST
 
-    parser = generate_parser(grammar)
-    ast_list = generate_examples_ast(parser, example_list)
+        @param ast : the root node of the ast to be transformed into a string
+        """
+        # Super hacky, but I'll move it to ast.py / fix it up when I have more time
+        # (aka it may be a while)
+        out = ""
+        block = str(ast).split('\n')
+
+        for line in block:
+            chunks = line.split(':')
+            #  we have a leaf node
+            if chunks[0] == '0':
+                if chunks[-1] == "\\n":
+                    out += "\n"
+                else:
+                    out += chunks[-1]
+                    out += " "
+
+        return out
+
+
+    ast_list, _ = ast_generator(rlexer, grammar, example_list, lexer);
     mutated_asts = mutate_all(ast_list)
     return mutated_asts, None
-
-
-class ParserGenerator(object):
-    """Generate a yacc (ply) parser for the given input strings
-    """
-
-    # production counter
-    pcount = 0
-
-    # hackity hack, parser has to start with 'Stmts' as top rule for this to work
-    start = 'Stmts'
-
-    @classmethod
-    def add_production(cls, prod_string):
-        func = cls.ply_func_for(prod_string)
-        prod_name = prod_string.split(' ')[0]
-        func_name = 'p_' + prod_name + str(cls.pcount)
-        cls.pcount += 1
-        setattr(cls, func_name, func)
-
-    @classmethod
-    def ply_func_for(cls, docstring):
-        """Returns an anonymous function which has the supplied docstring
-
-        @param docstring : the docstring for the returned anonymous function
-        @return an anonymous function
-        """
-        def ply_make_tree(t, docstring):
-            """Where t is a production generated by ply, give t[0] a new node
-            with child nodes t[1..n]
-
-            @param t : (list) where t[0] is the left-hand side of the production
-            generated by ply, and t[0..n] is the right-hand side.
-
-            @param docstring : (string) the production rule for this function
-            """
-            # TODO: figure out what to label things
-            prod = docstring.split(' ')
-            # We can only have one thing on the left side of our prod, so
-            i = 2               # (first is prod, second is ':')
-
-            # this gives us a node with the name of the production
-            n = Node(prod[0])
-            #print "Production: ", prod
-            for x in range(i, len(prod)):
-                if isinstance(t[x-1], Node):
-                    n.addkid(t[x-1])
-                else:
-                    n.addkid(Node(prod[x] + ':' + str(t[x-1])))
-
-            t[0] = n
-            #print "Node: ", n
-            #print "Children: ", n.children
-            #print "\n\n"
-
-        f = lambda s, t : ply_make_tree(t, docstring)
-        f.__doc__ = docstring
-        return f
-
-    def p_error(self, t):
-        # TODO: we need a better exception framework
-        if t is None:
-            return
-
-        print "Syntax error in input!"
-        print t
-        raise Exception
-
-    def __new__(cls, tokens,  **kwargs):
-        # get the tokens from the lexer into the scope of our parser.
-        setattr(cls, 'tokens', tokens)
-        self = super(ParserGenerator, cls).__new__(cls, **kwargs)
-        self.yacc = yacc.yacc(module=self,  tabmodule="mutate_parser_tab", **kwargs)
-        return self.yacc
-
