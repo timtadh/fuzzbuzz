@@ -1,0 +1,35 @@
+\title{Fuzz Testing with Inferred Attribute Grammars}
+\author{
+        Tim Henderson\\
+        Case Western Reserve University\\
+}
+\date{\today}
+
+\maketitle
+
+\begin{abstract}
+Blackbox Fuzzing, a type automated dynamic test generation, has been heavily
+used to find security vulnerabilities and faults in software. We propose a new
+form of Blackbox Fuzzing: Inferred Attribute Grammar Fuzzing. Attribute grammars
+have a long distinguished history in specifying context sensitive restrictions to
+context free languages. We use them here to assist with generating correct
+randomized inputs for programs with structured input languages.  Attribute
+Grammars are time consuming to write by hand, and a grammar for the input
+language of the program under test may not be available. Therefore, we
+present a multi-step approach to constructing inferred Attribute Grammars useful
+for Fuzz Testing. Our approach assumes the existence of a large set of
+operational inputs.
+\end{abstract}
+\vspace{.5in}
+
+
+\input{intro.md}
+\input{cfgstats.md}
+\input{attrgram.md}
+\input{mutation.md}
+\input{conclusion.md}
+
+\nocite{*}
+\bibliographystyle{acm}
+\bibliography{bibliography}
+

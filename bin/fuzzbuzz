@@ -105,7 +105,7 @@ def assert_file_exists(path):
     @param path : path to file
     @returns : the path to the file (an echo) [only on success]
     '''
-    path = os.path.abspath(path)
+    path = os.path.abspath(os.path.expanduser(path))
     if not os.path.exists(path):
         log('No file found. "%(path)s"' % locals())
         usage(error_codes['file_not_found'])
@@ -181,16 +181,14 @@ def parse_csv_or_die(tables, table_name, s):
 
 def main(args):
 
+    short_opts =  'hvg:r:l:e:Ex:t:Ts:'
+    long_opts = [
+      'help', 'version', 'grammar=', 'reverse-lexer=', 'lexer=', 'engine=',
+      'list-engines', 'example=', 'table=', 'list-table-names', 'stdin='
+    ]
+
     try:
-        opts, args = getopt(
-            args,
-            'hvg:r:l:e:Ex:t:T',
-            [
-              'help', 'version', 'grammar=', 'reverse-lexer=', 'lexer=',
-              'engine=', 'list-engines', 'example=', 'table=',
-              'list-table-names'
-            ]
-        )
+        opts, args = getopt(args, short_opts, long_opts)
     except GetoptError, err:
         log(err)
         usage(error_codes['option'])
@@ -203,6 +201,7 @@ def main(args):
     examples = list()
     tables = dict()
     table_names_requested = False
+    stdin_opt = None
     for opt, arg in opts:
         if opt in ('-h', '--help'):
             usage()
@@ -227,6 +226,16 @@ def main(args):
             table_name = tableinfo[0]
             s = read_file_or_die(tableinfo[1])
             parse_csv_or_die(tables, table_name, s)
+        elif opt in ('-s', '--stdin'):
+            sops = short_opts.replace(':', '')
+            lops = [opt.replace('=', '') for opt in long_opts]
+            if arg not in sops and arg not in lops:
+                log("'%s' supplied to -s (or --stdin) is not a valid opt" % arg)
+                usage(error_codes['option'])
+            if stdin_opt is not None:
+                log("'%s' can only supplied -s (or --stdin) once")
+                usage(error_codes['option'])
+            stdin_opt = arg
 
     if engine_name is None:
         log("Must supply an engine name")
