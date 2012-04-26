@@ -1,0 +1,34 @@
+
+\section{Introduction}
+
+Attribute Grammars were invented in the heady days of the late 1960's by Dr.
+Knuth.\cite{Knuth1990} At the time the question on how to formally define the
+semantics of a programming language had become a fashionable research topic.
+Attribute grammars emerged as a popular way and remain important for such
+purposes today. The key to their success is the ability to define context
+sensitive semantics in languages. A common example, variable names must be
+declared before use.
+
+Input Languages to programs are often context sensitive. The obvious and natural
+example is computer programming languages which encompass a wide variety of
+useful programs. Web browsers, text editors, integrated development environments,
+web servers, and game engines all make use of programming languages. Sometimes
+exposing the languages to the end user for extensibility purposes. Other program
+types have similarly complex input schemes often arising from natural world,
+for example organic chemical structures.
+
+Fuzzing, in particular ``Blackbox Fuzzing'' automatically generates test cases
+for software. In the simplest formulation the test cases are little more than
+random data. These types of tests produce poor coverage of the target program.
+Context free grammar based fuzzing produces better results. However, context
+free grammars are still unable to achieve good coverage of the entire target
+program. 
+
+Why do context free grammars fail when used to generate test cases for software
+even when the grammar is known (and not inferred)? Context free grammars only
+capture the syntax of the language and not the semantics. This means, the
+language the program accepts as input is strictly a subset of the language the
+CFG generates. Depending on the size of the gap between the CFG and the actual
+language a random string generated from the CFG may only have a very small
+chance of being in the language.
+
