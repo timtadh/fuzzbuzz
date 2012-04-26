@@ -1,107 +1,19 @@
 \documentclass[12pt]{article}
-\usepackage[margin=1in]{geometry}
-\usepackage{setspace}
-\usepackage{multicol}
+\usepackage[margin=1.0in]{geometry}
+\usepackage{enumerate}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{cancel}
+\usepackage{tabularx}
 \usepackage{url}
-
-\title{Fuzz Testing with Inferred Attribute Grammars}
-\author{
-        Tim Henderson\\
-        Case Western Reserve University\\
-}
-\date{\today}
+\usepackage{multicol}
+\makeatletter
+\def\imod#1{\allowbreak\mkern10mu({\operator@font mod}\,\,#1)}
+\makeatother
 
 \begin{document}
-% \doublespacing
-\maketitle
-\begin{abstract}
-Blackbox Fuzzing, a type automated dynamic test generation, has been heavily
-used to find security vulnerabilities and faults in software. We propose a new
-form of Blackbox Fuzzing: Inferred Attribute Grammar Fuzzing. Attribute grammars
-have a long distinguished history in specifying context sensitive restrictions to
-context free languages. We use them here to assist with generating correct
-randomized inputs for programs with structured input languages.  Attribute
-Grammars are time consuming to write by hand, and a grammar for the input
-language of the program under test may not be available. Therefore, we
-present a multi-step approach to constructing inferred Attribute Grammars useful
-for Fuzz Testing. Our approach assumes the existence of a large set of
-operational inputs.
-\end{abstract}
 
-\begin{multicols}{2}
-
-\section{Introduction}
-
-Attribute Grammars were invented in the heady days of the late 1960's by Dr.
-Knuth.\cite{Knuth1990} At the time the question on how to formally define the
-semantics of a programming language had become a fashionable research topic.
-Attribute grammars emerged as a popular way and remain important for such
-purposes today. The key to their success is the ability to define context
-sensitive semantics in languages. A common example, variable names must be
-declared before use.
-
-Input Languages to programs are often context sensitive. The obvious and natural
-example is computer programming languages which encompass a wide variety of
-useful programs. Web browsers, text editors, integrated development environments,
-web servers, and game engines all make use of programming languages. Sometimes
-exposing the languages to the end user for extensibility purposes. Other program
-types have similarly complex input schemes often arising from natural world,
-for example organic chemical structures.
-
-Fuzzing, in particular ``Blackbox Fuzzing'' automatically generates test cases
-for software. In the simplest formulation the test cases are little more than
-random data. These types of tests produce poor coverage of the target program.
-Context free grammar based fuzzing produces better results. However, context
-free grammars are still unable to achieve good coverage of the entire target
-program. 
-
-Why do context free grammars fail when used to generate test cases for software
-even when the grammar is known (and not inferred)? Context free grammars only
-capture the syntax of the language and not the semantics. This means, the
-language the program accepts as input is strictly a subset of the language the
-CFG generates. Depending on the size of the gap between the CFG and the actual
-language a random string generated from the CFG may only have a very small
-chance of being in the language.
-
-\section{Using Attribute Grammars to Generate Test Cases}
-
-Attribute grammars can be used in a straight forward way to generate test cases. 
-
-Example Grammar Here
-
-Example Derivation
-
-Generation Algorithm
-
-\section{Annotating Context Free Grammars with Attributes}
-
-Context free grammars can be annotated with synthesized attributes using a
-straight forward process if the types of attributes are reasonably restricted.
-For this paper we allow three types of attributes: 1) production choice, eg.
-which production for the non-terminal was chosen, 2) scalar attributes, eg. the
-value of a token or the name of a token, 3) set attributes, eg. collections of
-scalar attributes. 
-
-why the restrictions are reasonable 
-
-exact bound on what can be expressed
-
-\subsection{Algorithm Sketch}
-
-All possible attributes are synthesized
-
-Conditions are proposed based, and tested against operational inputs. Only those
-conditions which pass all operational inputs are kept.
-
-Attributes un-used by final conditions are pruned.
-
-\section{Conclusion}
-
-\nocite{*}
-\bibliographystyle{acm}
-\bibliography{bibliography}
-
-\end{multicols}
+\input{content.md}
 
 \end{document}
 
