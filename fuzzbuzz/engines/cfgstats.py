@@ -27,7 +27,6 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
     valid_tables = {
         'pp' : 'production_probabilities',
         'cp' : 'conditional_probabilities',
-        'test' : 'test description'
     }
 
     intersection = []
@@ -60,53 +59,86 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
         else:
             return None
 
-    def keyify():
+
+    def initialize_tables():
         for tname in intersection:
             if tname == "pp":
-                for gramtuple in stat_tables[tname]: #these are all of the productions for a specific table
+                for gramtuple in stat_tables[tname]:
+                    #these are all of the productions for a specific table
                     assert len(gramtuple) is 3
                     if not tables.has_key(tname): # this is a new table
-                        tables[tname] = {gramtuple[0] : {gramtuple[1] : float(gramtuple[2])}}
+                        tables[tname] = {gramtuple[0] :
+                                            {gramtuple[1] :
+                                                float(gramtuple[2])
+                                            }
+                                        }
                     else:
-                        if not tables.get(tname).has_key(gramtuple[0]): # this is simply a new production for the table
-                            tables[tname][gramtuple[0]] = {gramtuple[1] : float(gramtuple[2])}
+                        if not tables.get(tname).has_key(gramtuple[0]):
+                            # this is simply a new production for the table
+                            tables[tname][gramtuple[0]] = {gramtuple[1] :
+                                                            float(gramtuple[2])
+                                                          }
                         else: # adding a new rule to a production
                             tables[tname][gramtuple[0]][gramtuple[1]] = float(gramtuple[2])
-            elif tname == "cp": #tables[tname][nonterminal][prevTuple][rule] = prob
-                for gramtuple in stat_tables[tname]: #these are all of the productions for a specific table
+            elif tname == "cp":
+                #tables[tname][nonterminal][prevTuple][rule] = prob
+                for gramtuple in stat_tables[tname]:
+                    #these are all of the productions for a specific table
                     lookBack = int(gramtuple[0])
                     assert len(gramtuple) is lookBack + 3
                     production = gramtuple[1]
-                    nonterminal = production.split("=>")[0].strip()
-                    rule = production.split("=>")[1].strip()
+
+                    #prudction = nonterminal => rule
+                    nonterminal = production.split("=>")[0].strip() #LHS of =>
+                    rule = production.split("=>")[1].strip() #RHS of =>
+
                     prevTuple = tuple(gramtuple[x+2] for x in range(lookBack))
                     prob = gramtuple[lookBack + 2]
                     if not tables.has_key(tname): # this is a new table
-                        tables[tname] = {nonterminal : {prevTuple : {rule : float(prob)}}}
+                        tables[tname] = {nonterminal :
+                                            {prevTuple :
+                                                {rule : float(prob)}
+                                            }
+                                        }
+
                     else:
-                        if not tables.get(tname).has_key(nonterminal): # this is simply a new nonterminal for the table
-                            tables[tname][nonterminal] = {prevTuple : {rule : float(prob)}}
+                        if not tables.get(tname).has_key(nonterminal):
+                            # this is simply a new nonterminal for the table
+                            tables[tname][nonterminal] = {prevTuple :
+                                                            {rule : float(prob)}
+                                                         }
                         else:
-                            if not tables.get(tname).get(nonterminal).has_key(prevTuple): #this is a new prevTuple for a nonterminal we have
+                            if not tables.get(tname).get(nonterminal).has_key(prevTuple):
+                            #this is a new prevTuple for a nonterminal we have
                                 tables[tname][nonterminal][prevTuple] = {rule : float(prob)}
                             else:
                                 tables[tname][nonterminal][prevTuple][rule] = float(prob)
+        return
 
     def log_as_prev(lookBack, prev, label):
         retVal = tuple(prev[x+1] for x in range(lookBack-1)) + (label,)
         return retVal
 
+    '''
+    This function takes a string representation of a Rule Object and returns
+    the corresponding object.
+
+    We do this by taking all of the rule objects for a specific nonterminal
+    and converting them into NT:NT:NT format strings (gramstat format?)
+
+    Then we can compare strings to strings.
+    '''
     def getRulefromString(nonterm, ruleStr):
         stringList = list()
         for rule in nonterm.rules:
             toString = str()
             for sym,cnt in rule.pattern:
-                if sym.name == "NEWLINE": #temporary workaround for token mismatch between gramstats and fuzzbuzz
+                if sym.name == "NEWLINE":
                     continue
                 else:
                     toString = toString + sym.name
-                toString = toString + ":" #temporary workaround for token mismatch between gramstats and fuzzbuzz
-            toString = toString[:-1] #there is an extra ":" at the end that we don't want
+                toString = toString + ":"
+            toString = toString[:-1] #remove extra ":" at the end
             stringList.append(toString)
 
         if ruleStr not in stringList:
@@ -154,8 +186,12 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
         if rand=d, winningKey = 3
 
 
-        thus we set winningKey = current_key (if rand < current_key
-                                           and if current_key < current_winningKey) (because if rand=a, we dont want winningKey to be 2 or 3, for example)
+        thus we set:
+
+        winningKey = current_key (if rand < current_key
+                                    and if current_key < current_winningKey)
+
+        (because if rand=a, we dont want winningKey to be 2 or 3, for example)
         '''
 
         winningKey = 2
@@ -175,11 +211,12 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
 
     output = list()
     def fuzz(start):
-        keyify()
+        initialize_tables()
         lookBack = getLookback()
         if lookBack:
             prev = tuple('None' for x in range(lookBack))
-            prevStack = list()
+            prevStack = list() #stack of previous prevTuples
+            #the Boolean in each prevStack tuple tells us if we need to pop
             initStack = (tuple('None' for x in range(lookBack)), False)
             prevStack.append(initStack)
         stack = list()
@@ -206,6 +243,22 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
                         prevStack.append((prevAsTuple, False))
                     else:
                         prevStack.append((prevAsTuple, True))
+                        '''
+                                        ~~ Why True above? ~~
+
+                        If there is only one nonterminal in this rule then we
+                        want to log it as a previous but then pop it from the
+                        stack.
+
+                        This way, rules that have >1 nonterminals will keep
+                        their "prev" relative to what it was originally.
+
+                        For example, with NT:NT2:NT3, when we get to NT2, we
+                        dont want previous to include the previous from when we
+                        went down NT's productions.
+                        '''
+
+
 
             for i, (sym, cnt) in list(enumerate(rule.pattern))[j:]:
                 if sym.__class__ is NonTerminal:
