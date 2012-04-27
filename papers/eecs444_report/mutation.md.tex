@@ -1,5 +1,6 @@
 \section{Mutation Fuzzing with CFG Stats and Attribute Grammars}
 
+\subsection{Introduction}
 Mutation fuzzing is a useful category of fuzzing in its ability to
 generate output that is similar to existing samples. These outputs can
 then be used as inputs to a program for the purpose of detecting
@@ -10,6 +11,7 @@ surrounding a singular example. For practical purposes, these mutant
 sets are pruned by use of various heuristics, to obtain a mutant set
 which can be executed in a reasonable amount of time.
 
+\subsection{Literature Survey}
 Jia and Harman in their 2010 paper survey the general techniques used
 for pruning the mutant set.\cite{Jia2010} These techniques evaluate
 mutations based on what tests ``kill'' them. A test T is said to kill
@@ -18,13 +20,13 @@ T(M). If S and M match on T, then M is said to have ``survived''. This
 evaluation method unfortunately has one serious flaw, in the form of
 an undecidable problem. In some instances, mutants may be generated
 that are semantically the same, but syntactically different. Due to
-the undecidability of program equivalence, it is impossible to detect
+the undecidibility of program equivalence, it is impossible to detect
 these cases. Jia recognizes this problem as being a major hindering
 factor in the use of mutation fuzzing. A secondary main factor is the
 need for human interaction, both as a human oracle and as a mediator
 for the mutant equivalence problem.
 
-In Jia's paper, four seperate techniques for mutation set pruning are
+In Jia's paper, four separate techniques for mutation set pruning are
 discussed. The simplest of their surveyed techniques is to simply to
 pick from the set at random. While effective at pruning, this
 technique clearly lacks any ability to select the best mutants from
@@ -49,16 +51,15 @@ by applying mutation operators multiple times.
 
 
 
-% ------------------------------
+
+
+\subsection{Results}
 
 In Fuzzbuzz, we decided to develop mutation fuzzing as a compliment to
 the CFG stat and attribute grammar methods. Usage of these three
 techniques in conjunction is not a widely explored area. We predict
 that these techniques will better prune the mutation space as compared
 to other contemporary pruning methods.
-
-
-% Results ================================
 
 Our work on mutation fuzzing did not extend as far as we wanted, but
 it certainly set a firm foundation for future work. Support was added
