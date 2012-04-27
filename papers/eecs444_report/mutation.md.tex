@@ -48,10 +48,6 @@ into the category of First Order Mutations (FOM), HOMs are generated
 by applying mutation operators multiple times.
 
 
-Current research in the area spans a wide variety of techniques. The
-simplest of these techniques is first order mutations (FOM)
-
-
 
 % ------------------------------
 
@@ -60,5 +56,25 @@ the CFG stat and attribute grammar methods. Usage of these three
 techniques in conjunction is not a widely explored area. We predict
 that these techniques will better prune the mutation space as compared
 to other contemporary pruning methods.
+
+
+% Results ================================
+
+Our work on mutation fuzzing did not extend as far as we wanted, but
+it certainly set a firm foundation for future work. Support was added
+to Fuzzbuzz for basic mutation based on the random selection
+algorithm. Fuzzbuzz mutates nonterminals inside of the example AST in
+order to produce the final result.
+
+The current implementation is split into two easily extensible
+functions. The first of these is the selection function. This function
+decides what subtree of the AST should be mutated. While a simplistic
+algorithm is currently employed, the system allows for the selection
+function to be easily swapped out. The second important function is
+the generator function. This function generates a subtree for the
+given non-terminal. This part in particular is where the CFG stat and
+attribute grammar implementations become very useful. While not
+currently implemented as such, these two tree generation techniques
+can be used for better mutation generation.
 
 
