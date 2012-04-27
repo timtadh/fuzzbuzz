@@ -19,6 +19,9 @@ increasingly over the past thirty years. Between 1977 and 2009, there
 were no less than 350 papers on the subject, with the majority of the
 papers being published in the last decade alone. \cite{Jia2010}
 
+With this type of growth, is is not hard to see mutation fuzzing
+becoming a large part of automated testing in the future.
+
 \subsection{Literature Survey}
 Jia and Harman in their 2010 paper survey the general techniques used
 for pruning the mutant set.\cite{Jia2010} These techniques evaluate
@@ -36,7 +39,7 @@ for the mutant equivalence problem.
 
 In Jia's paper, four separate techniques for mutation set pruning are
 discussed. The simplest of their surveyed techniques is to simply to
-pick from the set at random. While effective at pruning, this
+pick from the set of alll mutations at random. While effective at pruning, this
 technique clearly lacks any ability to select the best mutants from
 the set. As a step up from random selection, clustering has been
 proposed as an improved pruning method. Using clustering, samples can
@@ -46,8 +49,8 @@ mutations that are killed by the same set of tests.
 % TODO: Possibly go into Hussain's master thesis here?
 
 The two remaining techniques attempt to use more complicated methods
-to prune. The first of these, selective mutation, constrains the number
-of mutations. Some mutation operations may produce excessive or
+to prune. The first of these, selective mutation, constrains the
+number of allowed mutation operations. Some mutation operations may produce excessive or
 redundant mutants. By eliminating these mutations, the generated set
 of mutants starts out small, largely eliminating the need for further
 reductions.
