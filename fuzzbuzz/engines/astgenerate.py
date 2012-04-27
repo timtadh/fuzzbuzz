@@ -4,6 +4,7 @@
 #Email: johngunderman@gmail.com
 #For licensing see the LICENSE file in the top level directory.
 
+import os, sys, tempfile
 from ply import yacc
 
 from reg import registration
@@ -42,7 +43,7 @@ def ast_generator(rlexer, grammar, example_list=None, lexer=None):
 
         return ast_list
 
-    def generate_ast(example, parser):
+    def generate_ast(example, parse):
         """Generates and returns an AST for the provided `example`
         AST generated according to the provided grammar
 
@@ -51,7 +52,7 @@ def ast_generator(rlexer, grammar, example_list=None, lexer=None):
         @return an AST object
         """
 
-        result = parser.parse(example, lex)
+        result = parse(example)
         return result
 
     def generate_parser(grammar):
@@ -63,15 +64,15 @@ def ast_generator(rlexer, grammar, example_list=None, lexer=None):
         @param grammar_start : The start symbol for the grammar we are to
                                generate a parser for
         """
-        parser = ParserGenerator(lexer.tokens)
+        parser = ParserGenerator(grammar, lexer.tokens)
         for sym in grammar.nonterminals.itervalues():
             for rule in sym.ply():
                 parser.add_production(rule)
 
-        return parser
+        return parser.yacc(lex)
 
-    parser = generate_parser(grammar)
-    ast_list = generate_examples_ast(parser, example_list)
+    parse = generate_parser(grammar)
+    ast_list = generate_examples_ast(parse, example_list)
     return ast_list, None
 
 
@@ -85,11 +86,20 @@ class ParserGenerator(object):
     tokens = [];
 
     # hackity hack, parser has to start with 'Stmts' as top rule for this to work
-    start = 'Stmts'
+    # start = 'Stmts'
 
-    def __init__(self, tokens):
+    def __init__(self, grammar, tokens):
         # get the tokens from the lexer into the scope of our parser.
+        self.start = grammar.start.name
         self.tokens = tokens
+        self.tabfd, self.tabpath = tempfile.mkstemp('.py', 'parsetab_', '.')
+        self.tabmod = os.path.splitext(os.path.basename(self.tabpath))[0]
+
+    def __del__(self):
+        import os
+        os.fdopen(self.tabfd).close()
+        os.unlink(self.tabpath)
+        os.unlink(self.tabpath+'c')
 
     def add_production(self, prod_string):
         func = self.ply_func_for(prod_string)
@@ -98,12 +108,11 @@ class ParserGenerator(object):
         self.pcount += 1
         setattr(self, func_name, func)
 
-    def parse(self, text, lexer):
-        # TODO: allow us to have multiple generated tab files
-        # otherwise we waste extra time re-generating the parser.
-        self.yacc = yacc.yacc(module=self,  tabmodule="generated_parser_tab")
-        return self.yacc.parse(text, lexer)
-
+    def yacc(self, lexer):
+        yaccparser = yacc.yacc(module=self,  tabmodule=self.tabmod, debug=0)
+        def parse(text):
+            return yaccparser.parse(text, lexer)
+        return parse
 
     def ply_func_for(self, docstring):
         """Returns an anonymous function which has the supplied docstring
