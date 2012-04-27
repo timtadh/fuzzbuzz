@@ -20,16 +20,13 @@ Given the following simple grammar, the table would provide $\mathbb{P}[B]$,
 $\mathbb{P}[C]$, and $\mathbb{P}[D]$ where $\mathbb{P}[B] + \mathbb{P}[C] +
 \mathbb{P}[D] = 1$.
 
-\begin{center}
-$A \rightarrow B$
-\end{center}
-\begin{center}
-$\rightarrow C$
-\end{center}
-\begin{center}
-$\rightarrow D$
-\end{center}
+\begin{align*}
+A &\rightarrow B \\
+&\rightarrow C \\
+&\rightarrow D \\
+\end{align*}
 
+\noindent
 This is certainly much better than making random choices, but it is still
 rather basic. We now present a literature review of picking rules given a CFG.
 
@@ -88,34 +85,18 @@ specific rule is given what the previous N non-terminals were that led to our
 current non-terminal. Our hypothesis was that knowing this information would
 allow us to make better choices. For example, consider the following grammar:
 
-\begin{center}
-$S \rightarrow A$
-\end{center}
-\begin{center}
-$\rightarrow A B$
-\end{center}
+\begin{align*}
+S &\rightarrow A \\
+&\rightarrow A B \\
+A &\rightarrow B C \\
+&\rightarrow C \\
+B &\rightarrow r C \\
+&\rightarrow r \\
+C &\rightarrow s B \\
+&\rightarrow q \\
+\end{align*}
 
-\begin{center}
-$A \rightarrow B C$
-\end{center}
-\begin{center}
-$\rightarrow C$
-\end{center}
-
-\begin{center}
-$B \rightarrow r C$
-\end{center}
-\begin{center}
-$\rightarrow r$
-\end{center}
-
-\begin{center}
-$C \rightarrow s B$
-\end{center}
-\begin{center}
-$\rightarrow q$
-\end{center}
-
+\noindent
 where uppercase letters are non-terminal symbols and lowercase letters are
 terminal symbols.
 
