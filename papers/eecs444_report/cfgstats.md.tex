@@ -136,6 +136,16 @@ your previous non-terminals are $F, R$ than $F, R, G, T, Q$. If while in some
 iteration generating output the previous non-terminals are $F, R, G, X, Q$ then
 $F, R$ passes but $F, R, G, T, Q$ does not.
 
+\begin{figure*}
+    \begin{center}
+        \includegraphics[scale=0.5]{figs/nonterm_histogram.png}
+    \end{center}
+        \caption{Average time spent calculating edit distance on a
+                logarithmic scale. PQ-delim used a colon delimiter, PQ-explode
+                used an explode delimiter, and PQ was run with the extended
+                AST.}
+    \label{times}
+\end{figure*}
 
 
 
