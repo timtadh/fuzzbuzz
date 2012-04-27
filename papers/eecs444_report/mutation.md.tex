@@ -57,6 +57,17 @@ Higher Order Mutation (HOM). As opposed to most mutations, which fall
 into the category of First Order Mutations (FOM), HOMs are generated
 by applying mutation operators multiple times.
 
+Jia and Harman developed this concept in an earlier paper. \cite{Jia}
+In this paper, Jia argues that HOM is a viable alternative to FOM due
+to recent developments in search space minimization. HOMs can be
+generated that are of a much higher quality than the FOMs that they
+comprise of. The two qualifying statements for a high quality HOM read
+as such: The HOM must be harder to kill than the FOMs from which it is
+constructed, and ideally is also semantically and syntactically
+smaller.
+
+
+
 An interesting alternative technique as proposed by Papadakis et
 al. is to the control flow graph of the source input to assist in the
 generation of mutants.\cite{Papadakis2010} This approach is only
@@ -70,10 +81,12 @@ that give better coverage.
 The most important point in Papadakis' paper is the reachability of
 the new mutations. By transforming the problem of ``killing'' mutants
 to the problem of reaching all the mutated branches in a graph, the
-generation of valid mutants can be simplified. Papadakis continues,
+generation of test coverage can be simplified. Papadakis continues,
 discussing how generating coverage for a graph is a well researched
 problem and provides a viable alternative to standard approaches in
 mutation fuzzing.
+
+
 
 
 
@@ -90,7 +103,7 @@ to other contemporary pruning methods.
 Our work on mutation fuzzing did not extend as far as we wanted, but
 it certainly set a firm foundation for future work. Support was added
 to Fuzzbuzz for basic mutation based on the random selection
-algorithm. Fuzzbuzz mutates nonterminals inside of the example AST in
+algorithm. Fuzzbuzz mutates non-terminals inside of the example AST in
 order to produce the final result.
 
 The current implementation is split into two easily extensible
@@ -104,4 +117,7 @@ attribute grammar implementations become very useful. While not
 currently implemented as such, these two tree generation techniques
 can be used for better mutation generation.
 
-
+Other implementations of these two functions can easily be plugged
+in. In particular, Papadakis' approach utilizing graph coverage could
+be particularly interesting. Clearly, implementations based on the
+current framework are not limited in scope.
