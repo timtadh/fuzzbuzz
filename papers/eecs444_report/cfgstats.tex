@@ -79,7 +79,11 @@ a ``summary file'' which lists the name of the grammar rules that have rise to
 the test case.
 
 Though we did not find a paper which described conditional probabilities, we
-did implement a routine in Gramstats which outputs conditional probabilities.
+did implement a routine in Gramstats\footnote{Gramstats is a separate program
+which takes in a corpus of example ASTs conforming to some grammar and outputs
+various statistics based on that corpus such as production counts and
+probabilities.} which outputs conditional probabilities.
+
 The conditional probabilities table describes what the probability of choosing a
 specific rule is given what the previous N non-terminals were that led to our
 current non-terminal. Our hypothesis was that knowing this information would
@@ -123,41 +127,86 @@ $F, R$ passes but $F, R, G, T, Q$ does not.
 
 \subsection{Results}
 
-First, it should be noted that the CFGStats engine does not produce
+
+It should be noted that the CFGStats engine does not produce
 semantically correct output. For example, a Fuzzbuzz run using a
 grammar which described calculator input produced the following:
 
 \begin{verbatim}
-( 2.74432441811 + 1.86534745663 - < 0.424813324932 , 6.79695572322 ^
-0.285722493924 > )
+2.74432441811 - < 0.424813324932 , 6.79695572322 >
 \end{verbatim}
 
-This is trying to subtract a vector from a natural number. This is not a
+This is attempting to subtract a vector from a natural number. This is not a
 mathematically legal operation, and thus should not ever be outputted from a
-fuzzer that produces semantically correct results. However,
+fuzzer that produces semantically correct results. However, this has a
+perfectly valid parse tree. Take the following excerpt from the calculator
+grammar:
 
-There are two variants of the statistics tables: pure production probabilities
-and conditional probabilities. Each of these can be passed to Fuzzbuzz as
-arguments using the CFGStats engine. The hypothesis is that production
-probabilities do not capture the probability distribution as well as
-conditional probabilities are able to.
+\begin{verbatim}
+Expr -> Expr PLUS Term
+      | Expr DASH Term
+      | Term
+      ;
+(...)
+Factor -> Value
+        | LPAREN Expr RPAREN
+        ;
+Value -> Atom
+       | Log
+       | LSQUARE Matrix RSQUARE
+       | LANGLE Vector RANGLE
+       ;
+Atom -> NUMBER
+      ;
+Vector -> Vector COMMA Expr
+        | Expr
+        ;
+\end{verbatim}
 
-We attempt to show this result by using Fuzzbuzz's sister program, Gramstats.
-Gramstats takes in a corpus of example ASTs conforming to some grammar and
-outputs statistics based on that corpus. We first used Gramstats to produce
-statistics based on a corpus of 190 human generated examples, first using the
-production probabilities table and then using the conditional probabilities
-table.
+Various productions were not included in the above excerpt, though it should be
+clear that Expr leads to Factor. Using this grammar, the above output could
+be parsed with the following rules:
 
-Then, using each of these statistics, Fuzzbuzz is able to generate output which
-is then fed into Fuzzbuzz again, but using the AST Generation engine. This was
-done 400 times in order to generate a different corpus. Then these 400 ASTs are
-again parsed by Gramstats to get statistics on them.
+\begin{verbatim}
+Expr -> Expr DASH Term
+Expr -> Term
+(...) -> Factor
+Factor -> Value
+Value -> Atom
+Atom -> NUMBER
+Term -> (...)
+(...) -> Factor
+Factor -> Value
+Value -> LANGLE Vector RANGLE
+(...)
+\end{verbatim}
 
-This allows us to compare the statistics for natural examples with the
-statistics for artificially generated examples, which in turn used the natural
-statistics as input. Ideally, the statistics should match.
+Clearly, the grammar allows for a vector to be subtracted from a natural number
+and there is no way to avoid this by using classical context free grammars
+alone. \\
 
+
+Nevertheless, even with semantically incorrect output there remain things
+to be learned by using statistics to fuzz. There are two variants of the
+statistics tables: pure production probabilities and conditional probabilities.
+Each of these can be passed to Fuzzbuzz as arguments using the CFGStats engine.
+The hypothesis is that production probabilities do not capture the probability
+distribution as well as conditional probabilities are able to.
+
+We attempt to show this result by using Fuzzbuzz's sister program, Gramstats,
+to produce statistics based on a corpus of 190 human generated examples. Then,
+using the production and conditional probabilities from that run, Fuzzbuzz is
+able to generate output which is then fed into Fuzzbuzz again, but using the AST
+Generation engine. This was done 400 times for each statistics table in order to
+generate two different corpora. The two artificially generated corpora are then
+parsed by Gramstats to get statistics on them.
+
+In total there are three sets of example inputs: natural human input, input
+generated using production probabilities, and input generated using conditional
+probabilities. These exmple inputs allow us to compare the statistics for
+natural examples with the statistics for artificially generated examples (which
+in turn used the natural statistics as input). Ideally, the statistics should
+match.
 
 \begin{figure*}
     \begin{center}
