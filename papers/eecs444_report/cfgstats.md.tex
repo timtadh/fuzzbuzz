@@ -123,6 +123,8 @@ $F, R$ passes but $F, R, G, T, Q$ does not.
 
 \subsection{Results}
 
+First, it should be noted that the CFGStats
+
 There are two variants of the statistics tables: pure production probabilities
 and conditional probabilities. Each of these can be passed to Fuzzbuzz as
 arguments using the CFGStats engine. The hypothesis is that production
@@ -144,8 +146,6 @@ again parsed by Gramstats to get statistics on them.
 This allows us to compare the statistics for natural examples with the
 statistics for artificially generated examples, which in turn used the natural
 statistics as input. Ideally, the statistics should match.
-
-
 
 
 \begin{figure*}
@@ -189,44 +189,50 @@ calculator grammar.
 
 The human corpus produced the following 3 conditional probabilities: \\
 
-\noindent$
-2, Exp => Exp:EXP:Unary, Expr, Term, 0.0745580322829 \\
-2, Exp => Exp:EXP:Unary, Term, Exp, 0.01398603413986 \\
-2, Exp => Exp:EXP:Unary, Term, Term, 0.00726744186047 \\$
+\noindent
+\begin{verbatim}
+2, Exp => Exp:EXP:Unary, Expr, Term, 0.0745580322829
+2, Exp => Exp:EXP:Unary, Term, Exp, 0.01398603413986
+2, Exp => Exp:EXP:Unary, Term, Term, 0.00726744186047
+\end{verbatim}
 
 
 The artificial corpus generated using production probabilities produced the
 following 13 conditional probabilities: \\
 
-\noindent$
-2, Exp => Exp:EXP:Unary, Expr, Expr, 0.2 \\
-2, Exp => Exp:EXP:Unary, Expr, Term, 0.0460969044415 \\
-2, Exp => Exp:EXP:Unary, Exp, Term, 0.0289855072464 \\
-2, Exp => Exp:EXP:Unary, Factor, Expr, 0.037037037037 \\
-2, Exp => Exp:EXP:Unary, Factor, Term, 0.0485436893204 \\
-2, Exp => Exp:EXP:Unary, Factor, Value, 0.103448275862 \\
-2, Exp => Exp:EXP:Unary, PostUnary, Factor, 0.0581395348837 \\
-2, Exp => Exp:EXP:Unary, Term, Exp, 0.052380952381 \\
-2, Exp => Exp:EXP:Unary, Term, Term, 0.0328888888889 \\
-2, Exp => Exp:EXP:Unary, Value, Vector, 0.166666666667 \\
-2, Exp => Exp:EXP:Unary, Vector, Expr, 0.3 \\
-2, Exp => Exp:EXP:Unary, Vector, Term, 0.166666666667 \\
-2, Exp => Exp:EXP:Unary, Vector, Vector, 1.0 \\$
+\noindent
+\begin{verbatim}
+2, Exp => Exp:EXP:Unary, Expr, Expr, 0.2
+2, Exp => Exp:EXP:Unary, Expr, Term, 0.0460969044415
+2, Exp => Exp:EXP:Unary, Exp, Term, 0.0289855072464
+2, Exp => Exp:EXP:Unary, Factor, Expr, 0.037037037037
+2, Exp => Exp:EXP:Unary, Factor, Term, 0.0485436893204
+2, Exp => Exp:EXP:Unary, Factor, Value, 0.103448275862
+2, Exp => Exp:EXP:Unary, PostUnary, Factor, 0.0581395348837
+2, Exp => Exp:EXP:Unary, Term, Exp, 0.052380952381
+2, Exp => Exp:EXP:Unary, Term, Term, 0.0328888888889
+2, Exp => Exp:EXP:Unary, Value, Vector, 0.166666666667
+2, Exp => Exp:EXP:Unary, Vector, Expr, 0.3
+2, Exp => Exp:EXP:Unary, Vector, Term, 0.166666666667
+2, Exp => Exp:EXP:Unary, Vector, Vector, 1.0
+\end{verbatim}
 
 The artificial corpus generated using conditional probabilities produced the
-following 10 conditional probabilities: \\\
+following 10 conditional probabilities: \\
 
-\noindent$
-2, Exp => Exp:EXP:Unary, Exp, Exp, 0.0454545454545 \\
-2, Exp => Exp:EXP:Unary, Expr, Exp, 0.6 \\
-2, Exp => Exp:EXP:Unary, Expr, Term, 0.076048951049 \\
-2, Exp => Exp:EXP:Unary, Factor, Exp, 0.416666666667 \\
-2, Exp => Exp:EXP:Unary, Factor, Term, 0.384615384615 \\
-2, Exp => Exp:EXP:Unary, PostUnary, Factor, 0.458333333333 \\
-2, Exp => Exp:EXP:Unary, Term, Exp, 0.0211480362538 \\
-2, Exp => Exp:EXP:Unary, Term, Expr, 0.166666666667 \\
-2, Exp => Exp:EXP:Unary, Term, Term, 0.00593667546174 \\
-2, Exp => Exp:EXP:Unary, Vector, Expr, 0.4 \\$
+\noindent
+\begin{verbatim}
+2, Exp => Exp:EXP:Unary, Exp, Exp, 0.0454545454545
+2, Exp => Exp:EXP:Unary, Expr, Exp, 0.6
+2, Exp => Exp:EXP:Unary, Expr, Term, 0.076048951049
+2, Exp => Exp:EXP:Unary, Factor, Exp, 0.416666666667
+2, Exp => Exp:EXP:Unary, Factor, Term, 0.384615384615
+2, Exp => Exp:EXP:Unary, PostUnary, Factor, 0.458333333333
+2, Exp => Exp:EXP:Unary, Term, Exp, 0.0211480362538
+2, Exp => Exp:EXP:Unary, Term, Expr, 0.166666666667
+2, Exp => Exp:EXP:Unary, Term, Term, 0.00593667546174
+2, Exp => Exp:EXP:Unary, Vector, Expr, 0.4
+\end{verbatim}
 
 Neither of the two artificial example inputs conform closely to the
 original human corpus for the $Exp => Exp:EXP:Unary$ rule. Similar results are
