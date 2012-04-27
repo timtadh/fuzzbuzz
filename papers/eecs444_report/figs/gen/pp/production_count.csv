@@ -1,0 +1,24 @@
+Atom, NUMBER, 3693
+Exp, Exp:EXP:Unary, 209
+Exp, Unary, 4529
+Expr, Expr:PLUS:Term, 439
+Expr, Expr:DASH:Term, 584
+Expr, Term, 2591
+Factor, LPAREN:Expr:RPAREN, 485
+Factor, Value, 4253
+Log, LOG:LPAREN:Expr:COMMA:Expr:RPAREN, 32
+Matrix, Matrix:SEMI:Vector, 5
+Matrix, Vector, 252
+PostUnary, Factor, 4738
+Term, Term:STAR:Exp, 338
+Term, Term:SLASH:Exp, 577
+Term, Exp, 3614
+Unary, DASH:PostUnary, 30
+Unary, PostUnary, 4708
+Value, Log, 32
+Value, LSQUARE:Matrix:RSQUARE, 252
+Value, LANGLE:Vector:RANGLE, 276
+Value, Atom, 3693
+Vector, Expr, 533
+Vector, Vector:COMMA:Expr, 1109
+
