@@ -1,15 +1,25 @@
 \section{Mutation Fuzzing with CFG Stats and Attribute Grammars}
+\label{mutation}
 
+\subsection{Introduction}
 Mutation fuzzing is a useful category of fuzzing in its ability to
 generate output that is similar to existing samples. These outputs can
 then be used as inputs to a program for the purpose of detecting
-faults.
+faults. Given the huge set of potential faults in a given program,
+mutation fuzzing attempts to limit the scope of relevant faults to
+those caused by input similar to existing input sets.
 
 Mutation fuzzing is often used to generate a large set of mutants
 surrounding a singular example. For practical purposes, these mutant
 sets are pruned by use of various heuristics, to obtain a mutant set
 which can be executed in a reasonable amount of time.
 
+Mutation fuzzing is a growing field which has been researched
+increasingly over the past thirty years. Between 1977 and 2009, there
+were no less than 350 papers on the subject, with the majority of the
+papers being published in the last decade alone. \cite{Jia2010}
+
+\subsection{Literature Survey}
 Jia and Harman in their 2010 paper survey the general techniques used
 for pruning the mutant set.\cite{Jia2010} These techniques evaluate
 mutations based on what tests ``kill'' them. A test T is said to kill
@@ -24,7 +34,7 @@ factor in the use of mutation fuzzing. A secondary main factor is the
 need for human interaction, both as a human oracle and as a mediator
 for the mutant equivalence problem.
 
-In Jia's paper, four seperate techniques for mutation set pruning are
+In Jia's paper, four separate techniques for mutation set pruning are
 discussed. The simplest of their surveyed techniques is to simply to
 pick from the set at random. While effective at pruning, this
 technique clearly lacks any ability to select the best mutants from
@@ -47,18 +57,35 @@ Higher Order Mutation (HOM). As opposed to most mutations, which fall
 into the category of First Order Mutations (FOM), HOMs are generated
 by applying mutation operators multiple times.
 
+An interesting alternative technique as proposed by Papadakis et
+al. is to the control flow graph of the source input to assist in the
+generation of mutants. \cite{Papadakis2010} This approach is only
+relevant to inputs that are programming languages, as grammars in
+general do not necessarily have control flow graphs.
+
+In Papadakis' approach, by selectively mutating the control flow graph
+and testing the coverage of the new graph, mutations can be generated
+that give better coverage.
+
+The most important point in Papadakis' paper is the reachability of
+the new mutations. By transforming the problem of ``killing'' mutants
+to the problem of reaching all the mutated branches in a graph, the
+generation of valid mutants can be simplified. Papadakis continues,
+discussing how generating coverage for a graph is a well researched
+problem and provides a viable alternative to standard approaches in
+mutation fuzzing.
 
 
-% ------------------------------
+
+
+
+\subsection{Methods}
 
 In Fuzzbuzz, we decided to develop mutation fuzzing as a compliment to
 the CFG stat and attribute grammar methods. Usage of these three
 techniques in conjunction is not a widely explored area. We predict
 that these techniques will better prune the mutation space as compared
 to other contemporary pruning methods.
-
-
-% Results ================================
 
 Our work on mutation fuzzing did not extend as far as we wanted, but
 it certainly set a firm foundation for future work. Support was added

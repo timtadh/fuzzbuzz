@@ -1,6 +1,54 @@
 \section{Future Work}
+\subsection{Attribute Grammar}
 future work blah
+\subsubsection{Annotating Context Free Grammars with Attributes}
+
+Context free grammars can be annotated with synthesized attributes using a
+straight forward process if the types of attributes are reasonably restricted.
+For this paper we allow three types of attributes: 1) production choice, eg.
+which production for the non-terminal was chosen, 2) scalar attributes, eg. the
+value of a token or the name of a token, 3) set attributes, eg. collections of
+scalar attributes. 
+
+why the restrictions are reasonable 
+
+exact bound on what can be expressed
+
+\paragraph{Algorithm Sketch}
+
+All possible attributes are synthesized
+
+Conditions are proposed based, and tested against operational inputs. Only those
+conditions which pass all operational inputs are kept.
+
+Attributes un-used by final conditions are pruned.
+
+\subsection{CFG Stats}
+blargh
+\subsection{Mutation Fuzzing}
+The current implementation of mutation fuzzing in Fuzzbuzz is a great
+foundation for future work. There is a clear path to integrating CFG
+stats and attribute grammars into the generation process. By
+integrating these methods, it is likely that Fuzzbuzz will be able to
+prune the mutation space to sufficient level to generate mutations
+that are effective at fault discovery.
 
 \section{Conclusion}
-conclusion blah
+Hello, this project is good.
+
+This project is a work in progress
+
+We have discovered that this solution is good from a blackbox
+perspective.
+
+
+%-----------------------------------
+
+Fuzzbuzz explores a wide range of fuzzing techniques. However, it is
+still very much a work in progres. While it is not yet a
+fully featured fuzzing framework, it still provides a valuable toolset
+for anyone interested in fuzz testing.
+
+Tim will now talk about blackbox stuff.
+
 
