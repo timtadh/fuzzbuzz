@@ -6,9 +6,9 @@ terminal and/or non-terminal symbols. Eventually, after making many choices, a
 point is reached in where there is no other non-terminal left to choose rules
 from and one is left with a string of terminal symbols.
 
-The ``quality`` of the generated output depends completely upon the choices
+The ``quality'' of the generated output depends completely upon the choices
 which are made. Therefore, it is critical to have some sort of way of making
-``good`` choices: some way other than simply choosing a random rule from a
+``good'' choices: some way other than simply choosing a random rule from a
 non-terminal. This is where statistics come in.
 
 If Fuzzbuzz is able to take in various tables of statistics then it will
@@ -63,10 +63,10 @@ One approach which Sirer and Bershad discussed was imposing a limit on how many
 times specific grammar rules can be exercised. This is especially useful in
 languages like Java that have structural limits such as code length per
 method. The authors describe another way in which this can turn out to be
-useful: if one wants to ensure that the program doesn't ``terminate early``
+useful: if one wants to ensure that the program doesn't ``terminate early''
 (i.e. that it is of a minimum length) is to, for example, set a limit on your
 start symbol to 5000 and then a probability of zero on the production $S
-\rightarrow \lambda$. This will ``force`` a stop rather than ``naturally``
+\rightarrow \lambda$. This will ``force'' a stop rather than ``naturally''
 stopping.
 
 In addition to using production limits, Sirer and Bershad also mention how
@@ -77,7 +77,7 @@ actual grammar file.
 
 Finally, Sirer and Bershad mention how in order to simplify future test
 selection and analysis, for each test case produced they create what they call
-a ``summary file`` which lists the name of the grammar rules that have rise to
+a ``summary file'' which lists the name of the grammar rules that have rise to
 the test case.
 
 Though we did not find a paper which described conditional probabilities, we
@@ -121,7 +121,7 @@ terminal symbols.
 
 In this example, one could see how the probabilities for the rules $B
 \rightarrow rC$ and $B \rightarrow r$ might differ depending on what the
-previous non-ternminals were. For example, perhaps there is a much higher
+previous non-terminals were. For example, perhaps there is a much higher
 probability of choosing $B \rightarrow r$ compared to $B \rightarrow rC$ if the
 previous two non-terminals were $S$ and $A$ respectively. On the other hand, if
 we arrive at $B$ though $A$ and $C$ respectively, then perhaps there is a
@@ -166,6 +166,7 @@ the human input to the generated input as this would prove that our fuzzer is
 producing realistic data.
 
 
+
 \begin{figure*}
     \begin{center}
         \includegraphics[scale=0.4]{figs/human/nonterm_histogram.png}
@@ -178,7 +179,16 @@ producing realistic data.
 \end{figure*}
 
 
-
+\begin{figure*}
+    \begin{center}
+        \includegraphics[scale=0.4]{figs/gen/nonterm_histogram.png}
+    \end{center}
+        \caption{Average time spent calculating edit distance on a
+                logarithmic scale. PQ-delim used a colon delimiter, PQ-explode
+                used an explode delimiter, and PQ was run with the extended
+                AST.}
+    \label{times}
+\end{figure*}
 
 
 
