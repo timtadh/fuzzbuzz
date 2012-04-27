@@ -1,4 +1,5 @@
 \section{Mutation Fuzzing with CFG Stats and Attribute Grammars}
+\label{mutation}
 
 \subsection{Introduction}
 Mutation fuzzing is a useful category of fuzzing in its ability to
@@ -27,7 +28,7 @@ T(M). If S and M match on T, then M is said to have ``survived''. This
 evaluation method unfortunately has one serious flaw, in the form of
 an undecidable problem. In some instances, mutants may be generated
 that are semantically the same, but syntactically different. Due to
-the undecidibility of program equivalence, it is impossible to detect
+the undecidability of program equivalence, it is impossible to detect
 these cases. Jia recognizes this problem as being a major hindering
 factor in the use of mutation fuzzing. A secondary main factor is the
 need for human interaction, both as a human oracle and as a mediator
