@@ -1,0 +1,17 @@
+digraph {
+t1 [shape=rect, label="Term {'value':8}"];
+t2 [shape=rect, label="Term {'value':3}"];
+pl [label="+"];
+f1 [shape=rect, label="Factor {'value':3}"];
+f2 [shape=rect, label="Factor {'value':5}"];
+n1 [label="3"];
+n2 [label="5"];
+
+t1 -> t2;
+t1 -> pl;
+t1 -> f2;
+t2 -> f1;
+f1 -> n1;
+f2 -> n2;
+}
+

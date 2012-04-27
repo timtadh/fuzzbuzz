@@ -2,7 +2,109 @@
 \section{Using Attribute Grammars to Generate Test Cases}
 \label{attrgram}
 
-Attribute grammars can be used in a straight forward way to generate test cases. 
+Statistically driven algorithms for context free grammars can generate examples
+which mimic an input corpus from the perspective of the probability
+distributions. However, even though CFG algorithms will still generate many
+invalid inputs. These inputs while \textit{syntactically} correct are
+\textit{semantically} incorrect. To address this issue we add semantic
+constraints using attribute grammars.
+
+\subsection{Attribute Grammars}
+
+An attribute grammar\footnote{Sometimes these are referred to as attributed
+grammars} adds context sensitive constraints onto a context free grammar.
+These constraints are added by attaching to each grammar rule an option
+``action'' statement and ``condition'' statement. The reader may be familiar
+with attribute grammars containing only action statements (and no condition
+statements) from using parser generators such as Yacc. For example the following
+grammar computes the value of a simple arithmetic expression using an attributed
+grammar:
+
+\begin{verbatim}
+Term -> Term PLUS Factor
+        with Action {
+          Term{1}.value = Term{2}.value + Factor.value
+        }
+      | Term DASH Factor
+        with Action {
+          Term{1}.value = Term{2}.value - Factor.value
+        }
+      | Factor
+        with Action {
+          Term{1}.value = Factor.value
+        }
+      ;
+Factor -> NUMBER 
+          with Action {
+            Factor.value = NUMBER
+          }
+        ;
+\end{verbatim}
+
+\noindent
+all the attributes in this example are \textit{synthesized} attributes.
+Synthesized attributes are computed from the bottom up. In contrast inherited
+attributes are computed from the top down.\cite{Aho2007}
+
+\begin{figure*}
+  \begin{center}
+    \subfigure[CFG Parse]{
+      \includegraphics[scale=0.3]{figs/ast_1.png}
+      \label{ast_1}
+    }
+    \subfigure[Attributed CFG Parse]{
+      \includegraphics[scale=0.3]{figs/ast_2.png}
+      \label{ast_2}
+    }
+  \end{center}
+  \caption{Parse trees for ``3+5''}
+  \label{asts}
+\end{figure*}
+
+To understand how the grammar works an example is in order. Consider the
+sentence ``3+5'' whose parse trees are given in figure \ref{asts}. The context
+free parse, figure \ref{ast_1}, shows the structure of a bottom up parse of the
+example. Executing the actions annotates the parse tree and produces the second
+parse tree, figure \ref{ast_2}.\footnote{this is sometimes called syntax
+directed translation} 
+
+Attribute grammars of this form are often used as part of a compilation tool
+chain. Indeed, they were originally designed with such a purpose in mind.
+However, when conditions are added attribute grammar describe can describe
+context sensitive restrictions.\cite{Slonneger1995} As an example, lets add a
+constraint to our example grammar to prevent terms from holding negative values:
+
+\begin{verbatim}
+Term -> Term PLUS Factor
+        with Action {
+          Term{1}.value = Term{2}.value + Factor.value
+        }
+      | Term DASH Factor
+        with Action {
+          Term{1}.value = Term{2}.value - Factor.value
+        }
+        with Condition {
+          Term{2}.value >= Factor.value
+        }
+      | Factor
+        with Action {
+          Term{1}.value = Factor.value
+        }
+      ;
+Factor -> NUMBER 
+          with Action {
+            Factor.value = NUMBER
+          }
+        ;
+\end{verbatim}
+
+\noindent
+A ``condition'' clause was added to the rule ``Term $\rightarrow$ Term DASH
+Factor'' which checks to make sure the ``Term'' is always greater or equal to
+the Factor. When this condition is false a parse error would occur during a
+parse. For example the sentence ``5 - 10'' would no longer parse.
+
+
 
 Example Grammar Here
 
