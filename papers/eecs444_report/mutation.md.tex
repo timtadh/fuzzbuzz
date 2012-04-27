@@ -62,11 +62,23 @@ generation of mutants. \cite{Papadakis2010} This approach is only
 relevant to inputs that are programming languages, as grammars in
 general do not necessarily have control flow graphs.
 
+In Papadakis' approach, by selectively mutating the control flow graph
+and testing the coverage of the new graph, mutations can be generated
+that give better coverage.
+
+The most important point in Papadakis' paper is the reachability of
+the new mutations. By transforming the problem of ``killing'' mutants
+to the problem of reaching all the mutated branches in a graph, the
+generation of valid mutants can be simplified. Papadakis continues,
+discussing how generating coverage for a graph is a well researched
+problem and provides a viable alternative to standard approaches in
+mutation fuzzing.
 
 
 
 
-\subsection{Results}
+
+\subsection{Methods}
 
 In Fuzzbuzz, we decided to develop mutation fuzzing as a compliment to
 the CFG stat and attribute grammar methods. Usage of these three
