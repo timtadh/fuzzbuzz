@@ -117,12 +117,13 @@ The current implementation is split into two easily extensible
 functions. The first of these is the selection function. This function
 decides what subtree of the AST should be mutated. While a simplistic
 algorithm is currently employed, the system allows for the selection
-function to be easily swapped out. The second important function is
-the generator function. This function generates a subtree for the
-given non-terminal. This part in particular is where the CFG stat and
-attribute grammar implementations become very useful. While not
-currently implemented as such, these two tree generation techniques
-can be used for better mutation generation.
+function to be easily swapped out.
+
+The second important function is the generator function. This function
+generates a subtree for the given non-terminal. This part in
+particular is where the CFG stat and attribute grammar implementations
+become very useful. While not currently implemented as such, these two
+tree generation techniques can be used for better mutation generation.
 
 Other implementations of these two functions can easily be plugged
 in. In particular, Papadakis' approach utilizing graph coverage could

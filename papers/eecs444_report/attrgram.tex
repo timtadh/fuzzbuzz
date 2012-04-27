@@ -116,7 +116,8 @@ could be undecidable. When the conditions are restricted to propositional
 statements and the actions are restricted to assignments, if-then, and
 if-then-else statements the problem is NP-Hard. Appendix \ref{hard} contains a
 proof that Attribute Grammar String Generation (AGSG) belongs to the class
-NP-Complete.
+NP-Complete. To the author's knowledge this is the first formal attempt to
+classify this particular problem.
 
 Our program ``Fuzzbuzz'' implements string generation from attribute grammars
 and it does so in a top down manner. It starts at the start symbol and
@@ -129,4 +130,60 @@ comes time for a rule to be finalized the associate actions are executed and the
 variables created are propagated to the parent. Given the complexity of the
 algorithm further details are left for the adventurous reader in the source of
 the program.\footnote{github.com/timtadh/fuzzbuzz}
+
+\subsection{Related Work}
+
+Modern work on generation of strings from context free grammars for use in
+automated test case generation can be traced back to the algorithm due to
+Purdom.\cite{Purdom1972} Purdom's algorithm was designed specifically to test
+LR(1) parsers and as such was unconcerned with the semantics of a language. It
+particular Purdom hoped to catch bugs related to the automate parser generator
+construction. Our concerns our more broad, we hope to identify faults throughout
+a software system, not just faults in the parser. Therefore, we cannot ignore
+the semantics of a language.
+
+Ten years later Duncan and Hutchinson became interested in using the attribute
+grammar formalism for use in creating testable specifications.\cite{Duncan1981}
+Duncan and Hutchinson's goal was to create a formal way of specifying the input
+and output languages of a program. They then used these specifications to test
+the program for conformance to the predefined specifications. They created two
+test case generation algorithms. In one version they choose which grammar rule
+to apply ``random'' or based on user supplied heuristics. In another version all
+choices are predetermined to enable systematic enumeration of test cases from
+the grammar.
+
+The difficulty in Duncan and Hutchinson's algorithm (as with all attribute
+grammar string generation algorithms) comes with processing the actions and
+conditions. In their terminology actions are actions but conditions are termed
+``guards'' (as in they guard the application of a grammar rule). Duncan and
+Hutchinson attribute their use of guards to Milton whose 1979 paper discusses
+parsing LL(k) attributed grammars.\cite{Milton1979} Milton notes attribute
+grammars can generate a type-0 language. However, the attribute grammars used in
+this paper cannot. They are necessarily restricted such that the worst case
+generation time is exponential rather than undecidable! 
+
+Unfortunately, Duncan and Hutchinson's paper is light on details on their actual
+generation algorithm. Their prose description highlights many of the problems
+future authors might encounter but does not give precise details on their
+solutions. Since the authors worked at the GE Research \& Development Center it
+could be they considered their algorithm proprietary. However, this situation is
+sadly common place in the automated test case generation literature. Many papers
+have fail to adequately explain their generative algorithms. 
+
+Another ten years passed an test case generation using attribute grammars once
+again re-emerged. Maurer constructed a black box fuzzing system which includes
+actions and conditions as a feature in 1990.\cite{Maurer1990} However, while
+Maurer rhapsodizes on the usefulness and necessity of the feature he fails to
+describe his generative algorithm in any detail. Additionally, like Milton and
+Duncan, Maurer does not formally consider the computational complexity of the
+generation process.
+
+Finally, modern blackbox fuzzing systems like
+PeachFuzz\footnote{http://peachfuzzer.com/} utilize primitive forms of
+contextual constraints. They don't tend to utilize the attribute grammar
+formalism but their constraints can easily be represented as an attribute
+grammar. PeachFuzz and other system usually require the laborious construction
+of grammars (typically specified in custom XML). In the future we hope to
+alleviate this problem with automated inference of actions and conditions from a
+corpus of operational examples.
 
