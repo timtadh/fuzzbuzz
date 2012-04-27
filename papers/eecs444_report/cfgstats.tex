@@ -38,15 +38,14 @@ ways he could use the grammar to test his calculator program. He gives various
 ideas for picking rules, though he does not go in depth as to whether following
 them produces better results. He mentions how one possibility is to avoid
 choosing the same rule twice, or how perhaps rules should be chosen in a
-particular order. Maurer, however, focuses a lot on user customization,
-something which we do not. For example, Maurer suggests altering the
-probabilities manually (which he refers to as weights). He reasons that by
-doing so, one can generate tests which focus more in a particular area that is
-believed to have bugs.
+particular order.
 
-Maurer also suggests keeping track of the number of bugs encountered when a
-particular rule is chosen, and then auto adjusting the probabilities to favor
-those rules which detect the most bugs. We found this to be an interesting
+Maurer focuses a lot on user customization, something which we do not. Maurer
+suggests altering the probabilities manually, reasoning that doing so allows
+one to generate more tests which focus specifically in areas that are believed
+to have bugs. Conversely, Maurer also suggests auto adjusting probabilities to
+favor rules which detect the most bugs by keeping track of how many bugs are
+encountered when a particular rule is chosen. We found this to be an interesting
 approach.
 
 Sirer and Bershad\cite{Bershad1999} describe their experience with using
@@ -204,7 +203,10 @@ generated using production probabilities, and input generated using conditional
 probabilities. These exmple inputs allow us to compare the statistics for
 natural examples with the statistics for artificially generated examples (which
 in turn used the natural statistics as input). Ideally, the statistics should
-match.
+match. \\
+
+\noindent We now present a production probability histogram for each of the
+three corpora. \\
 
 \begin{figure*}
     \begin{center}
@@ -240,12 +242,15 @@ calculator program.}
 \end{figure*}
 
 
-There is no immediate difference between these three graphs. Upon closer
-inspection however, differences between the example input sets are evident. Let
-us examine the statistics for the $Exp => Exp:EXP:Unary$ rule from the
-calculator grammar.
+There is no immediate difference between these three histograms suggesting that
+Fuzzbuzz produced human-like output. Upon closer inspection however, differences
+between the example input sets become evident. Let us examine the statistics for
+the $Exp => Exp:EXP:Unary$ rule from the calculator grammar.
 
-The human corpus produced the following 3 conditional probabilities: \\
+The human corpus produced the following 3 conditional
+probabilities\footnote{The tables are read as following: [history look-back
+ammount], [production], [previous non-terminal], [previous non-terminal],
+[probability]}: \\
 
 \noindent
 \begin{verbatim}
