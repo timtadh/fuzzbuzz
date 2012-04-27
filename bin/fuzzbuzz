@@ -236,6 +236,12 @@ def main(args):
                 log("'%s' can only supplied -s (or --stdin) once")
                 usage(error_codes['option'])
             stdin_opt = arg
+            if stdin_opt in ('x', 'example'):
+                examples.append(sys.stdin.read())
+            else:
+                log(("option '%s' does not currently support "
+                     "reading from stdin'") % stdin_opt)
+                usage(error_codes['option'])
 
     if engine_name is None:
         log("Must supply an engine name")
