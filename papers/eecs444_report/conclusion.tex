@@ -28,5 +28,39 @@ If the system seems to work well with hand written attribute grammars then it
 seems it would be worthwhile to attempt to inference the attribute from
 examples. This would have several benefits: 1) Attributes would no longer have
 to be hand written and 2) Attributes would reflect the input corpus potentially
-being more constrained than hand written attributes. 
+being more constrained than hand written attributes.
+
+\subsection{Context Free Grammar Stats}
+
+The CFG Stats section of this paper showed how fuzzing by using conditional
+probabilities results in output more closely resembeling a human corpus of
+examples. However, there is large room for improvement as was evident by the
+results analysis. In addition to adding actions and conditions to this engine
+in order to choose only semantically correct rules, there are two tasks which
+we wish to complete: having a better history-fallback and looking at left-most
+leaves.
+
+Currently the CFGStats engine checks what the current previously encountered N
+non-terminals were, and then checks the conditional probability table to cross
+reference with the corpus statistics. If the engine fails to find a match, then
+it simply chooses a rule at random. The probability of this occurring increases
+as our value for N increases. This is unfortunate as a higher value for N
+should theoretically produce more accurate choices given a better ``memory''.
+
+This can be resolved in the following way: instead of choosing a random rule,
+simply accept more conditional probability tables but with decreasing values
+for N. Always try and use the table with the biggest N, but if the engine fails
+to find a match in that table then it should fall back to the table with N-1
+history and continue to do so until it finds a match. This allows the engine to
+always pick the absolute best option it can and virtually guarantees that it
+will never pick a rule at random.
+
+Aditionally, we have been looking into a third type of statistics table:
+conditional probabilities using left-most leaves. Unlike the current
+conditional probabilities table, instead of looking vertically for previous
+non-terminals, this table would look at the leaves (i.e. terminals) to the left
+of the engine's current position. This table, for example, likely would not
+have produced the output discussed in the CFG Stats Results section in which a
+vector was subtracted from a natural number since a vector would never be
+chosen if the previous two leaves to the left were NUMBER and DASH.
 
