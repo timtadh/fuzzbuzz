@@ -4,13 +4,17 @@ INCLUDE_BIB = yes
 %.pdf : %.dot
 	dot -Tpdf $*.dot -o $*.pdf
 
-build: $(FIGS)
+build: figs
 ifeq ($(INCLUDE_BIB),yes)
 	pdflatex $(DOC) > /dev/null
 	bibtex $(DOC) > /dev/null
 endif
 	pdflatex $(DOC) > /dev/null
 	pdflatex $(DOC) > /dev/null
+
+.PHONY: figs
+figs:
+	cd figs; $(MAKE) figs
 
 kde: build
 	kpdf $(DOC).pdf
@@ -24,5 +28,6 @@ mac: build
 all: build
 
 clean:
-	rm -f *.aux *.bbl *.blg *.log *.pdf
+	-rm -f *.aux *.bbl *.blg *.log *.pdf
+	-cd figs; $(MAKE) clean
 
