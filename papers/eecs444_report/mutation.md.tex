@@ -57,7 +57,7 @@ Higher Order Mutation (HOM). As opposed to most mutations, which fall
 into the category of First Order Mutations (FOM), HOMs are generated
 by applying mutation operators multiple times.
 
-Jia and Harman developed this concept in an earlier paper. \cite{Jia}
+Jia and Harman developed this concept in an earlier paper. \cite{Harman}
 In this paper, Jia argues that HOM is a viable alternative to FOM due
 to recent developments in search space minimization. HOMs can be
 generated that are of a much higher quality than the FOMs that they
@@ -66,6 +66,15 @@ as such: The HOM must be harder to kill than the FOMs from which it is
 constructed, and ideally is also semantically and syntactically
 smaller.
 
+In addition to the problems with mutation fuzzing which have been
+listed above, Jia and Harman discuss a third issue: that of
+realism. Does killing our mutations at all tell us about real faults
+that we have discovered?
+
+Jia shows that these concerns can be dealt with by using HOM. In the
+case of the aforementioned concern, Jia posits that some faults can
+only be represented with HOMs, and therefore HOMs are necessary to
+find faults for which FOMs would not discover.
 
 
 An interesting alternative technique as proposed by Papadakis et
