@@ -15,7 +15,7 @@ If Fuzzbuzz is able to take in various tables of statistics then it will
 inherently be able to make informed choices. For example, a basic statistics
 table might include production probabilities. That is to say, given some
 non-terminal and its set of rules, what are the probabilities for each rule?
-Given the following simple grammar, the table would provbide $\mathbb{P}[B]$,
+Given the following simple grammar, the table would provide $\mathbb{P}[B]$,
 $\mathbb{P}[C]$, and $\mathbb{P}[D]$ where $\mathbb{P}[B] + \mathbb{P}[C] +
 \mathbb{P}[D] = 1$.
 
@@ -52,25 +52,25 @@ those rules which detect the most bugs. We found this to be an interesting
 approach.
 
 Sirer and Bershad\cite{Bershad1999} describe their experience with using
-production grammrs in order to test software. Their paper does not exactly
+production grammars in order to test software. Their paper does not exactly
 propose ways of using statistics to pick rules, though it does suggest other
 criteria you can use in order to come to a decision. The authors were working
 primarily with the Java programing language, and as such some of their ideas
 cater to Java specifics, though are nevertheless interesting enough to be
 mentioned in this paper.
 
-One approach which Sirer and Bershad discussed was emposing a limit on how many
+One approach which Sirer and Bershad discussed was imposing a limit on how many
 times specific grammar rules can be exercised. This is especially useful in
-lanaguages like Java that have structural limits such as code length per
+languages like Java that have structural limits such as code length per
 method. The authors describe another way in which this can turn out to be
 useful: if one wants to ensure that the program doesn't ``terminate early``
-(i.e. that it is of a minimunm length) is to, for example, set a limit on your
+(i.e. that it is of a minimum length) is to, for example, set a limit on your
 start symbol to 5000 and then a probability of zero on the production $S
 \rightarrow \lambda$. This will ``force`` a stop rather than ``naturally``
 stopping.
 
 In addition to using production limits, Sirer and Bershad also mention how
-probabilities are of good use and emphasize the usefulness of seperating
+probabilities are of good use and emphasize the usefulness of separating
 probabilities from the grammar. This is effectively what we do by having
 Fuzzbuzz take a statistics table as a parameter which is distinct from the
 actual grammar file.
@@ -123,7 +123,7 @@ In this example, one could see how the probabilities for the rules $B
 \rightarrow rC$ and $B \rightarrow r$ might differ depending on what the
 previous non-ternminals were. For example, perhaps there is a much higher
 probability of choosing $B \rightarrow r$ compared to $B \rightarrow rC$ if the
-previous two non-terminals were $S$ and $A$ respectively. On the otherhand, if
+previous two non-terminals were $S$ and $A$ respectively. On the other hand, if
 we arrive at $B$ though $A$ and $C$ respectively, then perhaps there is a
 higher probability of choosing $B \rightarrow rC$ over $B \rightarrow r$.
 
@@ -149,7 +149,7 @@ output programs which were much shorter than those using conditional
 probabilities. For example, when using a simple calculator grammar,
 using production probabilities would often result in output consisting of
 single numbers, or a single addition/subtraction. When using conditional
-probabilities, we often got long output with a mixture of matrixes, vectors,
+probabilities, we often got long output with a mixture of matrices, vectors,
 exponentiation and more.
 
 Because of this, we focused all of our testing using conditional probabilities
