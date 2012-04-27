@@ -19,6 +19,9 @@ increasingly over the past thirty years. Between 1977 and 2009, there
 were no less than 350 papers on the subject, with the majority of the
 papers being published in the last decade alone. \cite{Jia2010}
 
+With this type of growth, is is not hard to see mutation fuzzing
+becoming a large part of automated testing in the future.
+
 \subsection{Literature Survey}
 Jia and Harman in their 2010 paper survey the general techniques used
 for pruning the mutant set.\cite{Jia2010} These techniques evaluate
@@ -36,7 +39,7 @@ for the mutant equivalence problem.
 
 In Jia's paper, four separate techniques for mutation set pruning are
 discussed. The simplest of their surveyed techniques is to simply to
-pick from the set at random. While effective at pruning, this
+pick from the set of alll mutations at random. While effective at pruning, this
 technique clearly lacks any ability to select the best mutants from
 the set. As a step up from random selection, clustering has been
 proposed as an improved pruning method. Using clustering, samples can
@@ -46,8 +49,8 @@ mutations that are killed by the same set of tests.
 % TODO: Possibly go into Hussain's master thesis here?
 
 The two remaining techniques attempt to use more complicated methods
-to prune. The first of these, selective mutation, constrains the number
-of mutations. Some mutation operations may produce excessive or
+to prune. The first of these, selective mutation, constrains the
+number of allowed mutation operations. Some mutation operations may produce excessive or
 redundant mutants. By eliminating these mutations, the generated set
 of mutants starts out small, largely eliminating the need for further
 reductions.
@@ -56,6 +59,26 @@ The fourth and final technique discussed  by Jia and Harman is that of
 Higher Order Mutation (HOM). As opposed to most mutations, which fall
 into the category of First Order Mutations (FOM), HOMs are generated
 by applying mutation operators multiple times.
+
+Jia and Harman developed this concept in an earlier paper. \cite{Harman}
+In this paper, Jia argues that HOM is a viable alternative to FOM due
+to recent developments in search space minimization. HOMs can be
+generated that are of a much higher quality than the FOMs that they
+comprise of. The two qualifying statements for a high quality HOM read
+as such: The HOM must be harder to kill than the FOMs from which it is
+constructed, and ideally is also semantically and syntactically
+smaller.
+
+In addition to the problems with mutation fuzzing which have been
+listed above, Jia and Harman discuss a third issue: that of
+realism. Does killing our mutations at all tell us about real faults
+that we have discovered?
+
+Jia shows that these concerns can be dealt with by using HOM. In the
+case of the aforementioned concern, Jia posits that some faults can
+only be represented with HOMs, and therefore HOMs are necessary to
+find faults for which FOMs would not discover.
+
 
 An interesting alternative technique as proposed by Papadakis et
 al. is to the control flow graph of the source input to assist in the
@@ -70,10 +93,12 @@ that give better coverage.
 The most important point in Papadakis' paper is the reachability of
 the new mutations. By transforming the problem of ``killing'' mutants
 to the problem of reaching all the mutated branches in a graph, the
-generation of valid mutants can be simplified. Papadakis continues,
+generation of test coverage can be simplified. Papadakis continues,
 discussing how generating coverage for a graph is a well researched
 problem and provides a viable alternative to standard approaches in
 mutation fuzzing.
+
+
 
 
 
@@ -90,7 +115,7 @@ to other contemporary pruning methods.
 Our work on mutation fuzzing did not extend as far as we wanted, but
 it certainly set a firm foundation for future work. Support was added
 to Fuzzbuzz for basic mutation based on the random selection
-algorithm. Fuzzbuzz mutates nonterminals inside of the example AST in
+algorithm. Fuzzbuzz mutates non-terminals inside of the example AST in
 order to produce the final result.
 
 The current implementation is split into two easily extensible
@@ -104,4 +129,7 @@ attribute grammar implementations become very useful. While not
 currently implemented as such, these two tree generation techniques
 can be used for better mutation generation.
 
-
+Other implementations of these two functions can easily be plugged
+in. In particular, Papadakis' approach utilizing graph coverage could
+be particularly interesting. Clearly, implementations based on the
+current framework are not limited in scope.
