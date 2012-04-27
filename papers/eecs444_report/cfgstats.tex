@@ -49,22 +49,22 @@ encountered when a particular rule is chosen. We found this to be an interesting
 approach.
 
 Sirer and Bershad\cite{Bershad1999} describe their experience with using
-production grammars in order to test software. Their paper does not exactly
+production grammars in order to test software. Their paper does not directly
 propose ways of using statistics to pick rules, though it does suggest other
-criteria you can use in order to come to a decision. The authors were working
-primarily with the Java programing language, and as such some of their ideas
-cater to Java specifics, though are nevertheless interesting enough to be
-mentioned in this paper.
+criteria that can be used in order to reach a decision. The authors were
+working primarily with the Java programing language, and as such some of their
+ideas cater to Java specifics. Nevertheless, we believe the ideas are
+interesting enough to be mentioned in this paper.
 
 One approach which Sirer and Bershad discussed was imposing a limit on how many
 times specific grammar rules can be exercised. This is especially useful in
 languages like Java that have structural limits such as code length per
 method. The authors describe another way in which this can turn out to be
 useful: if one wants to ensure that the program doesn't ``terminate early''
-(i.e. that it is of a minimum length) is to, for example, set a limit on your
-start symbol to 5000 and then a probability of zero on the production $S
-\rightarrow \lambda$. This will ``force'' a stop rather than ``naturally''
-stopping.
+(i.e. ensure that it is of some minimum length) one can, for example, set a
+limit on the start symbol to 5000 and then a probability of zero on the
+production $S \rightarrow \lambda$. This will ``force'' a stop rather than
+``naturally'' stopping.
 
 In addition to using production limits, Sirer and Bershad also mention how
 probabilities are of good use and emphasize the usefulness of separating
