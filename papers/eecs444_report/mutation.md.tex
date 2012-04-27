@@ -4,12 +4,19 @@
 Mutation fuzzing is a useful category of fuzzing in its ability to
 generate output that is similar to existing samples. These outputs can
 then be used as inputs to a program for the purpose of detecting
-faults.
+faults. Given the huge set of potential faults in a given program,
+mutation fuzzing attempts to limit the scope of relevant faults to
+those caused by input similar to existing input sets.
 
 Mutation fuzzing is often used to generate a large set of mutants
 surrounding a singular example. For practical purposes, these mutant
 sets are pruned by use of various heuristics, to obtain a mutant set
 which can be executed in a reasonable amount of time.
+
+Mutation fuzzing is a growing field which has been researched
+increasingly over the past thirty years. Between 1977 and 2009, there
+were no less than 350 papers on the subject, with the majority of the
+papers being published in the last decade alone. \cite{Jia2010}
 
 \subsection{Literature Survey}
 Jia and Harman in their 2010 paper survey the general techniques used
