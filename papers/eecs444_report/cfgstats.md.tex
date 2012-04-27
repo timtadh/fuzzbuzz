@@ -127,13 +127,57 @@ First, it should be noted that the CFGStats engine does not produce semantically
 correct output. For example, a Fuzzbuzz run produced the following:
 
 \begin{verbatim}
-( 2.74432441811 + 1.86534745663 - < 0.424813324932 , 6.79695572322 ^
-0.285722493924 > )
+2.74432441811 - < 0.424813324932 , 6.79695572322 >
 \end{verbatim}
 
 This is trying to subtract a vector from a natural number. This is not a
 mathematically legal operation, and thus should not ever be outputted from a
-fuzzer that produces semantically correct results. However,
+fuzzer that produces semantically correct results. However, this has a
+perfectly valid parse tree:
+
+\begin{verbatim}
+3:Expr86534745663
+1:Expr
+1:Term
+1:Exp
+1:Unary
+1:PostUnary
+1:Factor
+1:Value
+1:Atom
+0:NUMBER:2.74432441811
+0:DASH:-
+1:Term
+1:Exp
+1:Unary
+1:PostUnary
+1:Factor
+3:Value
+0:LANGLE:<
+3:Vector
+1:Vector
+1:Expr
+1:Term
+1:Exp
+1:Unary
+1:PostUnary
+1:Factor
+1:Value
+1:Atom
+0:NUMBER:0.424813324932
+0:COMMA:,
+1:Expr
+1:Term
+1:Exp
+1:Unary
+1:PostUnary
+1:Factor
+1:Value
+1:Atom
+0:NUMBER:6.79695572322
+0:RANGLE:>
+\end{verbatim}
+
 
 There are two variants of the statistics tables: pure production probabilities
 and conditional probabilities. Each of these can be passed to Fuzzbuzz as
