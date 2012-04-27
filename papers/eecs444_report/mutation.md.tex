@@ -1,3 +1,64 @@
 \section{Mutation Fuzzing with CFG Stats and Attribute Grammars}
-blah blah John
+
+Mutation fuzzing is a useful category of fuzzing in its ability to
+generate output that is similar to existing samples. These outputs can
+then be used as inputs to a program for the purpose of detecting
+faults.
+
+Mutation fuzzing is often used to generate a large set of mutants
+surrounding a singular example. For practical purposes, these mutant
+sets are pruned by use of various heuristics, to obtain a mutant set
+which can be executed in a reasonable amount of time.
+
+Jia and Harman in their 2010 paper survey the general techniques used
+for pruning the mutant set.\cite{Jia2010} These techniques evaluate
+mutations based on what tests ``kill'' them. A test T is said to kill
+a mutation M if for source S, T(S) does not give the same output as
+T(M). If S and M match on T, then M is said to have ``survived''. This
+evaluation method unfortunately has one serious flaw, in the form of
+an undecidable problem. In some instances, mutants may be generated
+that are semantically the same, but syntactically different. Due to
+the undecidability of program equivalence, it is impossible to detect
+these cases. Jia recognizes this problem as being a major hindering
+factor in the use of mutation fuzzing. A secondary main factor is the
+need for human interaction, both as a human oracle and as a mediator
+for the mutant equivalence problem.
+
+In Jia's paper, four seperate techniques for mutation set pruning are
+discussed. The simplest of their surveyed techniques is to simply to
+pick from the set at random. While effective at pruning, this
+technique clearly lacks any ability to select the best mutants from
+the set. As a step up from random selection, clustering has been
+proposed as an improved pruning method. Using clustering, samples can
+be selected from each cluster in order to maintain a wide range of
+mutations. This clustering process is implemented by grouping
+mutations that are killed by the same set of tests.
+% TODO: Possibly go into Hussain's master thesis here?
+
+The two remaining techniques attempt to use more complicated methods
+to prune. The first of these, selective mutation, constrains the number
+of mutations. Some mutation operations may produce excessive or
+redundant mutants. By eliminating these mutations, the generated set
+of mutants starts out small, largely eliminating the need for further
+reductions.
+
+The fourth and final technique discussed  by Jia and Harman is that of
+Higher Order Mutation (HOM). As opposed to most mutations, which fall
+into the category of First Order Mutations (FOM), HOMs are generated
+by applying mutation operators multiple times.
+
+
+Current research in the area spans a wide variety of techniques. The
+simplest of these techniques is first order mutations (FOM)
+
+
+
+% ------------------------------
+
+In Fuzzbuzz, we decided to develop mutation fuzzing as a compliment to
+the CFG stat and attribute grammar methods. Usage of these three
+techniques in conjunction is not a widely explored area. We predict
+that these techniques will better prune the mutation space as compared
+to other contemporary pruning methods.
+
 
