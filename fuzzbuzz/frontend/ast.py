@@ -47,13 +47,28 @@ class Node(object):
         return super(Node, self).__repr__()[:-1] + " %s>" % str(self.label)
 
     def __str__(self):
-        def string(s):
-            if isinstance(s, Node): return str(s)
-            return ('0:%s' % str(s)).replace('\n', '\\n')
-        s = "%d:%s" % (len(self.children), str(self.label))
-        s = s.replace('\n', '\\n')
-        s = '\n'.join([s]+[string(c) for c in self.children])
-        return s
+        def leaf(node):
+            if hasattr(node, 'children'):
+                return not bool(len(node.children))
+            else:
+                return False
+        def walk(node):
+            stack = list()
+            stack.append((node, 0))
+            while stack:
+                n, j = stack.pop()
+                if j == 0: yield len(n.children), n
+                for i, kid in list(enumerate(n.children))[j:]:
+                    if leaf(kid):
+                        yield 0, kid
+                    else:
+                        stack.append((n, i+1))
+                        stack.append((kid, 0))
+                        break
+        def string(nkids,node):
+            if isinstance(node, Node): return '%d:%s' % (nkids, node.label)
+            return ('%d:%s' % (nkids, node)).replace('\n', '\\n')
+        return '\n'.join(string(d,n) for d,n in walk(self))
 
     def dotty(self):
         def string(s):

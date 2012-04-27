@@ -149,18 +149,18 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
             return nonterm.rules[[i for i,x in enumerate(stringList) if x == ruleStr][0]]
 
     def choose(nonterm, prevTuple=None):
-        rand = random()
         probdist = dict()
+
+        pseps = [0]
+        rules = list()
 
         #we want to build a quick index of probabilities => rules
         for tname in intersection:
             if tname == "pp":
                 for rule in tables[tname][nonterm.name]:
                     prob = tables[tname][nonterm.name][rule]
-                    if not probdist.has_key(prob): #first time we find a rule with this probability
-                        probdist[prob] = [rule]
-                    else: #we have a key with this probability so we just want to add ourselves to that key's set
-                        probdist[prob].add(rule)
+                    pseps.append(pseps[-1] + prob)
+                    rules.append(rule)
             elif tname == "cp":
                 #print nonterm.name
                 #print prevTuple
@@ -169,45 +169,27 @@ def cfgstats(rlexer, grammar, stat_tables=None, list_tables=False):
                 else:
                     for rule in tables[tname][nonterm.name][prevTuple]:
                         prob = tables[tname][nonterm.name][prevTuple][rule]
-                        if not probdist.has_key(prob): #first time we find a rule with this probability
-                            probdist[prob] = [rule]
-                        else: #we have a key with this probability so we just want to add ourselves to that key's set
-                            probdist[prob].append(rule)
+                        pseps.append(pseps[-1] + prob)
+                        rules.append(rule)
 
         '''
         At this point we want to find out where our random number lies in our probability distribution
 
-             1         2    3
+        0    1         2    3    1.0
         [-a--|---b-----|-c--|-d--]
-
-        if rand=a, winningKey = 1
-        if rand=b, winningKey = 2
-        if rand=c, winningKey = 3
-        if rand=d, winningKey = 3
-
-
-        thus we set:
-
-        winningKey = current_key (if rand < current_key
-                                    and if current_key < current_winningKey)
-
-        (because if rand=a, we dont want winningKey to be 2 or 3, for example)
         '''
 
-        winningKey = 2
-        for prob in probdist:
-            if rand < prob and prob < float(winningKey):
-                    winningKey = prob
-
-        if winningKey is 2:
-            winningKey = max(probdist)
-
-
-        ruleStr = probdist[winningKey].pop()
-        chosen_rule = getRulefromString(nonterm, ruleStr)
-
-        return chosen_rule
-
+        winningKey = None
+        prob = random()
+        pseps = pseps[1:]
+        psep = 0.0
+        #print prob
+        #print pseps
+        for i, sep in enumerate(pseps):
+            if psep <= prob and prob < sep:
+                return getRulefromString(nonterm, rules[i])
+            pprob = prob
+        raise Exception, "wat"
 
     output = list()
     def fuzz(start):
