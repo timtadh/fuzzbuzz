@@ -130,3 +130,31 @@ variables created are propagated to the parent. Given the complexity of the
 algorithm further details are left for the adventurous reader in the source of
 the program.\footnote{github.com/timtadh/fuzzbuzz}
 
+\subsection{Related Work}
+
+Modern work on generation of strings from context free grammars for use in
+automated test case generation can be traced back to the algorithm due to
+Purdom.\cite{Purdom1972} Purdom's algorithm was designed specifically to test
+LR(1) parsers and as such was unconcerned with the semantics of a language. It
+particular Purdom hoped to catch bugs related to the automate parser generator
+construction. Our concerns our more broad, we hope to identify faults throughout
+a software system, not just faults in the parser. Therefore, we cannot ignore
+the semantics of a language.
+
+Ten years later Duncan and Hutchinson became interested in using the attribute
+grammar formalism for use in creating testable specifications.\cite{Duncan1981}
+Duncan and Hutchinson's goal was to create a formal way of specifying the input
+and output languages of a program. They then used these specifications to test
+the program for conformance to the predefined specifications. They created two
+test case generation algorithms. In one version they choose which grammar rule
+to apply ``random'' or based on user supplied heuristics. In another version all
+choices are predetermined to enable systematic enumeration of test cases from
+the grammar.
+
+The difficulty in Duncan and Hutchinson's algorithm (as with all attribute
+grammar string generation algorithms) comes with processing the actions and
+conditions. In their terminology actions are actions but conditions are termed
+``guards'' (as in they guard the application of a grammar rule). Duncan and
+Hutchinson attribute their use of guards to Milton whose 1979 paper discusses
+parsing LL(k) attributed grammars.\cite{Milton1979}
+
