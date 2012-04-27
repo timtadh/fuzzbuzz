@@ -6,7 +6,7 @@ terminal and/or non-terminal symbols. Eventually, after making many choices, a
 point is reached in where there is no other non-terminal left to choose rules
 from and one is left with a string of terminal symbols.
 
-The ``quality'' of the generated output depends completely upon the choices
+The ``quality'' of the generated output depends upon the choices
 which are made. Therefore, it is critical to have some sort of way of making
 ``good'' choices: some way other than simply choosing a random rule from a
 non-terminal. This is where statistics come in.
@@ -165,8 +165,6 @@ Ideally, CFGStats's graphs and tables should be almost identical when comparing
 the human input to the generated input as this would prove that our fuzzer is
 producing realistic data.
 
-
-
 \begin{figure*}
     \begin{center}
         \includegraphics[scale=0.4]{figs/human/nonterm_histogram.png}
@@ -189,11 +187,6 @@ producing realistic data.
                 AST.}
     \label{times}
 \end{figure*}
-
-
-
-
-
 
 
 
