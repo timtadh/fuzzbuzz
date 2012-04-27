@@ -104,12 +104,29 @@ Factor'' which checks to make sure the ``Term'' is always greater or equal to
 the Factor. When this condition is false a parse error would occur during a
 parse. For example the sentence ``5 - 10'' would no longer parse.
 
+\subsection{Generating Strings from Attribute Grammars}
 
+To use attribute grammars in the context of test case generation on needs to
+generate strings in the language rather than recognize them (as in parsing).
+Unfortunately, generating strings from attribute grammars is a harder problem
+than parsing. In general parsing strings using context free grammars can be done
+in polynomial time (by push down automata).\cite{Aho2007} However, depending on
+the language allowed in the actions and conditions \textit{generating} a string
+could be undecidable. When the conditions are restricted to propositional
+statements and the actions are restricted to assignments, if-then, and
+if-then-else statements the problem is NP-Hard. Appendix \ref{hard} contains a
+proof that Attribute Grammar String Generation (AGSG) belongs to the class
+NP-Complete.
 
-Example Grammar Here
-
-Example Derivation
-
-Generation Algorithm
-
+Our program ``Fuzzbuzz'' implements string generation from attribute grammars
+and it does so in a top down manner. It starts at the start symbol and
+stochastically choose a rule to apply at for each Non-Terminal. If a rule has a
+condition associated with it checks whether or not it is satisfiable. If the
+condition is satisfiable but contains free variables (which is the common case)
+a constraint is generated which is passed down to its children. The constraints
+are applied and chained together with future actions and conditions. When it
+comes time for a rule to be finalized the associate actions are executed and the
+variables created are propagated to the parent. Given the complexity of the
+algorithm further details are left for the adventurous reader in the source of
+the program.\footnote{github.com/timtadh/fuzzbuzz}
 
