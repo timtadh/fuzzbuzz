@@ -1,6 +1,4 @@
 
-\section{Introduction}
-
 Attribute Grammars were invented in the heady days of the late 1960's by Dr.
 Knuth.\cite{Knuth1990} At the time the question on how to formally define the
 semantics of a programming language had become a fashionable research topic.
@@ -34,6 +32,23 @@ chance of being in the language.
 
 The generated inputs can be improved by adding semantic awareness to the
 generation system. The semantics, or meaning, of a language fragments are often
-context dependent. Thus, to capture them one needs a more powerful formalism than
-a context free grammar provides. 
+context dependent. Thus, to capture semantics one needs a more powerful
+formalism than context free grammars; attribute grammars are one such formalism.
+
+Attribute grammars extend the syntax of context free grammars by adding
+``actions'' and ``conditions'' to grammar rules. Actions specify create and
+transform variables attached to Non-Terminal symbols while conditions act as
+guards on specific grammar rules. The conditions prevent grammar rules from
+being applied unless the condition evaluates to true. In essence attribute
+grammars further \textit{restrict} the language defined by the context free
+grammar. 
+
+Since attribute grammars are extensions of context free grammars the attribute
+grammar generative algorithm is based on the generative algorithm for context
+free grammars. Therefore, in section \ref{cfgstats} we discuss the details and
+history of generating strings from context free grammars, in section
+\ref{attrgram} the details and complications of attribute grammars are
+described, and finally in section \ref{mutation} we discuss grammar driven
+example mutation. While the paper title refers to ``inferred'' attribute
+grammars, the inference aspect remains future work. 
 
