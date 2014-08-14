@@ -2,15 +2,11 @@
 \label{cfgstats}
 \subsection{Introduction}
 Fuzzing with context free grammars is done by making choices. Specifically, a
-rule needs to be chosen at each non-terminal, each of which includes additional
-terminal and/or non-terminal symbols. Eventually, after making many choices, a
-point is reached in where there is no other non-terminal left to choose rules
-from and one is left with a string of terminal symbols.
-
-The ``quality'' of the generated output depends upon the choices
-which are made. Therefore, it is critical to have some sort of way of making
-``good'' choices: some way other than simply choosing a random rule from a
-non-terminal. This is where statistics come in.
+rule must be chosen at each non-terminal. The ``quality'' of the generated
+output depends upon the choices which are made, making it critical to arrive at
+``good'' choices. In this section we describe possible ways of determining what
+makes a particular choice better than the others surrounding it. We can do
+this mainly by using statistics based on a corpus of previous example inputs.
 
 If Fuzzbuzz is able to take in various tables of statistics then it will
 inherently be able to make informed choices. For example, a basic statistics
@@ -38,52 +34,55 @@ ways he could use the grammar to test his calculator program. He gives various
 ideas for picking rules, though he does not go in depth as to whether following
 them produces better results. He mentions how one possibility is to avoid
 choosing the same rule twice, or how perhaps rules should be chosen in a
-particular order. Maurer, however, focuses a lot on user customization,
-something which we do not. For example, Maurer suggests altering the
-probabilities manually (which he refers to as weights). He reasons that by
-doing so, one can generate tests which focus more in a particular area that is
-believed to have bugs.
+particular order.
 
-Maurer also suggests keeping track of the number of bugs encountered when a
-particular rule is chosen, and then auto adjusting the probabilities to favor
-those rules which detect the most bugs. We found this to be an interesting
+Maurer focuses a lot on user customization, something which we do not. Maurer
+suggests altering the probabilities manually, reasoning that doing so allows
+one to generate more tests which focus specifically in areas that are believed
+to have bugs. Conversely, Maurer also suggests auto adjusting probabilities to
+favor rules which detect the most bugs by keeping track of how many bugs are
+encountered when a particular rule is chosen. We found this to be an interesting
 approach.
 
 Sirer and Bershad\cite{Bershad1999} describe their experience with using
-production grammars in order to test software. Their paper does not exactly
+production grammars in order to test software. Their paper does not directly
 propose ways of using statistics to pick rules, though it does suggest other
-criteria you can use in order to come to a decision. The authors were working
-primarily with the Java programing language, and as such some of their ideas
-cater to Java specifics, though are nevertheless interesting enough to be
-mentioned in this paper.
+criteria that can be used in order to reach a decision. The authors were
+working primarily with the Java programing language, and as such some of their
+ideas cater to Java specifics. Nevertheless, we believe the ideas are
+interesting enough to be mentioned in this paper.
 
 One approach which Sirer and Bershad discussed was imposing a limit on how many
 times specific grammar rules can be exercised. This is especially useful in
 languages like Java that have structural limits such as code length per
 method. The authors describe another way in which this can turn out to be
 useful: if one wants to ensure that the program doesn't ``terminate early''
-(i.e. that it is of a minimum length) is to, for example, set a limit on your
-start symbol to 5000 and then a probability of zero on the production $S
-\rightarrow \lambda$. This will ``force'' a stop rather than ``naturally''
-stopping.
+(i.e. ensure that it is of some minimum length) one can, for example, set a
+limit on the start symbol to 5000 and then a probability of zero on the
+production $S \rightarrow \lambda$. This will ``force'' a stop rather than
+``naturally'' stopping.
 
 In addition to using production limits, Sirer and Bershad also mention how
 probabilities are of good use and emphasize the usefulness of separating
-probabilities from the grammar. This is effectively what we do by having
-Fuzzbuzz take a statistics table as a parameter which is distinct from the
-actual grammar file.
+probabilities from the grammar. This is what we do by having Fuzzbuzz take a
+statistics table as an argument which is distinct from the actual grammar file.
 
 Finally, Sirer and Bershad mention how in order to simplify future test
 selection and analysis, for each test case produced they create what they call
 a ``summary file'' which lists the name of the grammar rules that have rise to
-the test case.
+the test case. \\
 
 Though we did not find a paper which described conditional probabilities, we
-did implement a routine in Gramstats which outputs conditional probabilities.
-The conditional probabilities table describes what the probability of choosing a
-specific rule is given what the previous N non-terminals were that led to our
-current non-terminal. Our hypothesis was that knowing this information would
-allow us to make better choices. For example, consider the following grammar:
+did implement a routine in Gramstats\footnote{Gramstats is a separate program
+which takes in a corpus of example ASTs conforming to some grammar and outputs
+various statistics based on that corpus such as production counts and
+probabilities.} which outputs conditional probabilities. The conditional
+probabilities table describes what the probability of choosing a specific rule
+is given what the previous N non-terminals were that led to our current
+non-terminal. Our hypothesis was that knowing this information would allow us
+to make better choices. For example, consider the following grammar where
+uppercase letters are non-terminal symbols and lowercase letters are
+terminal symbols:
 
 \begin{align*}
 S &\rightarrow A \\
@@ -96,68 +95,102 @@ C &\rightarrow s B \\
 &\rightarrow q \\
 \end{align*}
 
-\noindent
-where uppercase letters are non-terminal symbols and lowercase letters are
-terminal symbols.
-
 
 In this example, one could see how the probabilities for the rules $B
 \rightarrow rC$ and $B \rightarrow r$ might differ depending on what the
-previous non-terminals were. For example, perhaps there is a much higher
-probability of choosing $B \rightarrow r$ compared to $B \rightarrow rC$ if the
-previous two non-terminals were $S$ and $A$ respectively. On the other hand, if
-we arrive at $B$ though $A$ and $C$ respectively, then perhaps there is a
-higher probability of choosing $B \rightarrow rC$ over $B \rightarrow r$.
-
-Conditional probabilities allow us to keep more context than pure production
+previously encountered non-terminals were. For example, perhaps there is a much
+higher probability of choosing $B \rightarrow r$ compared to $B \rightarrow rC$
+if the previous two non-terminals were $S$ and $A$ respectively. On the other
+hand, if we arrive at $B$ though $A$ and $C$ respectively, then perhaps there is
+a higher probability of choosing $B \rightarrow rC$ over $B \rightarrow
+r$. Conditional probabilities allow us to keep more context than pure production
 probabilities alone.
-
-It is worth noting that the more you remember (i.e. the higher N is), the more
-specific you become and thus the harder it is for Fuzzbuzz to actually be in
-that state when generating. For example, taking an arbitrary grammar, if N=2,
-then your ``memory`` could possibly be $F, R$ whereas if N=5, it could possibly
-be $F, R, G, T, Q$. You can see how it is ``easier`` to land in a state where
-your previous non-terminals are $F, R$ than $F, R, G, T, Q$. If while in some
-iteration generating output the previous non-terminals are $F, R, G, X, Q$ then
-$F, R$ passes but $F, R, G, T, Q$ does not.
 
 \subsection{Results}
 
-First, it should be noted that the CFGStats engine does not produce
+
+It should be noted that the CFGStats engine does not produce
 semantically correct output. For example, a Fuzzbuzz run using a
 grammar which described calculator input produced the following:
 
 \begin{verbatim}
-( 2.74432441811 + 1.86534745663 - < 0.424813324932 , 6.79695572322 ^
-0.285722493924 > )
+2.74432441811 - < 0.424813324932 , 6.79695572322 >
 \end{verbatim}
 
-This is trying to subtract a vector from a natural number. This is not a
+This is attempting to subtract a vector from a natural number. This is not a
 mathematically legal operation, and thus should not ever be outputted from a
-fuzzer that produces semantically correct results. However,
+fuzzer that produces semantically correct results. However, this has a
+perfectly valid parse tree. Take the following excerpt from the calculator
+grammar:
 
-There are two variants of the statistics tables: pure production probabilities
-and conditional probabilities. Each of these can be passed to Fuzzbuzz as
-arguments using the CFGStats engine. The hypothesis is that production
-probabilities do not capture the probability distribution as well as
-conditional probabilities are able to.
+\begin{verbatim}
+Expr -> Expr PLUS Term
+      | Expr DASH Term
+      | Term
+      ;
+(...)
+Factor -> Value
+        | LPAREN Expr RPAREN
+        ;
+Value -> Atom
+       | Log
+       | LSQUARE Matrix RSQUARE
+       | LANGLE Vector RANGLE
+       ;
+Atom -> NUMBER
+      ;
+Vector -> Vector COMMA Expr
+        | Expr
+        ;
+\end{verbatim}
 
-We attempt to show this result by using Fuzzbuzz's sister program, Gramstats.
-Gramstats takes in a corpus of example ASTs conforming to some grammar and
-outputs statistics based on that corpus. We first used Gramstats to produce
-statistics based on a corpus of 190 human generated examples, first using the
-production probabilities table and then using the conditional probabilities
-table.
+Various productions were not included in the above excerpt, though it should be
+clear that Expr leads to Factor. Using this grammar, the above output could
+be parsed with the following rules:
 
-Then, using each of these statistics, Fuzzbuzz is able to generate output which
-is then fed into Fuzzbuzz again, but using the AST Generation engine. This was
-done 400 times in order to generate a different corpus. Then these 400 ASTs are
-again parsed by Gramstats to get statistics on them.
+\begin{verbatim}
+Expr -> Expr DASH Term
+Expr -> Term
+(...) -> Factor
+Factor -> Value
+Value -> Atom
+Atom -> NUMBER
+Term -> (...)
+(...) -> Factor
+Factor -> Value
+Value -> LANGLE Vector RANGLE
+(...)
+\end{verbatim}
 
-This allows us to compare the statistics for natural examples with the
-statistics for artificially generated examples, which in turn used the natural
-statistics as input. Ideally, the statistics should match.
+Clearly, the grammar allows for a vector to be subtracted from a natural number
+and there is no way to avoid this by using classical context free grammars
+alone. \\
 
+
+Nevertheless, even with semantically incorrect output there remain things
+to be learned by using statistics to fuzz. There are two variants of the
+statistics tables: pure production probabilities and conditional probabilities.
+Each of these can be passed to Fuzzbuzz as arguments using the CFGStats engine.
+The hypothesis is that production probabilities do not capture the probability
+distribution as well as conditional probabilities are able to.
+
+We attempt to show this result by using Fuzzbuzz's sister program, Gramstats,
+to produce statistics based on a corpus of 190 human generated examples. Then,
+using the production and conditional probabilities from that run, Fuzzbuzz is
+able to generate output which is then fed into Fuzzbuzz again, but using the AST
+Generation engine. This was done 400 times for each statistics table in order to
+generate two different corpora. The two artificially generated corpora are then
+parsed by Gramstats to get statistics on them.
+
+In total there are three sets of example inputs: natural human input, input
+generated using production probabilities, and input generated using conditional
+probabilities. These example inputs allow us to compare the statistics for
+natural examples with the statistics for artificially generated examples (which
+in turn used the natural statistics as input). Ideally, the statistics should
+match. \\
+
+\noindent We now present a production probability histogram for each of the
+three corpora. \\
 
 \begin{figure*}
     \begin{center}
@@ -193,12 +226,16 @@ calculator program.}
 \end{figure*}
 
 
-There is no immediate difference between these three graphs. Upon closer
-inspection however, differences between the example input sets are evident. Let
-us examine the statistics for the $Exp => Exp:EXP:Unary$ rule from the
-calculator grammar.
+There is no immediate difference between these three histograms which
+suggests that Fuzzbuzz produces human-like output. Upon closer inspection
+however, differences between the example input sets become evident. Let us
+examine the statistics for the $Exp => Exp:EXP:Unary$ rule from the calculator
+grammar.
 
-The human corpus produced the following 3 conditional probabilities: \\
+The human corpus produced the following 3 conditional
+probabilities\footnote{The tables are read as follows: [history look-back
+amount], [production], [previous non-terminal], [previous non-terminal],
+[probability]}: \\
 
 \noindent
 \begin{verbatim}
@@ -255,17 +292,13 @@ the previous two non-terminals are $Expr, Term$ or $Term, Exp$ or $Term, Term$.
 On the other hand, the corpus generated with production probabilities has a
 probability for when the previous two non-terminals are $Vector, Vector$. This
 probability is at least eliminated in the corpus generated with conditional
-probabilities, though this corpus retains the probability for when the previous
-non-terminals were $Vector, Expr$. However, it has a higher probability
-than the corresponding probability in the other corpus meaning that the
-conditional probabilities table removed a $Vector, Expr$ probability for some
-other rule involving the $Exp$ non-terminal.
+probabilities.
 
-This example is particularly harsh. By examining the full tables in the
-appendix, one will realize that while the artificial examples consistently
-have additional probabilities than the human corpus, the difference is not
-always so substantial and even better, often times conditional probabilities
-will be significantly more accurate than production probabilities.
+This example is particularly harsh. By examining the full tables, one will
+realize that while the artificial examples consistently have additional
+probabilities than the human corpus, the difference is not always so substantial
+and often times conditional probabilities will be significantly more accurate
+than production probabilities.
 
 These results confirm that using conditional probabilities to generate fuzzed
 output will result in more accurate test files than if one were to use
