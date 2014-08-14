@@ -30,14 +30,50 @@ def attribute_fuzzer(rlexer, grammar, choice=None):
         #print 'filtering', rules
         for rule in rules:
             #print 'is rule unconstrainted?', rule
+            #for x in rule.pattern:
+                #print x
             if rule.action is None:
                 yield rule
             elif rule.action.unconstrained(constraint):
                 yield rule
 
-    def choose(nonterm, objs, constraint):
+    def stack_limit(rules, stack):
+        stack_search_limit = -1 * (len(grammar.rules) + 1)
+        def search(term):
+            if term.__class__ is Terminal:
+                return False
+            for (objs, rule, j, sobjs, constraint) in stack[:stack_search_limit:-1]:
+                if rule.name == term.name:
+                    return True
+            return False
+
+        if len(stack) < 10:
+            for rule in rules:
+                yield rule
+            return
+
+        rules = list(rules)
+        rule_badness = [0 for r in rules]
+
+        yield_any = False
+        for i, rule in enumerate(rules):
+            badness = 0
+            for term in rule.pattern:
+                if search(term[0]):
+                    badness += 1
+            if badness == 0:
+                yield_any = True
+                yield rule
+            rule_badness[i] = badness
+
+        if yield_any:
+            return
+
+        yield min(zip(rule_badness, rules), key=lambda arg: arg[0])[1]
+
+    def choose(nonterm, objs, constraint, stack):
         #print 'choosing ->', nonterm, constraint, objs
-        rules = list(filter(objs, nonterm.rules, constraint))
+        rules = list(stack_limit(filter(objs, nonterm.rules, constraint), stack))
         #print 'allowed rules for', nonterm.name, rules
         rule = choice(rules)
         #print 'chose', rule
@@ -62,7 +98,7 @@ def attribute_fuzzer(rlexer, grammar, choice=None):
 
     def fuzz(start):
         stack = list()
-        trule, tobjs, first_constraint = choose(start, dict(), TrueConstraint())
+        trule, tobjs, first_constraint = choose(start, dict(), TrueConstraint(), stack)
         #print cobjs, id(cobjs)
         stack.append((tobjs, trule, 0, list(), first_constraint))
         while stack:
@@ -81,8 +117,7 @@ def attribute_fuzzer(rlexer, grammar, choice=None):
                     )
                     #print '--->', constraint
                     crule, cobjs, new_constraint = \
-                                  choose(sym, objs[(sym.name, cnt)], constraint)
-                    #print cobjs, constraint
+                                  choose(sym, objs[(sym.name, cnt)], constraint, stack) #print cobjs, constraint
                     #print 'found rule for', rule, display(objs)
                     stack.append((objs, rule, i+1, sobjs, constraint))
                     stack.append((cobjs, crule, 0, list(), new_constraint))

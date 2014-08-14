@@ -1,0 +1,18 @@
+/* A grammar for the simple matrix calculator.
+ *
+ */
+
+Expr -> Expr PLUS Term
+      | Expr DASH Term
+      | Term
+      ;
+
+Term -> Term STAR Factor
+      | Term SLASH Factor
+      | Factor
+      ;
+
+Factor -> NUMBER
+        | LPAREN Expr RPAREN
+        ;
+
