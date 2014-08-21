@@ -10,7 +10,7 @@ from ply.lex import Token
 reserved = dict(
     (word, word.upper()) for word in (
         'Action', 'Condition', 'else', 'if', 'in', 'not', 'proper', 'subset',
-        'superset', 'with', 'None', 'is',
+        'superset', 'with', 'None', 'is', 'dict',
     )
 )
 
@@ -18,7 +18,7 @@ tokens = reserved.values() + [
     'ARROW', 'AND', 'COMMA', 'DASH', 'DOT', 'EQEQ', 'EQUAL', 'GE',
     'LANGLE', 'LCURLY', 'LE', 'LPAREN', 'LSQUARE', 'NQ', 'OR', 'PIPE', 'PLUS',
     'RANGLE', 'RCURLY', 'RPAREN', 'RSQUARE', 'SEMI', 'SLASH', 'STAR', 'STRING',
-    'NAME', 'NUMBER', 'AMPERSTAND', 'BANG', 'TERMINAL', 'TILDE',
+    'NAME', 'NUMBER', 'AMPERSTAND', 'BANG', 'TERMINAL', 'TILDE', 'COLON'
 ]
 
 # Common Regex Parts
@@ -45,7 +45,7 @@ class Lexer(object):
     t_AMPERSTAND = r'&'
     t_ARROW = r'->'
     t_BANG = r'!'
-    #t_COLON = r':'
+    t_COLON = r':'
     t_COMMA = r','
     t_DASH = r'-'
     t_DOT = r'\.'

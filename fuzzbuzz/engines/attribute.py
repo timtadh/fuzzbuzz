@@ -75,6 +75,8 @@ def attribute_fuzzer(rlexer, grammar, choice=None):
         #print 'choosing ->', nonterm, constraint, objs
         rules = list(stack_limit(filter(objs, nonterm.rules, constraint), stack))
         #print 'allowed rules for', nonterm.name, rules
+        if len(rules) == 0 :
+            raise Exception, "unsat"
         rule = choice(rules)
         #print 'chose', rule
         cobjs = rule.mknamespace(objs)

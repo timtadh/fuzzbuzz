@@ -10,7 +10,7 @@ class Type(object):
         elif isinstance(obj, int): return Number
         elif isinstance(obj, set): return Set
         elif isinstance(obj, tuple): return Set
-        elif isinstance(obj, dict): return Dict
+        elif isinstance(obj, dict): return Namespace
         elif isinstance(obj, NoneType): return NoneType
         raise RuntimeError, "Obj did not map to any type %s" % str(obj)
 

@@ -22,8 +22,13 @@ class BinOp(Value):
     def _get_ab(self, objs):
         a = self.a.value(objs)
         b = self.b.value(objs)
-        assert isinstance(a, self._expected_type)
-        assert isinstance(b, self._expected_type)
+        if isinstance(self._expected_type, tuple):
+            assert isinstance(a, b.__class__)
+            assert isinstance(b, a.__class__)
+            assert any(isinstance(a, opt) for opt in self._expected_type)
+        else:
+            assert isinstance(a, self._expected_type)
+            assert isinstance(b, self._expected_type)
         return a,b
 
     @abc.abstractmethod
@@ -41,7 +46,7 @@ class BinOp(Value):
 class SetOp(BinOp):
 
     def __init__(self, a,b):
-        super(SetOp, self).__init__(a,b,set)
+        super(SetOp, self).__init__(a,b,(set,dict))
 
     def type(self, objs):
         return Set
@@ -56,6 +61,11 @@ class Union(SetOp):
 
     def value(self, objs):
         a,b = self._get_ab(objs)
+        if isinstance(a, dict):
+            r = dict()
+            r.update(a)
+            r.update(b)
+            return r
         return a | b
 
     def satisfiable(self, objs, answer):
@@ -89,12 +99,24 @@ class Intersection(SetOp):
 
     def value(self, objs):
         a,b = self._get_ab(objs)
+        if isinstance(a, dict):
+            r = dict()
+            for (k, v) in a.iteritems():
+                if k in b:
+                    r[k] = v
+            return r
         return a & b
 
 class Difference(SetOp):
 
     def value(self, objs):
         a,b = self._get_ab(objs)
+        if isinstance(a, dict):
+            r = dict()
+            for (k, v) in a.iteritems():
+                if k not in b:
+                    r[k] = v
+            return r
         return a - b
 
 

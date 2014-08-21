@@ -163,6 +163,7 @@ class Assign(AbstractAction):
         if left and right:
             assert self.left.value(objs) == self.right.value(objs)
             return
+        #print self.left, self.right
         ## right should always have a value (this will raise unbound
         ## value error if it doesn't)
         self.left.set_value(objs, self.right.value(objs))

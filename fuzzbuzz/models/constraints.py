@@ -205,6 +205,7 @@ class MultiValueConstraint(Constraint):
         )
 
     def produce(self, obj):
+        return set(self.values), True
         if self.obj == obj:
             return set(self.values), True
         else:

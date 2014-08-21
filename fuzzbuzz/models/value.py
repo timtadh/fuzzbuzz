@@ -6,7 +6,7 @@
 
 import functools
 
-from attr_types import Set, String
+from attr_types import Set, Namespace, String
 from constraints import *
 
 class UnboundValueError(RuntimeError): pass
@@ -105,3 +105,36 @@ class SetValue(Value):
 
     def set_value(self, objs, value):
         self.values = tuple(val for val in value)
+
+class DictValue(Value):
+
+    def __init__(self, values):
+        self.values = values
+        self.__type = Namespace
+
+    def replace(self, from_sym, to_sym):
+        return DictValue([
+          (
+            (key.replace(from_sym, to_sym) if isinstance(key, Value) else key),
+            (val.replace(from_sym, to_sym) if isinstance(val, Value) else val),
+          )
+          for (key,val) in self.values
+        ])
+
+    def allows(self, type):
+        return True
+
+    def make_constraint(self, objs, value, type):
+        return TrueConstraint()
+
+    def value(self, objs):
+        return dict(
+            (
+              (key.value(objs) if isinstance(key, Value) else key),
+              (val.value(objs) if isinstance(val, Value) else val),
+            )
+            for (key,val) in self.values
+        )
+
+    def set_value(self, objs, value):
+        self.values = tuple((key,val) for (key,val) in value)

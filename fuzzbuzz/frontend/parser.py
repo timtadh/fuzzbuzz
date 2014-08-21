@@ -220,11 +220,11 @@ class Parser(object):
         'SetOps : SetOps AMPERSTAND AddSub'
         t[0] = binop.Intersection(t[1], t[3])
 
-    def p_SetOps2(self, t):
+    def p_SetOps3(self, t):
         'SetOps : SetOps TILDE AddSub'
         t[0] = binop.Difference(t[1], t[3])
 
-    def p_SetOps3(self, t):
+    def p_SetOps4(self, t):
         'SetOps : AddSub'
         t[0] = t[1]
 
@@ -279,6 +279,10 @@ class Parser(object):
     def p_Value5(self, t):
         'Value : AttributeValue'
         t[0] = attribute.AttrChain(t[1])
+
+    def p_Value6(self, t):
+        'Value : DictLiteral'
+        t[0] = value.DictValue(t[1].children)
 
     def p_AttributeValue(self, t):
         'AttributeValue : SymbolObject AttributeValue_'
@@ -346,6 +350,22 @@ class Parser(object):
     def p_SetLiteral2(self, t):
         'SetLiteral : LCURLY RCURLY'
         t[0] = Node('SetLiteral')
+
+    def p_DictLiteral1(self, t):
+        'DictLiteral : DICT LCURLY DictList RCURLY'
+        t[0] = Node('DictLiteral', children=t[3])
+
+    def p_DictLiteral2(self, t):
+        'DictLiteral : DICT LCURLY RCURLY'
+        t[0] = Node('DictLiteral')
+
+    def p_DictList1(self, t):
+        'DictList : ParameterList COMMA Value COLON Value'
+        t[0] = t[1] + [(t[3], t[5])]
+
+    def p_DictList2(self, t):
+        'DictList : Value COLON Value'
+        t[0] = [(t[1], t[3])]
 
     def p_error(self, t):
         raise SyntaxError, "Syntax error at '%s', %s.%s" % (t,t.lineno,t.lexpos)
